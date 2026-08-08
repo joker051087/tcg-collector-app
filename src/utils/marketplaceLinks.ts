@@ -15,16 +15,30 @@ function buildQuery(card: UnifiedCard): string {
   return card.number ? `${card.name} ${card.number}` : card.name;
 }
 
+// Pokémon/Magic/Yu-Gi-Oh! ont été vérifiés en conditions réelles par
+// l'utilisateur (voir historique). Les 4 nouveaux jeux ci-dessous sont des
+// noms de catégorie plausibles (conventions habituelles de ces sites) mais
+// PAS vérifiés en direct — Cardmarket bloque nos outils de vérification
+// automatique (voir tentatives précédentes). À tester une fois déployé ; si
+// un lien tombe à côté, il suffit de corriger la valeur ici.
 const CARDMARKET_GAME_PATHS: Record<UnifiedCard["game"], string> = {
   pokemon: "Pokemon",
   magic: "Magic",
   yugioh: "YuGiOh",
+  onepiece: "OnePiece",
+  lorcana: "Lorcana",
+  riftbound: "Riftbound",
+  dragonball: "DragonBallSuper",
 };
 
 const TCGPLAYER_GAME_PATHS: Record<UnifiedCard["game"], string> = {
   pokemon: "pokemon",
   magic: "magic",
   yugioh: "yugioh",
+  onepiece: "one-piece-card-game",
+  lorcana: "lorcana",
+  riftbound: "riftbound",
+  dragonball: "dragon-ball-super",
 };
 
 export const MARKETPLACE_LINKS: MarketplaceLink[] = [

@@ -1,6 +1,7 @@
 import { Game, UnifiedCard } from "../types";
 import { fetchWithRetry } from "../utils/fetchWithRetry";
 import { API_BASE_URL } from "../config/api";
+import { TCGAPI_SLUG } from "../constants/tcgApiSlugs";
 
 // Produits scellés (coffrets, displays, boosters...) via tcgapi.dev — voir
 // server/index.js, route /proxy/sealed/search, pour le contexte (TCGplayer a
@@ -39,7 +40,8 @@ export async function searchSealedProducts(game: Game, query: string): Promise<U
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const url = `${BASE_URL}/search?game=${encodeURIComponent(game)}&q=${encodeURIComponent(trimmed)}`;
+  const slug = TCGAPI_SLUG[game];
+  const url = `${BASE_URL}/search?game=${encodeURIComponent(slug)}&q=${encodeURIComponent(trimmed)}`;
   const res = await fetchWithRetry(url);
   if (!res.ok) {
     throw new Error(`Produits scellés (tcgapi.dev) erreur : ${res.status}`);

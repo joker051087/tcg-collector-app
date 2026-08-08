@@ -5,7 +5,12 @@
 // collection, calcul de valeur) n'ait jamais besoin de savoir de quel jeu
 // vient une carte.
 
-export type Game = "pokemon" | "magic" | "yugioh";
+// onepiece/lorcana/riftbound/dragonball : pas d'API dédiée gratuite comme
+// pokemontcg.io/Scryfall/YGOPRODeck pour ces jeux, on passe donc par
+// tcgapi.dev pour les 4 (voir src/api/tcgApiGames.ts et
+// src/constants/tcgApiSlugs.ts pour la correspondance avec les "slugs"
+// attendus par ce service).
+export type Game = "pokemon" | "magic" | "yugioh" | "onepiece" | "lorcana" | "riftbound" | "dragonball";
 
 export interface UnifiedCard {
   id: string;

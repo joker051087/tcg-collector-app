@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { SearchStackParamList } from "../navigation/types";
 import { searchCards, searchSealedProducts, SearchMode } from "../api";
 import { Game, UnifiedCard } from "../types";
-import { GAME_LABELS, GAME_PLACEHOLDER_KEYS, SUPPORTED_GAMES } from "../constants/games";
+import { GAME_LABELS, GAME_PLACEHOLDER_KEYS, SUPPORTED_GAMES, TCGAPI_GAMES } from "../constants/games";
 import { useSettingsStore } from "../store/settingsStore";
 import CardListItem from "../components/CardListItem";
 import SelectableChips from "../components/SelectableChips";
@@ -47,6 +47,16 @@ export default function SearchScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // tcgapi.dev (One Piece, Lorcana, Riftbound, Dragon Ball) n'a pas de filtre
+  // par numéro de carte — voir src/api/tcgApiGames.ts. Le sélecteur
+  // Nom/Numéro est masqué pour ces jeux (plus bas), on force donc le mode à
+  // "name" pour éviter un mode "number" fantôme si l'utilisateur avait changé
+  // de mode avant de changer de jeu.
+  const isTcgApiGame = TCGAPI_GAMES.includes(game);
+
+  useEffect(() => {
+    if (isTcgApiGame && mode !== "name") setMode("name");
+  }, [isTcgApiGame, mode]);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -99,7 +109,7 @@ export default function SearchScreen({ navigation }: Props) {
         />
       </View>
 
-      {resultType === "cards" && (
+      {resultType === "cards" && !isTcgApiGame && (
         <View style={styles.modeSelector}>
           <SelectableChips
             options={SEARCH_MODES}
@@ -146,10 +156,12 @@ export default function SearchScreen({ navigation }: Props) {
               navigation.navigate("CardDetail", {
                 game,
                 cardId: item.id,
-                // Un produit scellé n'a pas de fiche à re-charger (voir
-                // navigation/types.ts) — on transmet directement le résultat
-                // de recherche déjà complet.
-                presetCard: resultType === "sealed" ? item : undefined,
+                // On a déjà toutes les infos depuis la recherche — inutile de
+                // les re-charger via getCardById (voir navigation/types.ts).
+                // Indispensable pour les produits scellés et les nouveaux TCG
+                // via tcgapi.dev (id propres à ce service), et ça évite un
+                // appel réseau superflu pour les autres.
+                presetCard: item,
               })
             }
           />

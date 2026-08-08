@@ -3,14 +3,18 @@
 Prototype cliquable pour une app de gestion de collection TCG (comme Collectr), construit
 avec **React Native + Expo** pour tourner sur iOS, Android et Web depuis un seul codebase.
 
-Ce prototype couvre trois jeux : **Pokémon**, **Magic: The Gathering** et **Yu-Gi-Oh!**
-(la "vague 1" du plan, `Plan_App_TCG.md`). Chaque jeu utilise son API gratuite dédiée :
+Ce prototype couvre sept jeux : **Pokémon**, **Magic: The Gathering**, **Yu-Gi-Oh!**, **One
+Piece**, **Lorcana**, **Riftbound** et **Dragon Ball** (Fusion World). Les trois premiers
+("vague 1" du plan, `Plan_App_TCG.md`) utilisent chacun leur API gratuite dédiée ; les quatre
+derniers ("vague 2") n'ont pas d'équivalent gratuit dédié et passent donc par **tcgapi.dev**,
+le même service tiers déjà utilisé pour les produits scellés (voir plus bas) :
 
 | Jeu | Source | Doc |
 |---|---|---|
 | Pokémon | pokemontcg.io | https://docs.pokemontcg.io/ |
 | Magic | Scryfall | https://scryfall.com/docs/api |
 | Yu-Gi-Oh! | YGOPRODeck | https://ygoprodeck.com/api-guide/ |
+| One Piece, Lorcana, Riftbound, Dragon Ball | tcgapi.dev | https://tcgapi.dev/introduction |
 
 Toutes les cartes, quel que soit le jeu, sont ramenées à un même format commun
 (`UnifiedCard`, voir `src/types/index.ts`) avant d'arriver dans l'UI — la recherche, la fiche
@@ -18,8 +22,8 @@ carte et l'écran collection n'ont donc pas besoin de savoir de quel jeu vient u
 
 ## Fonctionnalités incluses
 
-- Recherche de cartes par nom, avec un sélecteur Pokémon / Magic / Yu-Gi-Oh! en haut de l'écran
-- **Recherche par numéro de carte** (en plus du nom) pour les 3 jeux — voir `src/api/*.ts`,
+- Recherche de cartes par nom, avec un sélecteur des 7 jeux en haut de l'écran
+- **Recherche par numéro de carte** (en plus du nom) pour Pokémon/Magic/Yu-Gi-Oh! — voir `src/api/*.ts`,
   fonctions `searchCardsByNumber`. Pour Yu-Gi-Oh!, qui n'a pas de filtre par numéro côté
   YGOPRODeck, le backend télécharge et met en cache la base complète puis filtre lui-même
   (route `/proxy/yugioh/by-number`, voir `server/index.js`). Tape aussi un code de set/série
@@ -213,11 +217,22 @@ tcg-collector-app/
 
 ### Ajouter un nouveau jeu
 
-Pour brancher un jeu supplémentaire (ex. One Piece, Lorcana) : créer `src/api/monJeu.ts` avec
-les fonctions `searchCards(query)` et `getCardById(id)` qui retournent des `UnifiedCard`, puis
-l'enregistrer dans `src/api/index.ts` et dans `Game`/`GAME_LABELS` (`src/types/index.ts` et
-`src/constants/games.ts`). Prévoir aussi les clés `search.placeholderXxx` dans chaque fichier
-de `src/i18n/locales/`.
+Deux cas de figure :
+
+- **Le jeu est couvert par tcgapi.dev** (liste complète sur https://tcgapi.dev/games — la
+  plupart des jeux physiques le sont) : c'est le chemin le plus rapide, pas besoin de nouveau
+  client API. Ajouter le jeu dans `Game` (`src/types/index.ts`), `TCGAPI_SLUG`
+  (`src/constants/tcgApiSlugs.ts` — le "slug" exact est visible dans l'URL de la page du jeu
+  sur tcgapi.dev/games), `SUPPORTED_GAMES`/`TCGAPI_GAMES`/`GAME_LABELS`/`GAME_PLACEHOLDER_KEYS`
+  (`src/constants/games.ts`), les clés `search.placeholderXxx` dans chaque fichier de
+  `src/i18n/locales/`, et les entrées correspondantes dans `CARDMARKET_GAME_PATHS`/
+  `TCGPLAYER_GAME_PATHS` (`src/utils/marketplaceLinks.ts`, à vérifier en conditions réelles).
+  Aucune modification de `src/api/tcgApiGames.ts` ni du backend n'est nécessaire.
+- **Le jeu a une API gratuite dédiée** (comme Pokémon/Magic/Yu-Gi-Oh!) : créer
+  `src/api/monJeu.ts` avec les fonctions `searchCards(query)` et `getCardById(id)` qui
+  retournent des `UnifiedCard`, ajouter les routes `/proxy/monjeu/...` correspondantes dans
+  `server/index.js`, puis enregistrer le tout dans `src/api/index.ts` et dans
+  `Game`/`GAME_LABELS` (mêmes fichiers que ci-dessus).
 
 ### Ajouter une langue ou une devise
 
@@ -234,9 +249,9 @@ Conformément au plan produit, ces points sont prévus pour les versions suivant
   l'instant en local sur ton PC, à côté d'Expo. Avant une vraie mise en prod, il faudra le
   déployer sur un hébergeur (Render, Railway...) pour qu'il soit accessible sans dépendre du
   même réseau Wi-Fi que le téléphone.
-- **Multi-TCG large** — seuls Pokémon, Magic et Yu-Gi-Oh! sont branchés (vague 1 du plan). La
-  vague 2 (Dragon Ball, Star Wars Unlimited, Flesh and Blood...) et un pricing multi-jeux plus
-  riche (JustTCG, PriceCharting pour le gradé) sont prévus ensuite.
+- **Multi-TCG** — Pokémon, Magic, Yu-Gi-Oh!, One Piece, Lorcana, Riftbound et Dragon Ball sont
+  branchés. D'autres jeux (Star Wars: Unlimited, Flesh and Blood, Digimon...) peuvent être
+  ajoutés facilement via tcgapi.dev, qui les couvre déjà tous (voir "Ajouter un nouveau jeu").
 - **Scan photo de carte** — prévu en V2, volontairement pas dans ce prototype (c'est le point
   le plus complexe techniquement et le principal point faible constaté chez Collectr).
 - **Comptes utilisateurs / synchronisation cloud** — la collection est stockée uniquement en

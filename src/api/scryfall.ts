@@ -120,19 +120,21 @@ export async function listSets(): Promise<UnifiedSet[]> {
     throw new Error(`Scryfall API error: ${res.status} ${body}`);
   }
   const json = await res.json();
+  // Contrairement aux cartes (voir RawScryfallCard plus haut), les objets
+  // "set" de Scryfall n'ont PAS de champ "games" — on distingue le papier du
+  // numérique via "digital" (true pour Arena/MTGO uniquement). Bug initial ici
+  // : filtrer sur un champ "games" inexistant excluait silencieusement TOUTES
+  // les séries (tableau vide -> .includes toujours false).
   const raw = (json.data ?? []) as {
     code: string;
     name: string;
     card_count?: number;
     set_type?: string;
-    games?: string[];
+    digital?: boolean;
     released_at?: string;
   }[];
   return raw
-    .filter(
-      (s) =>
-        (s.games ?? []).includes("paper") && s.set_type !== "token" && s.set_type !== "memorabilia"
-    )
+    .filter((s) => !s.digital && s.set_type !== "token" && s.set_type !== "memorabilia")
     .sort((a, b) => (b.released_at ?? "").localeCompare(a.released_at ?? ""))
     .map((s) => ({ id: s.code, game: "magic" as const, name: s.name, cardCount: s.card_count }));
 }

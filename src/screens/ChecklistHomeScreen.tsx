@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
@@ -7,6 +7,7 @@ import { listSets } from "../api";
 import { Game, UnifiedSet } from "../types";
 import { GAME_LABELS, SUPPORTED_GAMES } from "../constants/games";
 import SelectableChips from "../components/SelectableChips";
+import { usePortfolioStore } from "../store/portfolioStore";
 
 type Props = NativeStackScreenProps<ChecklistStackParamList, "ChecklistHome">;
 
@@ -21,6 +22,23 @@ export default function ChecklistHomeScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
+  const portfolioItems = usePortfolioStore((state) => state.items);
+
+  // % de possession par série, calculé uniquement à partir de la collection
+  // déjà en mémoire (aucun appel réseau supplémentaire — voir demande
+  // utilisateur : un % par série dans la liste ne doit pas ralentir le
+  // chargement). On compte les cartes possédées par nom de série plutôt que
+  // par id, car UnifiedCard ne stocke que setName (le nom affiché, ex "Écarlate
+  // et Violet 151") — pas l'id interne du set. Ce nom vient de la même API que
+  // la liste des séries, donc la correspondance est fiable en pratique.
+  const ownedCountBySetName = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const item of portfolioItems) {
+      if (item.card.game !== game) continue;
+      counts.set(item.card.setName, (counts.get(item.card.setName) ?? 0) + 1);
+    }
+    return counts;
+  }, [portfolioItems, game]);
 
   useEffect(() => {
     let cancelled = false;
@@ -72,21 +90,35 @@ export default function ChecklistHomeScreen({ navigation }: Props) {
         data={filteredSets}
         keyExtractor={(item, index) => `${item.id}-${item.name}-${index}`}
         keyboardShouldPersistTaps="handled"
-        renderItem={({ item }) => (
-          <Pressable
-            style={styles.row}
-            onPress={() =>
-              navigation.navigate("SetChecklist", { game, setId: item.id, setName: item.name })
-            }
-          >
-            <Text style={styles.rowName} numberOfLines={1}>
-              {item.name}
-            </Text>
-            {item.cardCount != null && (
-              <Text style={styles.rowCount}>{t("checklist.cardsCount", { count: item.cardCount })}</Text>
-            )}
-          </Pressable>
-        )}
+        renderItem={({ item }) => {
+          const owned = Math.min(ownedCountBySetName.get(item.name) ?? 0, item.cardCount ?? Infinity);
+          const percent =
+            item.cardCount && item.cardCount > 0 ? Math.round((owned / item.cardCount) * 100) : null;
+          return (
+            <Pressable
+              style={styles.row}
+              onPress={() =>
+                navigation.navigate("SetChecklist", { game, setId: item.id, setName: item.name })
+              }
+            >
+              <View style={styles.rowInfo}>
+                <Text style={styles.rowName} numberOfLines={1}>
+                  {item.name}
+                </Text>
+                {item.cardCount != null && (
+                  <Text style={styles.rowCount}>
+                    {t("checklist.cardsCount", { count: item.cardCount })}
+                  </Text>
+                )}
+              </View>
+              {percent != null && (
+                <Text style={[styles.percentBadge, percent >= 100 && styles.percentBadgeComplete]}>
+                  {percent}%
+                </Text>
+              )}
+            </Pressable>
+          );
+        }}
       />
     </View>
   );
@@ -128,15 +160,28 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "#2a2a2a",
   },
-  rowName: {
+  rowInfo: {
     flex: 1,
+    marginRight: 8,
+  },
+  rowName: {
     fontSize: 15,
     fontWeight: "600",
     color: "#f3f4f6",
-    marginRight: 8,
   },
   rowCount: {
     fontSize: 12,
     color: "#9ca3af",
+    marginTop: 2,
+  },
+  percentBadge: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#9ca3af",
+    minWidth: 42,
+    textAlign: "right",
+  },
+  percentBadgeComplete: {
+    color: "#34d399",
   },
 });

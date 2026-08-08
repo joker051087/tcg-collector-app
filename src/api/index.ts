@@ -1,9 +1,11 @@
 import { Game, UnifiedCard, UnifiedSet } from "../types";
 import { LanguageCode } from "../i18n";
+import { TCGAPI_GAMES } from "../constants/games";
 import * as pokemonApi from "./pokemonTcg";
 import * as magicApi from "./scryfall";
 import * as yugiohApi from "./ygoprodeck";
 import * as sealedApi from "./sealedProducts";
+import * as tcgApiGamesApi from "./tcgApiGames";
 
 export type SearchMode = "name" | "number";
 
@@ -25,7 +27,11 @@ export async function searchCards(
   uiLanguage?: LanguageCode,
   mode: SearchMode = "name"
 ): Promise<UnifiedCard[]> {
-  if (mode === "number") {
+  // tcgapi.dev (One Piece, Lorcana, Riftbound, Dragon Ball) n'a pas de filtre
+  // par numéro de carte — l'écran Recherche masque déjà le mode "Numéro" pour
+  // ces jeux (voir SearchScreen.tsx), mais on se rabat proprement sur la
+  // recherche par nom si jamais mode="number" arrive quand même ici.
+  if (mode === "number" && !TCGAPI_GAMES.includes(game)) {
     switch (game) {
       case "pokemon":
         return pokemonApi.searchCardsByNumber(query);
@@ -43,6 +49,11 @@ export async function searchCards(
       return magicApi.searchCards(query);
     case "yugioh":
       return yugiohApi.searchCards(query);
+    case "onepiece":
+    case "lorcana":
+    case "riftbound":
+    case "dragonball":
+      return tcgApiGamesApi.searchCards(game, query);
   }
 }
 
@@ -64,6 +75,11 @@ export async function listSets(game: Game): Promise<UnifiedSet[]> {
       return magicApi.listSets();
     case "yugioh":
       return yugiohApi.listSets();
+    case "onepiece":
+    case "lorcana":
+    case "riftbound":
+    case "dragonball":
+      return tcgApiGamesApi.listSets(game);
   }
 }
 
@@ -75,6 +91,11 @@ export async function fetchSetCards(game: Game, setId: string): Promise<UnifiedC
       return magicApi.fetchCardsBySetCode(setId);
     case "yugioh":
       return yugiohApi.fetchCardsBySetCode(setId);
+    case "onepiece":
+    case "lorcana":
+    case "riftbound":
+    case "dragonball":
+      return tcgApiGamesApi.fetchCardsBySetId(game, setId);
   }
 }
 
@@ -86,5 +107,10 @@ export async function getCardById(game: Game, id: string): Promise<UnifiedCard> 
       return magicApi.getCardById(id);
     case "yugioh":
       return yugiohApi.getCardById(id);
+    case "onepiece":
+    case "lorcana":
+    case "riftbound":
+    case "dragonball":
+      return tcgApiGamesApi.getCardById(game, id);
   }
 }

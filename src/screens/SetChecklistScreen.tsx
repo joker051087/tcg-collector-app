@@ -58,6 +58,7 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
   const ownedCount = cards.filter((c) => ownedIds.has(c.id)).length;
   const total = cards.length;
   const progressRatio = total > 0 ? ownedCount / total : 0;
+  const percent = Math.round(progressRatio * 100);
 
   if (loading) {
     return (
@@ -79,7 +80,7 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
     <View style={styles.container}>
       <View style={styles.progressSection}>
         <Text style={styles.progressText}>
-          {t("checklist.progress", { owned: ownedCount, total })}
+          {t("checklist.progress", { owned: ownedCount, total, percent })}
         </Text>
         <View style={styles.progressBarTrack}>
           <View style={[styles.progressBarFill, { width: `${Math.round(progressRatio * 100)}%` }]} />

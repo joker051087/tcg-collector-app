@@ -354,6 +354,75 @@ app.get("/proxy/sealed/search", async (req, res) => {
   });
 });
 
+// --- Autres TCG (One Piece, Lorcana, Riftbound, Dragon Ball...) via
+// tcgapi.dev — mêmes clé/service que les produits scellés plus haut, mais
+// pour des cartes normales cette fois (type=Cards). Ces jeux n'ont pas d'API
+// dédiée gratuite comme pokemontcg.io/Scryfall/YGOPRODeck, d'où le recours au
+// même service tiers pour tout, voir src/api/tcgApiGames.ts côté client.
+app.get("/proxy/tcgapi/cards/search", async (req, res) => {
+  const { q, game } = req.query;
+  if (!q || !game) return res.status(400).json({ error: "Paramètres q et game requis" });
+  if (!TCGAPI_KEY) {
+    return res.status(501).json({
+      error: "TCGAPI_KEY non configurée côté serveur — voir server/.env.example",
+    });
+  }
+  const url = `https://api.tcgapi.dev/v1/search?q=${encodeURIComponent(q)}&game=${encodeURIComponent(
+    game
+  )}&type=${encodeURIComponent("Cards")}&per_page=50`;
+  await proxyJson(res, {
+    cacheKey: `tcgapi-cards:${game}:${q}`,
+    upstreamUrl: url,
+    upstreamInit: { headers: { "X-API-Key": TCGAPI_KEY } },
+    ttlMs: TTL.sealed,
+  });
+});
+
+app.get("/proxy/tcgapi/cards/:id", async (req, res) => {
+  if (!TCGAPI_KEY) {
+    return res.status(501).json({
+      error: "TCGAPI_KEY non configurée côté serveur — voir server/.env.example",
+    });
+  }
+  await proxyJson(res, {
+    cacheKey: `tcgapi-card:${req.params.id}`,
+    upstreamUrl: `https://api.tcgapi.dev/v1/cards/${encodeURIComponent(req.params.id)}`,
+    upstreamInit: { headers: { "X-API-Key": TCGAPI_KEY } },
+    ttlMs: TTL.cards,
+  });
+});
+
+// Liste des séries d'un jeu (écran Checklist) — endpoint public de tcgapi.dev
+// (pas besoin de clé), on le met quand même en cache côté serveur pour
+// cohérence avec le reste de l'app.
+app.get("/proxy/tcgapi/games/:slug/sets", async (req, res) => {
+  await proxyJson(res, {
+    cacheKey: `tcgapi-sets:${req.params.slug}`,
+    upstreamUrl: `https://api.tcgapi.dev/v1/games/${encodeURIComponent(req.params.slug)}/sets?per_page=100`,
+    ttlMs: TTL.setsList,
+  });
+});
+
+// Toutes les cartes d'une série (écran Checklist), avec pagination — voir
+// src/api/tcgApiGames.ts, fetchCardsBySetId, qui enchaîne les pages tant que
+// meta.has_more est vrai (jusqu'à une limite raisonnable).
+app.get("/proxy/tcgapi/sets/:id/cards", async (req, res) => {
+  if (!TCGAPI_KEY) {
+    return res.status(501).json({
+      error: "TCGAPI_KEY non configurée côté serveur — voir server/.env.example",
+    });
+  }
+  const page = req.query.page || "1";
+  await proxyJson(res, {
+    cacheKey: `tcgapi-set-cards:${req.params.id}:${page}`,
+    upstreamUrl: `https://api.tcgapi.dev/v1/sets/${encodeURIComponent(
+      req.params.id
+    )}/cards?per_page=100&page=${encodeURIComponent(page)}`,
+    upstreamInit: { headers: { "X-API-Key": TCGAPI_KEY } },
+    ttlMs: TTL.sealed,
+  });
+});
+
 app.get("/health", (req, res) => res.json({ ok: true, cache: cacheStats() }));
 
 app.listen(PORT, () => {
