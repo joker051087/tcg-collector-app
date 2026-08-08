@@ -93,3 +93,26 @@ export async function getCardById(id: string): Promise<UnifiedCard> {
   const json = (await res.json()) as RawScryfallCard;
   return toUnifiedCard(json);
 }
+
+// Recherche par numéro de collection (ex : "1" pour le Black Lotus dans
+// Vintage Cube). "cn:" est le champ Scryfall pour le collector number ; sans
+// filtre de set, un même numéro existe dans beaucoup d'éditions différentes.
+export async function searchCardsByNumber(query: string): Promise<UnifiedCard[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const q = encodeURIComponent(`cn:${trimmed} game:paper`);
+  const url = `${BASE_URL}/cards?q=${q}`;
+
+  const res = await fetchWithRetry(url);
+  if (res.status === 404) {
+    return [];
+  }
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Scryfall API error: ${res.status} ${body}`);
+  }
+  const json = await res.json();
+  const cards = (json.data ?? []) as RawScryfallCard[];
+  return cards.map(toUnifiedCard);
+}

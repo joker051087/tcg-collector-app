@@ -28,6 +28,7 @@ const TTL = {
   cards: 60 * 60 * 1000, // 1h — recherche/fiche carte (catalogue + prix)
   exchangeRates: 24 * 60 * 60 * 1000, // 24h
   pokemonNames: 7 * 24 * 60 * 60 * 1000, // 7 jours — les noms Pokémon changent rarement
+  yugiohFullDb: 24 * 60 * 60 * 1000, // 24h — gros téléchargement (base complète), pas la peine plus souvent
 };
 
 async function fetchWithRetry(url, init, retries = 2, delayMs = 500) {
@@ -153,6 +154,57 @@ app.get("/proxy/yugioh/cards", async (req, res) => {
     upstreamUrl: `https://db.ygoprodeck.com/api/v7/cardinfo.php?${params}`,
     ttlMs: TTL.cards,
   });
+});
+
+// YGOPRODeck n'a pas de paramètre de recherche par "numéro/code de set" (ex :
+// "SDY-006") sur son endpoint de recherche classique. En revanche, appeler
+// cardinfo.php SANS aucun paramètre renvoie la base complète (~13 000
+// cartes) — comportement documenté par YGOPRODeck pour les exports en masse.
+// On la met en cache 24h et on filtre nous-mêmes par code de set à chaque
+// requête, ce qui évite de re-télécharger ~10 Mo à chaque recherche.
+async function fetchAllYugiohCards() {
+  const cacheKey = "yugioh:all";
+  const cached = getCached(cacheKey);
+  if (cached) return { cards: cached, hit: true };
+
+  const upstreamRes = await fetchWithRetry("https://db.ygoprodeck.com/api/v7/cardinfo.php");
+  if (!upstreamRes.ok) {
+    throw new Error(`YGOPRODeck API error: ${upstreamRes.status}`);
+  }
+  const json = await upstreamRes.json();
+  const cards = json.data ?? [];
+  setCached(cacheKey, cards, TTL.yugiohFullDb);
+  return { cards, hit: false };
+}
+
+app.get("/proxy/yugioh/by-number", async (req, res) => {
+  const code = req.query.code;
+  if (!code) return res.status(400).json({ error: "Paramètre code requis" });
+
+  try {
+    const { cards: allCards, hit } = await fetchAllYugiohCards();
+    const needle = String(code).trim().toLowerCase();
+
+    const matches = [];
+    for (const card of allCards) {
+      const sets = card.card_sets ?? [];
+      const matchedSet = sets.find((s) => (s.set_code || "").toLowerCase().includes(needle));
+      if (matchedSet) {
+        // Remonte le set correspondant en tête de liste : le client affiche
+        // toujours card_sets[0] pour le nom d'édition/numéro d'une carte.
+        matches.push({
+          ...card,
+          card_sets: [matchedSet, ...sets.filter((s) => s !== matchedSet)],
+        });
+      }
+    }
+
+    res.set("X-Cache", hit ? "HIT" : "MISS");
+    return res.json({ data: matches });
+  } catch (err) {
+    console.error("Erreur proxy yugioh/by-number:", err.message);
+    return res.status(502).json({ error: "Erreur de communication avec YGOPRODeck" });
+  }
 });
 
 // --- Taux de change (open.er-api.com) ---

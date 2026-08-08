@@ -14,7 +14,10 @@
     "emptyResults": "Nessuna carta {{game}} trovata per «{{query}}».",
     "placeholderPokemon": "Cerca una carta Pokémon (es: Charizard)",
     "placeholderMagic": "Cerca una carta Magic (es: Black Lotus)",
-    "placeholderYugioh": "Cerca una carta Yu-Gi-Oh! (es: Dark Magician)"
+    "placeholderYugioh": "Cerca una carta Yu-Gi-Oh! (es: Dark Magician)",
+    "modeName": "Nome",
+    "modeNumber": "Numero",
+    "placeholderNumber": "Numero della carta (es: 4/102, SDY-006...)"
   },
   "cardDetail": {
     "title": "Dettaglio carta",

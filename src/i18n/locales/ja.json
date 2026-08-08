@@ -14,7 +14,10 @@
     "emptyResults": "「{{query}}」に一致する{{game}}のカードが見つかりません。",
     "placeholderPokemon": "ポケモンカードを検索(例:リザードン)",
     "placeholderMagic": "マジックカードを検索(例:Black Lotus)",
-    "placeholderYugioh": "遊戯王カードを検索(例:ブラック・マジシャン)"
+    "placeholderYugioh": "遊戯王カードを検索(例:ブラック・マジシャン)",
+    "modeName": "名前",
+    "modeNumber": "番号",
+    "placeholderNumber": "カード番号(例:4/102、SDY-006...)"
   },
   "cardDetail": {
     "title": "カード詳細",

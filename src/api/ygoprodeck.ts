@@ -75,3 +75,21 @@ export async function getCardById(id: string): Promise<UnifiedCard> {
   }
   return toUnifiedCard(card);
 }
+
+// YGOPRODeck n'a pas de filtre par numéro/code de set sur son endpoint de
+// recherche classique. Le backend (server/) télécharge et met en cache la
+// base complète, puis filtre par code de set (ex : "SDY-006") — voir
+// server/index.js, route /proxy/yugioh/by-number.
+export async function searchCardsByNumber(query: string): Promise<UnifiedCard[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const url = `${BASE_URL}/by-number?code=${encodeURIComponent(trimmed)}`;
+  const res = await fetchWithRetry(url);
+  if (!res.ok) {
+    throw new Error(`YGOPRODeck API error: ${res.status}`);
+  }
+  const json = await res.json();
+  const cards = (json.data ?? []) as RawYugiohCard[];
+  return cards.map(toUnifiedCard);
+}

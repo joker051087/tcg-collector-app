@@ -14,7 +14,10 @@
     "emptyResults": "Aucune carte {{game}} trouvée pour « {{query}} ».",
     "placeholderPokemon": "Rechercher une carte Pokémon (ex : Dracaufeu)",
     "placeholderMagic": "Rechercher une carte Magic (ex : Black Lotus)",
-    "placeholderYugioh": "Rechercher une carte Yu-Gi-Oh! (ex : Dark Magician)"
+    "placeholderYugioh": "Rechercher une carte Yu-Gi-Oh! (ex : Dark Magician)",
+    "modeName": "Nom",
+    "modeNumber": "Numéro",
+    "placeholderNumber": "Numéro de la carte (ex : 4/102, SDY-006...)"
   },
   "cardDetail": {
     "title": "Détail de la carte",

@@ -14,7 +14,10 @@
     "emptyResults": "Keine {{game}}-Karte für „{{query}}“ gefunden.",
     "placeholderPokemon": "Pokémon-Karte suchen (z. B. Glurak)",
     "placeholderMagic": "Magic-Karte suchen (z. B. Black Lotus)",
-    "placeholderYugioh": "Yu-Gi-Oh!-Karte suchen (z. B. Dark Magician)"
+    "placeholderYugioh": "Yu-Gi-Oh!-Karte suchen (z. B. Dark Magician)",
+    "modeName": "Name",
+    "modeNumber": "Nummer",
+    "placeholderNumber": "Kartennummer (z. B. 4/102, SDY-006...)"
   },
   "cardDetail": {
     "title": "Kartendetails",

@@ -120,3 +120,24 @@ export async function getCardById(id: string): Promise<UnifiedCard> {
   const json = await res.json();
   return toUnifiedCard(json.data as RawPokemonCard);
 }
+
+// Recherche par numéro de carte (ex : "4" pour Charizard #4/102 dans Base
+// Set). Le champ "number" de pokemontcg.io est le numéro tel qu'imprimé sur
+// la carte (souvent juste la partie avant le "/"). Comme un même numéro
+// existe dans des dizaines de sets différents, les résultats peuvent être
+// nombreux — pas de filtre par set dans cette première version.
+export async function searchCardsByNumber(query: string): Promise<UnifiedCard[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const q = encodeURIComponent(`number:"${trimmed}"`);
+  const url = `${BASE_URL}/cards?q=${q}`;
+
+  const res = await fetchWithRetry(url);
+  if (!res.ok) {
+    throw new Error(`Pokemon TCG API error: ${res.status}`);
+  }
+  const json = await res.json();
+  const cards = (json.data ?? []) as RawPokemonCard[];
+  return cards.map(toUnifiedCard);
+}
