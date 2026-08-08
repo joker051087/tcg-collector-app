@@ -51,6 +51,21 @@ export async function searchSealedProducts(game: Game, query: string): Promise<U
   return items.map((item) => toUnifiedCard(item, game));
 }
 
+// Certains noms de série contiennent déjà de la ponctuation décorative (ex
+// "Extra Booster: One Piece Heroines Edition" ou "Premium Booster -The
+// Best- Vol. 2") qui casse la recherche tcgapi.dev : une requête avec les
+// deux-points ou les tirets ne renvoie AUCUN résultat, alors que la même
+// requête sans cette ponctuation en renvoie (vérifié en comparant avec la
+// recherche officielle TCGplayer, qui l'ignore). On nettoie donc le nom
+// avant de l'envoyer à la recherche.
+function sanitizeSearchQuery(name: string): string {
+  return name
+    .replace(/:/g, " ")
+    .replace(/-/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 // Parmi les produits scellés retournés pour une série, choisit celui qui
 // correspond le mieux au "booster" au sens visuel courant — le simple
 // paquet, pas la boîte ni la caisse. TCGplayer nomme presque toujours ce
@@ -77,7 +92,7 @@ function pickBoosterImage(items: UnifiedCard[]): string | undefined {
 // serveur.
 export async function findSetBoosterImage(game: Game, setName: string): Promise<string | undefined> {
   try {
-    const items = await searchSealedProducts(game, setName);
+    const items = await searchSealedProducts(game, sanitizeSearchQuery(setName));
     if (items.length === 0) return undefined;
     return pickBoosterImage(items);
   } catch {
