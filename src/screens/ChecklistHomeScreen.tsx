@@ -1,16 +1,21 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { ChecklistStackParamList } from "../navigation/types";
 import { listSets } from "../api";
+import { findSetBoosterImage } from "../api/sealedProducts";
 import { Game, UnifiedSet } from "../types";
-import { GAME_LABELS, SUPPORTED_GAMES } from "../constants/games";
+import { GAME_LABELS, SUPPORTED_GAMES, TCGAPI_GAMES } from "../constants/games";
 import SelectableChips from "../components/SelectableChips";
 import GameLogo from "../components/GameLogo";
 import { usePortfolioStore } from "../store/portfolioStore";
 
 type Props = NativeStackScreenProps<ChecklistStackParamList, "ChecklistHome">;
+
+// En dehors du composant : FlatList veut un objet stable (sinon avertissement
+// "changing viewabilityConfig on the fly is not supported").
+const VIEWABILITY_CONFIG = { itemVisiblePercentThreshold: 40 };
 
 // Écran 1/2 de la Checklist : choisir un jeu, puis une série dans la liste
 // (recherche par nom en filtrant côté client — la liste complète des séries
@@ -24,6 +29,36 @@ export default function ChecklistHomeScreen({ navigation }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
   const portfolioItems = usePortfolioStore((state) => state.items);
+
+  // Image "générique" d'une série (voir tcgApiGames.ts, listSets) parfois
+  // trompeuse — pas forcément le booster (peut être une carte au hasard).
+  // On va chercher le vrai visuel du booster à la demande, uniquement pour
+  // les séries qui défilent réellement à l'écran (voir onViewabledItemsChanged
+  // plus bas) : faire ça pour les 70+ séries d'un jeu d'un coup dépasserait
+  // largement la quota tcgapi.dev (100 requêtes/jour, partagée par toute
+  // l'app) — voir aussi SetChecklistScreen.tsx pour le même principe.
+  const [boosterImages, setBoosterImages] = useState<Record<string, string>>({});
+  const fetchedSetIds = useRef<Set<string>>(new Set());
+  const gameRef = useRef(game);
+  useEffect(() => {
+    gameRef.current = game;
+    fetchedSetIds.current = new Set();
+    setBoosterImages({});
+  }, [game]);
+
+  const handleViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: { item: UnifiedSet }[] }) => {
+      const currentGame = gameRef.current;
+      if (!TCGAPI_GAMES.includes(currentGame)) return;
+      for (const { item } of viewableItems) {
+        if (fetchedSetIds.current.has(item.id)) continue;
+        fetchedSetIds.current.add(item.id);
+        findSetBoosterImage(currentGame, item.name).then((url) => {
+          if (url) setBoosterImages((prev) => ({ ...prev, [item.id]: url }));
+        });
+      }
+    }
+  ).current;
 
   // % de possession par série, calculé uniquement à partir de la collection
   // déjà en mémoire (aucun appel réseau supplémentaire — voir demande
@@ -91,10 +126,13 @@ export default function ChecklistHomeScreen({ navigation }: Props) {
         data={filteredSets}
         keyExtractor={(item, index) => `${item.id}-${item.name}-${index}`}
         keyboardShouldPersistTaps="handled"
+        onViewableItemsChanged={handleViewableItemsChanged}
+        viewabilityConfig={VIEWABILITY_CONFIG}
         renderItem={({ item }) => {
           const owned = Math.min(ownedCountBySetName.get(item.name) ?? 0, item.cardCount ?? Infinity);
           const percent =
             item.cardCount && item.cardCount > 0 ? Math.round((owned / item.cardCount) * 100) : null;
+          const boosterImage = boosterImages[item.id];
           return (
             <Pressable
               style={styles.row}
@@ -103,11 +141,16 @@ export default function ChecklistHomeScreen({ navigation }: Props) {
                   game,
                   setId: item.id,
                   setName: item.name,
-                  setImageUrl: item.imageUrl,
+                  setImageUrl: boosterImage ?? item.imageUrl,
                 })
               }
             >
-              <GameLogo game={game} uri={item.imageUrl} size={36} />
+              <GameLogo
+                game={game}
+                uri={boosterImage ?? item.imageUrl}
+                size={36}
+                shape={TCGAPI_GAMES.includes(game) ? "square" : "circle"}
+              />
               <View style={styles.rowInfo}>
                 <Text style={styles.rowName} numberOfLines={1}>
                   {item.name}
