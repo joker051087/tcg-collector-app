@@ -37,7 +37,6 @@ const TTL = {
   pokemonSets: 30 * 24 * 60 * 60 * 1000, // 30 jours — la liste des sets ne change qu'à chaque sortie
   sealed: 12 * 60 * 60 * 1000, // 12h — tcgapi.dev ne met à jour ses prix qu'une fois par jour
   setsList: 30 * 24 * 60 * 60 * 1000, // 30 jours — liste des séries par jeu (écran Checklist)
-  sealedForSet: 90 * 24 * 60 * 60 * 1000, // 90 jours — visuel de boîte/booster d'une série, ne change jamais une fois sorti
 };
 
 async function fetchWithRetry(url, init, retries = 2, delayMs = 500) {
@@ -395,7 +394,11 @@ app.get("/proxy/tcgapi/cards/:id", async (req, res) => {
 
 // Liste des séries d'un jeu (écran Checklist) — endpoint public de tcgapi.dev
 // (pas besoin de clé), on le met quand même en cache côté serveur pour
-// cohérence avec le reste de l'app.
+// cohérence avec le reste de l'app. Renvoie aussi, par série, image_url
+// (photo du booster/display quand ce set en a un) et set_icon_url (petite
+// icône, quasi toujours présente) — non documentés sur tcgapi.dev/api/sets
+// mais bien présents dans la réponse réelle (vérifié le 08/08/2026 sur
+// plusieurs jeux) ; passthrough côté client, voir tcgApiGames.ts, listSets.
 app.get("/proxy/tcgapi/games/:slug/sets", async (req, res) => {
   await proxyJson(res, {
     cacheKey: `tcgapi-sets:${req.params.slug}`,
@@ -421,40 +424,6 @@ app.get("/proxy/tcgapi/sets/:id/cards", async (req, res) => {
     )}/cards?per_page=100&page=${encodeURIComponent(page)}`,
     upstreamInit: { headers: { "X-API-Key": TCGAPI_KEY } },
     ttlMs: TTL.sealed,
-  });
-});
-
-// Visuel (booster box / display / deck) d'UNE série précise, pour illustrer
-// l'écran Checklist d'une série côté app (voir SetChecklistScreen.tsx) —
-// tcgapi.dev n'a pas d'image de série au sens strict (voir /v1/sets/:id),
-// mais ses "Sealed Products" (déjà utilisés ailleurs, voir /proxy/sealed/
-// search) ont une image, et on peut les filtrer précisément par set_id. Le
-// paramètre q reste requis par tcgapi.dev (min 2 caractères) : on lui passe
-// le nom de la série, qui apparaît presque toujours dans le nom du produit
-// scellé associé (ex "One Piece TCG: Romance Dawn Booster Box").
-//
-// Appelé à la demande (une seule série à la fois, pas toute la liste) et mis
-// en cache 90 jours : la quota tcgapi.dev est partagée par toute l'app
-// (100 requêtes/jour en offre gratuite), on évite donc tout appel en masse
-// (ex: précharger l'image de toutes les séries d'un jeu d'un coup).
-app.get("/proxy/tcgapi/sealed-for-set", async (req, res) => {
-  const { game, setId, q } = req.query;
-  if (!game || !setId || !q) {
-    return res.status(400).json({ error: "Paramètres game, setId et q requis" });
-  }
-  if (!TCGAPI_KEY) {
-    return res.status(501).json({
-      error: "TCGAPI_KEY non configurée côté serveur — voir server/.env.example",
-    });
-  }
-  const url =
-    `https://api.tcgapi.dev/v1/search?q=${encodeURIComponent(q)}&game=${encodeURIComponent(game)}` +
-    `&set_id=${encodeURIComponent(setId)}&type=${encodeURIComponent("Sealed Products")}&per_page=5`;
-  await proxyJson(res, {
-    cacheKey: `tcgapi-sealed-for-set:${game}:${setId}`,
-    upstreamUrl: url,
-    upstreamInit: { headers: { "X-API-Key": TCGAPI_KEY } },
-    ttlMs: TTL.sealedForSet,
   });
 });
 

@@ -5,7 +5,6 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { ChecklistStackParamList } from "../navigation/types";
 import { fetchSetCards } from "../api";
-import { getSealedImageForSet } from "../api/tcgApiGames";
 import { UnifiedCard } from "../types";
 import { usePortfolioStore } from "../store/portfolioStore";
 import GameLogo from "../components/GameLogo";
@@ -24,27 +23,10 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const portfolioItems = usePortfolioStore((state) => state.items);
-  // One Piece n'a pas d'image de série via tcgapi.dev (contrairement à
-  // Pokémon/Magic) — on va chercher le visuel de son booster/display à la
-  // demande, uniquement pour la série ouverte (voir tcgApiGames.ts,
-  // getSealedImageForSet, sur pourquoi ce n'est PAS fait pour toute la liste
-  // d'un coup : quota tcgapi.dev partagé par toute l'app).
-  const [boosterImageUrl, setBoosterImageUrl] = useState<string | undefined>(setImageUrl);
 
   useEffect(() => {
     navigation.setOptions({ title: setName });
   }, [navigation, setName]);
-
-  useEffect(() => {
-    if (game !== "onepiece" || setImageUrl) return;
-    let cancelled = false;
-    getSealedImageForSet(game, setId, setName).then((url) => {
-      if (!cancelled && url) setBoosterImageUrl(url);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [game, setId, setName, setImageUrl]);
 
   useEffect(() => {
     let cancelled = false;
@@ -101,9 +83,8 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
         <View style={styles.progressHeader}>
           <GameLogo
             game={game}
-            uri={boosterImageUrl}
-            size={game === "onepiece" ? 56 : 40}
-            shape={game === "onepiece" ? "square" : "circle"}
+            uri={setImageUrl}
+            size={40}
           />
           <View style={styles.progressTextBlock}>
             <Text style={styles.progressText}>

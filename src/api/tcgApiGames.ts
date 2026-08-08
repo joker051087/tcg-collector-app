@@ -26,6 +26,15 @@ interface RawTcgApiSet {
   name: string;
   card_count?: number;
   released_at?: string;
+  // Non documentés sur tcgapi.dev/api/sets (la doc publique ne liste que
+  // id/name/slug/abbreviation/release_date/card_count) mais bien présents
+  // dans la réponse réelle de /v1/games/:slug/sets, vérifié en direct sur
+  // plusieurs jeux (One Piece, Lorcana) le 08/08/2026. image_url est la
+  // photo produit (booster/display) quand ce set en a un ; set_icon_url est
+  // une petite icône toujours présente. On garde les deux comme fallback l'un
+  // de l'autre pour illustrer la Checklist (voir listSets ci-dessous).
+  image_url?: string | null;
+  set_icon_url?: string | null;
 }
 
 // Les id renvoyés par tcgapi.dev sont numériques et propres au service — on
@@ -88,36 +97,13 @@ export async function listSets(game: Game): Promise<UnifiedSet[]> {
   const raw = (json.data ?? []) as RawTcgApiSet[];
   return raw
     .sort((a, b) => (b.released_at ?? "").localeCompare(a.released_at ?? ""))
-    .map((s) => ({ id: String(s.id), game, name: s.name, cardCount: s.card_count }));
-}
-
-// Visuel d'une série précise (booster box / display / deck), pour illustrer
-// l'écran Checklist d'une série (voir SetChecklistScreen.tsx). tcgapi.dev n'a
-// pas d'image de série au sens strict — on se sert de ses "Sealed Products"
-// (déjà utilisés par ailleurs, voir sealedProducts.ts), filtrés précisément
-// par set_id côté serveur (voir /proxy/tcgapi/sealed-for-set). Volontairement
-// appelé une série à la fois (jamais en boucle sur toute une liste) : la
-// quota tcgapi.dev (100 requêtes/jour en offre gratuite) est partagée par
-// toute l'app, un appel par série ouverte reste raisonnable, en boucler 70+
-// d'un coup ne le serait pas.
-export async function getSealedImageForSet(
-  game: Game,
-  setId: string,
-  setName: string
-): Promise<string | undefined> {
-  const slug = TCGAPI_SLUG[game];
-  const url = `${BASE_URL}/sealed-for-set?game=${encodeURIComponent(slug)}&setId=${encodeURIComponent(
-    setId
-  )}&q=${encodeURIComponent(setName)}`;
-  try {
-    const res = await fetchWithRetry(url);
-    if (!res.ok) return undefined;
-    const json = await res.json();
-    const items = (json.data ?? []) as { image_url?: string }[];
-    return items[0]?.image_url;
-  } catch {
-    return undefined;
-  }
+    .map((s) => ({
+      id: String(s.id),
+      game,
+      name: s.name,
+      cardCount: s.card_count,
+      imageUrl: s.image_url ?? s.set_icon_url ?? undefined,
+    }));
 }
 
 // Toutes les cartes d'une série (écran Checklist), avec pagination — 3 pages
