@@ -94,15 +94,42 @@ export async function getCardById(id: string): Promise<UnifiedCard> {
   return toUnifiedCard(json);
 }
 
-// Recherche par numéro de collection (ex : "1" pour le Black Lotus dans
-// Vintage Cube). "cn:" est le champ Scryfall pour le collector number ; sans
-// filtre de set, un même numéro existe dans beaucoup d'éditions différentes.
-export async function searchCardsByNumber(query: string): Promise<UnifiedCard[]> {
-  const trimmed = query.trim();
-  if (!trimmed) return [];
+// Trois formats reconnus (comme pour Pokémon, voir pokemonTcg.ts) :
+//   - "42"       -> numéro de collection seul
+//   - "WAR 42"   -> code de set + numéro
+//   - "WAR"      -> code de set seul (parcourt tout le set)
+// Les codes de set Scryfall peuvent contenir des chiffres (ex "2xm", "40k"),
+// et certains numéros de collection ont un suffixe lettre (ex "42a") — d'où
+// des regex un peu plus permissives que côté Pokémon.
+type ParsedMagicQuery =
+  | { type: "number"; number: string; setCode?: string }
+  | { type: "set"; setCode: string };
 
-  const q = encodeURIComponent(`cn:${trimmed} game:paper`);
-  const url = `${BASE_URL}/cards?q=${q}`;
+function parseMagicNumberQuery(raw: string): ParsedMagicQuery | null {
+  const trimmed = raw.trim();
+
+  const withNumber = trimmed.match(/^(?:([a-zA-Z0-9]{2,6})\s+)?(\d+[a-zA-Z]?)$/);
+  if (withNumber) {
+    const [, setCode, number] = withNumber;
+    return { type: "number", number, setCode: setCode?.toLowerCase() };
+  }
+
+  const setOnly = trimmed.match(/^[a-zA-Z0-9]{2,6}$/);
+  if (setOnly) {
+    return { type: "set", setCode: trimmed.toLowerCase() };
+  }
+
+  return null;
+}
+
+async function fetchCardsByFilter(
+  filter: string,
+  options?: { order?: string; dir?: string }
+): Promise<UnifiedCard[]> {
+  const params = new URLSearchParams({ q: filter });
+  if (options?.order) params.set("order", options.order);
+  if (options?.dir) params.set("dir", options.dir);
+  const url = `${BASE_URL}/cards?${params.toString()}`;
 
   const res = await fetchWithRetry(url);
   if (res.status === 404) {
@@ -115,4 +142,29 @@ export async function searchCardsByNumber(query: string): Promise<UnifiedCard[]>
   const json = await res.json();
   const cards = (json.data ?? []) as RawScryfallCard[];
   return cards.map(toUnifiedCard);
+}
+
+// Recherche par numéro de collection, ou par set entier si seul un code de
+// set est tapé (ex : "WAR" liste tout War of the Spark). "cn:" est le champ
+// Scryfall pour le collector number, "set:" pour le code de set ; sans
+// filtre de set, un même numéro existe dans beaucoup d'éditions différentes.
+export async function searchCardsByNumber(query: string): Promise<UnifiedCard[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const parsed = parseMagicNumberQuery(trimmed);
+
+  if (parsed?.type === "set") {
+    // "order=set" trie par set puis par numéro de collection à l'intérieur
+    // du set — parcours naturel pour browser une édition entière.
+    return fetchCardsByFilter(`set:${parsed.setCode} game:paper`, { order: "set", dir: "asc" });
+  }
+
+  const parts = [`cn:${parsed?.type === "number" ? parsed.number : trimmed}`];
+  if (parsed?.type === "number" && parsed.setCode) {
+    parts.push(`set:${parsed.setCode}`);
+  }
+  parts.push("game:paper");
+
+  return fetchCardsByFilter(parts.join(" "));
 }

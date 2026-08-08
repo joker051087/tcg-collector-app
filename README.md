@@ -22,7 +22,8 @@ carte et l'écran collection n'ont donc pas besoin de savoir de quel jeu vient u
 - **Recherche par numéro de carte** (en plus du nom) pour les 3 jeux — voir `src/api/*.ts`,
   fonctions `searchCardsByNumber`. Pour Yu-Gi-Oh!, qui n'a pas de filtre par numéro côté
   YGOPRODeck, le backend télécharge et met en cache la base complète puis filtre lui-même
-  (route `/proxy/yugioh/by-number`, voir `server/index.js`)
+  (route `/proxy/yugioh/by-number`, voir `server/index.js`). Tape aussi un code de set/série
+  seul (ex : "SFA" en Pokémon, "WAR" en Magic, "SDY" en Yu-Gi-Oh!) pour parcourir tout le set
 - Fiche carte avec **prix marché** et **prix net réaliste** (après frais de revente estimés
   ~13%) — c'est le principal point de différenciation identifié face à Collectr
 - Ajout manuel à la collection avec **état (condition)**, quantité, et type (brute / gradée /

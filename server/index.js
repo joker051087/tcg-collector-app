@@ -129,11 +129,16 @@ const SCRYFALL_HEADERS = {
 app.get("/proxy/magic/cards", async (req, res) => {
   const q = req.query.q;
   if (!q) return res.status(400).json({ error: "Paramètre q requis" });
+  // order/dir passthrough : "order=set" est utilisé pour parcourir un set
+  // entier (recherche par code de set seul) dans l'ordre des numéros de
+  // collection, plutôt que le tri par date de sortie utilisé par défaut.
+  const order = req.query.order || "released";
+  const dir = req.query.dir || "asc";
   const url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(
     q
-  )}&unique=cards&order=released&dir=asc`;
+  )}&unique=cards&order=${encodeURIComponent(order)}&dir=${encodeURIComponent(dir)}`;
   await proxyJson(res, {
-    cacheKey: `magic:search:${q}`,
+    cacheKey: `magic:search:${q}:${order}:${dir}`,
     upstreamUrl: url,
     upstreamInit: { headers: SCRYFALL_HEADERS },
     ttlMs: TTL.cards,
