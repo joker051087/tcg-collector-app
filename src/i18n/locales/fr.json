@@ -6,6 +6,7 @@
   },
   "tabs": {
     "search": "Recherche",
+    "checklist": "Checklist",
     "portfolio": "Ma collection",
     "settings": "Réglages"
   },
@@ -68,5 +69,15 @@
     "title": "Réglages",
     "language": "Langue",
     "currency": "Devise"
+  },
+  "checklist": {
+    "title": "Checklist",
+    "searchSetPlaceholder": "Rechercher une série...",
+    "cardsCount": "{{count}} cartes",
+    "progress": "{{owned}}/{{total}} possédées",
+    "owned": "Possédée",
+    "missing": "Manquante",
+    "errorLoadingSets": "Impossible de charger les séries.",
+    "errorLoadingSet": "Impossible de charger cette série."
   }
 }

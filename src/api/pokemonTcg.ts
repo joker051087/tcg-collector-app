@@ -1,4 +1,4 @@
-import { UnifiedCard } from "../types";
+import { UnifiedCard, UnifiedSet } from "../types";
 import { LanguageCode } from "../i18n";
 import { fetchWithRetry } from "../utils/fetchWithRetry";
 import { POKEAPI_LANGUAGE_CODES } from "../constants/pokeApiLanguages";
@@ -121,6 +121,27 @@ export async function searchCards(query: string, uiLanguage?: LanguageCode): Pro
     }
   }
   return merged;
+}
+
+// Liste complète des séries Pokémon, pour l'écran Checklist. `id` renvoyé ici
+// est l'identifiant interne pokemontcg.io (ex "sv4pt5"), à ne pas confondre
+// avec ptcgoCode (ex "PAF") utilisé ailleurs pour la recherche par numéro —
+// voir fetchCardsBySetId ci-dessous, qui filtre directement par cet id.
+export async function listSets(): Promise<UnifiedSet[]> {
+  const res = await fetchWithRetry(`${BASE_URL}/sets/all`);
+  if (!res.ok) {
+    throw new Error(`Pokemon TCG API error: ${res.status}`);
+  }
+  const json = await res.json();
+  const sets = (json.data ?? []) as { id: string; name: string; total?: number }[];
+  return sets.map((s) => ({ id: s.id, game: "pokemon" as const, name: s.name, cardCount: s.total }));
+}
+
+// Toutes les cartes d'une série (écran Checklist) — filtre par set.id, qui
+// contrairement à set.ptcgoCode est toujours renseigné sur chaque carte (voir
+// note sur resolveSetId plus haut).
+export async function fetchCardsBySetId(setId: string): Promise<UnifiedCard[]> {
+  return fetchCardsByFilter(`set.id:"${setId}"`, { pageSize: 250, orderBy: "number" });
 }
 
 export async function getCardById(id: string): Promise<UnifiedCard> {

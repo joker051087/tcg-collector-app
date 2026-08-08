@@ -6,6 +6,7 @@
   },
   "tabs": {
     "search": "Pesquisa",
+    "checklist": "Checklist",
     "portfolio": "A minha coleção",
     "settings": "Definições"
   },
@@ -68,5 +69,15 @@
     "title": "Definições",
     "language": "Idioma",
     "currency": "Moeda"
+  },
+  "checklist": {
+    "title": "Checklist",
+    "searchSetPlaceholder": "Pesquisar uma série...",
+    "cardsCount": "{{count}} cartas",
+    "progress": "{{owned}}/{{total}} obtidas",
+    "owned": "Obtida",
+    "missing": "Em falta",
+    "errorLoadingSets": "Não foi possível carregar as séries.",
+    "errorLoadingSet": "Não foi possível carregar esta série."
   }
 }

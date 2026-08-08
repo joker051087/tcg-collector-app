@@ -6,6 +6,7 @@
   },
   "tabs": {
     "search": "検索",
+    "checklist": "チェックリスト",
     "portfolio": "マイコレクション",
     "settings": "設定"
   },
@@ -68,5 +69,15 @@
     "title": "設定",
     "language": "言語",
     "currency": "通貨"
+  },
+  "checklist": {
+    "title": "チェックリスト",
+    "searchSetPlaceholder": "シリーズを検索...",
+    "cardsCount": "{{count}}枚",
+    "progress": "{{owned}}/{{total}} 所持",
+    "owned": "所持",
+    "missing": "未所持",
+    "errorLoadingSets": "シリーズを読み込めませんでした。",
+    "errorLoadingSet": "このシリーズを読み込めませんでした。"
   }
 }

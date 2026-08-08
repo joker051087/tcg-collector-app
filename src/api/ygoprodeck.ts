@@ -1,4 +1,4 @@
-import { UnifiedCard } from "../types";
+import { UnifiedCard, UnifiedSet } from "../types";
 import { fetchWithRetry } from "../utils/fetchWithRetry";
 import { resolveEurPriceAsUsd } from "../utils/marketPrice";
 import { API_BASE_URL } from "../config/api";
@@ -105,4 +105,36 @@ export async function searchCardsByNumber(query: string): Promise<UnifiedCard[]>
   const json = await res.json();
   const cards = (json.data ?? []) as RawYugiohCard[];
   return cards.map(toUnifiedCard);
+}
+
+// Liste complète des séries Yu-Gi-Oh!, pour l'écran Checklist. YGOPRODeck
+// renvoie directement un tableau (pas de wrapper "data"). Note : certains
+// set_code sont réutilisés par plusieurs séries différentes côté YGOPRODeck
+// (ex plusieurs vagues de coffrets "Collectible Tins" partageant le même
+// code) — l'affichage (ChecklistHomeScreen) doit en tenir compte pour ses
+// clés de liste, la recherche par set_code ci-dessous reste correcte pour
+// autant (elle renverra alors les cartes des séries qui partagent ce code).
+export async function listSets(): Promise<UnifiedSet[]> {
+  const url = `${BASE_URL}/sets`;
+  const res = await fetchWithRetry(url);
+  if (!res.ok) {
+    throw new Error(`YGOPRODeck API error: ${res.status}`);
+  }
+  const json = await res.json();
+  const raw = (Array.isArray(json) ? json : []) as {
+    set_name: string;
+    set_code: string;
+    num_of_cards?: number;
+    tcg_date?: string;
+  }[];
+  return raw
+    .filter((s) => s.set_code)
+    .sort((a, b) => (b.tcg_date ?? "").localeCompare(a.tcg_date ?? ""))
+    .map((s) => ({ id: s.set_code, game: "yugioh" as const, name: s.set_name, cardCount: s.num_of_cards }));
+}
+
+// Toutes les cartes d'une série (écran Checklist) — même route que la
+// recherche par set/code seul (voir searchCardsByNumber ci-dessus).
+export async function fetchCardsBySetCode(setCode: string): Promise<UnifiedCard[]> {
+  return searchCardsByNumber(setCode);
 }

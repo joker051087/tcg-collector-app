@@ -6,6 +6,7 @@
   },
   "tabs": {
     "search": "Buscar",
+    "checklist": "Checklist",
     "portfolio": "Mi colección",
     "settings": "Ajustes"
   },
@@ -68,5 +69,15 @@
     "title": "Ajustes",
     "language": "Idioma",
     "currency": "Moneda"
+  },
+  "checklist": {
+    "title": "Checklist",
+    "searchSetPlaceholder": "Buscar una serie...",
+    "cardsCount": "{{count}} cartas",
+    "progress": "{{owned}}/{{total}} obtenidas",
+    "owned": "Obtenida",
+    "missing": "Falta",
+    "errorLoadingSets": "No se pudieron cargar las series.",
+    "errorLoadingSet": "No se pudo cargar esta serie."
   }
 }

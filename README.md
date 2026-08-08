@@ -45,6 +45,10 @@ carte et l'écran collection n'ont donc pas besoin de savoir de quel jeu vient u
   automatique — bascule "Cartes / Produits scellés" en haut de l'écran Recherche. Les données
   viennent de tcgapi.dev (voir section "Clés API" : TCGplayer, la source la plus logique, a
   fermé son API officielle aux nouveaux développeurs en 2024)
+- **Checklist par série** (nouvel onglet) : choisis un jeu puis une série, l'app liste toutes
+  ses cartes et indique lesquelles sont déjà dans ta collection ("Possédée"/"Manquante") avec
+  un compteur de progression — pratique pour savoir ce qu'il te reste à trouver pour compléter
+  un set. Tape directement sur une carte manquante pour l'ajouter à ta collection
 
 ## Installation
 

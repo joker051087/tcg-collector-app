@@ -21,6 +21,20 @@ export interface UnifiedCard {
   marketPriceUsd?: number;
 }
 
+// Une série/set (ex "Écarlate et Violet 151", "War of the Spark") — utilisé
+// par l'écran Checklist pour lister les séries d'un jeu, puis afficher les
+// cartes possédées/manquantes une fois une série choisie. `id` est
+// l'identifiant à passer à fetchSetCards (src/api/index.ts) : différent selon
+// le jeu (id interne pokemontcg.io, code Scryfall, set_code YGOPRODeck), pas
+// forcément unique en tant que clé d'affichage à lui seul (voir usage dans
+// ChecklistHomeScreen).
+export interface UnifiedSet {
+  id: string;
+  game: Game;
+  name: string;
+  cardCount?: number;
+}
+
 export type CardCondition =
   | "Mint"
   | "Near Mint"

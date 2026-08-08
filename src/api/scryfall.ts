@@ -1,4 +1,4 @@
-import { UnifiedCard } from "../types";
+import { UnifiedCard, UnifiedSet } from "../types";
 import { fetchWithRetry } from "../utils/fetchWithRetry";
 import { resolveEurPriceAsUsd } from "../utils/marketPrice";
 import { API_BASE_URL } from "../config/api";
@@ -107,6 +107,39 @@ export async function getCardById(id: string): Promise<UnifiedCard> {
   }
   const json = (await res.json()) as RawScryfallCard;
   return toUnifiedCard(json);
+}
+
+// Liste complète des séries Magic, pour l'écran Checklist. On ne garde que
+// les éditions papier "normales" (pas les tokens/memorabilia, qui n'ont pas
+// vraiment de "checklist" au sens collection), triées de la plus récente à
+// la plus ancienne.
+export async function listSets(): Promise<UnifiedSet[]> {
+  const res = await fetchWithRetry(`${BASE_URL}/sets`);
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Scryfall API error: ${res.status} ${body}`);
+  }
+  const json = await res.json();
+  const raw = (json.data ?? []) as {
+    code: string;
+    name: string;
+    card_count?: number;
+    set_type?: string;
+    games?: string[];
+    released_at?: string;
+  }[];
+  return raw
+    .filter(
+      (s) =>
+        (s.games ?? []).includes("paper") && s.set_type !== "token" && s.set_type !== "memorabilia"
+    )
+    .sort((a, b) => (b.released_at ?? "").localeCompare(a.released_at ?? ""))
+    .map((s) => ({ id: s.code, game: "magic" as const, name: s.name, cardCount: s.card_count }));
+}
+
+// Toutes les cartes d'une série (écran Checklist).
+export async function fetchCardsBySetCode(setCode: string): Promise<UnifiedCard[]> {
+  return fetchCardsByFilter(`set:${setCode} game:paper`, { order: "set", dir: "asc" });
 }
 
 // Trois formats reconnus (comme pour Pokémon, voir pokemonTcg.ts) :

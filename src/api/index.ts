@@ -1,4 +1,4 @@
-import { Game, UnifiedCard } from "../types";
+import { Game, UnifiedCard, UnifiedSet } from "../types";
 import { LanguageCode } from "../i18n";
 import * as pokemonApi from "./pokemonTcg";
 import * as magicApi from "./scryfall";
@@ -51,6 +51,31 @@ export async function searchCards(
 // sealedProducts.ts.
 export async function searchSealedProducts(game: Game, query: string): Promise<UnifiedCard[]> {
   return sealedApi.searchSealedProducts(game, query);
+}
+
+// Écran Checklist : liste des séries d'un jeu, puis toutes les cartes d'une
+// série donnée (pour comparer avec la collection possédée, voir
+// src/screens/SetChecklistScreen.tsx).
+export async function listSets(game: Game): Promise<UnifiedSet[]> {
+  switch (game) {
+    case "pokemon":
+      return pokemonApi.listSets();
+    case "magic":
+      return magicApi.listSets();
+    case "yugioh":
+      return yugiohApi.listSets();
+  }
+}
+
+export async function fetchSetCards(game: Game, setId: string): Promise<UnifiedCard[]> {
+  switch (game) {
+    case "pokemon":
+      return pokemonApi.fetchCardsBySetId(setId);
+    case "magic":
+      return magicApi.fetchCardsBySetCode(setId);
+    case "yugioh":
+      return yugiohApi.fetchCardsBySetCode(setId);
+  }
 }
 
 export async function getCardById(game: Game, id: string): Promise<UnifiedCard> {

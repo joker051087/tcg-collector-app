@@ -1,13 +1,16 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useTranslation } from "react-i18next";
-import { SearchStackParamList, TabParamList } from "./types";
+import { ChecklistStackParamList, SearchStackParamList, TabParamList } from "./types";
 import SearchScreen from "../screens/SearchScreen";
 import CardDetailScreen from "../screens/CardDetailScreen";
+import ChecklistHomeScreen from "../screens/ChecklistHomeScreen";
+import SetChecklistScreen from "../screens/SetChecklistScreen";
 import PortfolioScreen from "../screens/PortfolioScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 
 const SearchStack = createNativeStackNavigator<SearchStackParamList>();
+const ChecklistStack = createNativeStackNavigator<ChecklistStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
 const screenOptions = {
@@ -34,6 +37,29 @@ function SearchStackNavigator() {
   );
 }
 
+function ChecklistStackNavigator() {
+  const { t } = useTranslation();
+  return (
+    <ChecklistStack.Navigator screenOptions={screenOptions}>
+      <ChecklistStack.Screen
+        name="ChecklistHome"
+        component={ChecklistHomeScreen}
+        options={{ title: t("checklist.title") }}
+      />
+      <ChecklistStack.Screen
+        name="SetChecklist"
+        component={SetChecklistScreen}
+        options={{ title: t("checklist.title") }}
+      />
+      <ChecklistStack.Screen
+        name="CardDetail"
+        component={CardDetailScreen}
+        options={{ title: t("cardDetail.title") }}
+      />
+    </ChecklistStack.Navigator>
+  );
+}
+
 export default function RootNavigator() {
   const { t } = useTranslation();
 
@@ -50,6 +76,11 @@ export default function RootNavigator() {
         name="SearchTab"
         component={SearchStackNavigator}
         options={{ title: t("tabs.search"), headerShown: false }}
+      />
+      <Tab.Screen
+        name="ChecklistTab"
+        component={ChecklistStackNavigator}
+        options={{ title: t("tabs.checklist"), headerShown: false }}
       />
       <Tab.Screen
         name="PortfolioTab"

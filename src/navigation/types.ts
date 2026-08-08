@@ -9,8 +9,18 @@ export type SearchStackParamList = {
   CardDetail: { game: Game; cardId: string; presetCard?: UnifiedCard };
 };
 
+// Checklist : choisir un jeu puis une série, voir quelles cartes de cette
+// série sont déjà possédées, et pouvoir ajouter directement les manquantes
+// (CardDetail réutilisé tel quel — même écran que dans SearchStack).
+export type ChecklistStackParamList = {
+  ChecklistHome: undefined;
+  SetChecklist: { game: Game; setId: string; setName: string };
+  CardDetail: { game: Game; cardId: string; presetCard?: UnifiedCard };
+};
+
 export type TabParamList = {
   SearchTab: undefined;
+  ChecklistTab: undefined;
   PortfolioTab: undefined;
   SettingsTab: undefined;
 };

@@ -36,6 +36,7 @@ const TTL = {
   yugiohFullDb: 24 * 60 * 60 * 1000, // 24h — gros téléchargement (base complète), pas la peine plus souvent
   pokemonSets: 30 * 24 * 60 * 60 * 1000, // 30 jours — la liste des sets ne change qu'à chaque sortie
   sealed: 12 * 60 * 60 * 1000, // 12h — tcgapi.dev ne met à jour ses prix qu'une fois par jour
+  setsList: 30 * 24 * 60 * 60 * 1000, // 30 jours — liste des séries par jeu (écran Checklist)
 };
 
 async function fetchWithRetry(url, init, retries = 2, delayMs = 500) {
@@ -135,6 +136,19 @@ app.get("/proxy/pokemon/sets", async (req, res) => {
   });
 });
 
+// Liste complète des sets Pokémon (écran Checklist — "quelles cartes me
+// manque-t-il pour compléter telle série ?"). Triée par date de sortie
+// décroissante, pour proposer les séries récentes en premier.
+app.get("/proxy/pokemon/sets/all", async (req, res) => {
+  const headers = POKEMONTCG_API_KEY ? { "X-Api-Key": POKEMONTCG_API_KEY } : {};
+  await proxyJson(res, {
+    cacheKey: "pokemon:sets:all",
+    upstreamUrl: "https://api.pokemontcg.io/v2/sets?orderBy=-releaseDate",
+    upstreamInit: { headers },
+    ttlMs: TTL.setsList,
+  });
+});
+
 app.get("/proxy/pokemon/cards/:id", async (req, res) => {
   const { id } = req.params;
   const headers = POKEMONTCG_API_KEY ? { "X-Api-Key": POKEMONTCG_API_KEY } : {};
@@ -168,6 +182,16 @@ app.get("/proxy/magic/cards", async (req, res) => {
     upstreamUrl: url,
     upstreamInit: { headers: SCRYFALL_HEADERS },
     ttlMs: TTL.cards,
+  });
+});
+
+// Liste complète des sets Magic (écran Checklist), voir note Pokémon plus haut.
+app.get("/proxy/magic/sets", async (req, res) => {
+  await proxyJson(res, {
+    cacheKey: "magic:sets:all",
+    upstreamUrl: "https://api.scryfall.com/sets",
+    upstreamInit: { headers: SCRYFALL_HEADERS },
+    ttlMs: TTL.setsList,
   });
 });
 
@@ -242,6 +266,16 @@ app.get("/proxy/yugioh/by-number", async (req, res) => {
     console.error("Erreur proxy yugioh/by-number:", err.message);
     return res.status(502).json({ error: "Erreur de communication avec YGOPRODeck" });
   }
+});
+
+// Liste complète des sets Yu-Gi-Oh! (écran Checklist), voir note Pokémon plus
+// haut. YGOPRODeck renvoie directement un tableau (pas de wrapper "data").
+app.get("/proxy/yugioh/sets", async (req, res) => {
+  await proxyJson(res, {
+    cacheKey: "yugioh:sets:all",
+    upstreamUrl: "https://db.ygoprodeck.com/api/v7/cardsets.php",
+    ttlMs: TTL.setsList,
+  });
 });
 
 // --- Taux de change (open.er-api.com) ---

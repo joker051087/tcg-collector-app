@@ -6,6 +6,7 @@
   },
   "tabs": {
     "search": "Search",
+    "checklist": "Checklist",
     "portfolio": "My Collection",
     "settings": "Settings"
   },
@@ -68,5 +69,15 @@
     "title": "Settings",
     "language": "Language",
     "currency": "Currency"
+  },
+  "checklist": {
+    "title": "Checklist",
+    "searchSetPlaceholder": "Search a set...",
+    "cardsCount": "{{count}} cards",
+    "progress": "{{owned}}/{{total}} owned",
+    "owned": "Owned",
+    "missing": "Missing",
+    "errorLoadingSets": "Unable to load sets.",
+    "errorLoadingSet": "Unable to load this set."
   }
 }
