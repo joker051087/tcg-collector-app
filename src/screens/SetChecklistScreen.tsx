@@ -5,8 +5,10 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { ChecklistStackParamList } from "../navigation/types";
 import { fetchSetCards } from "../api";
+import { getSealedImageForSet } from "../api/tcgApiGames";
 import { UnifiedCard } from "../types";
 import { usePortfolioStore } from "../store/portfolioStore";
+import GameLogo from "../components/GameLogo";
 
 type Props = NativeStackScreenProps<ChecklistStackParamList, "SetChecklist">;
 
@@ -17,15 +19,32 @@ type Props = NativeStackScreenProps<ChecklistStackParamList, "SetChecklist">;
 // dont l'id n'est pas spécifique à un tirage/édition).
 export default function SetChecklistScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
-  const { game, setId, setName } = route.params;
+  const { game, setId, setName, setImageUrl } = route.params;
   const [cards, setCards] = useState<UnifiedCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const portfolioItems = usePortfolioStore((state) => state.items);
+  // One Piece n'a pas d'image de série via tcgapi.dev (contrairement à
+  // Pokémon/Magic) — on va chercher le visuel de son booster/display à la
+  // demande, uniquement pour la série ouverte (voir tcgApiGames.ts,
+  // getSealedImageForSet, sur pourquoi ce n'est PAS fait pour toute la liste
+  // d'un coup : quota tcgapi.dev partagé par toute l'app).
+  const [boosterImageUrl, setBoosterImageUrl] = useState<string | undefined>(setImageUrl);
 
   useEffect(() => {
     navigation.setOptions({ title: setName });
   }, [navigation, setName]);
+
+  useEffect(() => {
+    if (game !== "onepiece" || setImageUrl) return;
+    let cancelled = false;
+    getSealedImageForSet(game, setId, setName).then((url) => {
+      if (!cancelled && url) setBoosterImageUrl(url);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [game, setId, setName, setImageUrl]);
 
   useEffect(() => {
     let cancelled = false;
@@ -79,11 +98,21 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.progressSection}>
-        <Text style={styles.progressText}>
-          {t("checklist.progress", { owned: ownedCount, total, percent })}
-        </Text>
-        <View style={styles.progressBarTrack}>
-          <View style={[styles.progressBarFill, { width: `${Math.round(progressRatio * 100)}%` }]} />
+        <View style={styles.progressHeader}>
+          <GameLogo
+            game={game}
+            uri={boosterImageUrl}
+            size={game === "onepiece" ? 56 : 40}
+            shape={game === "onepiece" ? "square" : "circle"}
+          />
+          <View style={styles.progressTextBlock}>
+            <Text style={styles.progressText}>
+              {t("checklist.progress", { owned: ownedCount, total, percent })}
+            </Text>
+            <View style={styles.progressBarTrack}>
+              <View style={[styles.progressBarFill, { width: `${Math.round(progressRatio * 100)}%` }]} />
+            </View>
+          </View>
         </View>
       </View>
 
@@ -143,6 +172,14 @@ const styles = StyleSheet.create({
     padding: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "#2a2a2a",
+  },
+  progressHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  progressTextBlock: {
+    flex: 1,
+    marginLeft: 12,
   },
   progressText: {
     color: "#f9fafb",

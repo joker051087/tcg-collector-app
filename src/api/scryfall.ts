@@ -132,11 +132,20 @@ export async function listSets(): Promise<UnifiedSet[]> {
     set_type?: string;
     digital?: boolean;
     released_at?: string;
+    icon_svg_uri?: string;
   }[];
   return raw
     .filter((s) => !s.digital && s.set_type !== "token" && s.set_type !== "memorabilia")
     .sort((a, b) => (b.released_at ?? "").localeCompare(a.released_at ?? ""))
-    .map((s) => ({ id: s.code, game: "magic" as const, name: s.name, cardCount: s.card_count }));
+    .map((s) => ({
+      id: s.code,
+      game: "magic" as const,
+      name: s.name,
+      cardCount: s.card_count,
+      // Petite icône monochrome du set (pas un logo texte comme pour
+      // Pokémon) — c'est tout ce que Scryfall expose publiquement par set.
+      imageUrl: s.icon_svg_uri,
+    }));
 }
 
 // Toutes les cartes d'une série (écran Checklist).

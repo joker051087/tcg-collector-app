@@ -1,7 +1,9 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useTranslation } from "react-i18next";
-import { ChecklistStackParamList, SearchStackParamList, TabParamList } from "./types";
+import { Ionicons } from "@expo/vector-icons";
+import { ChecklistStackParamList, HomeStackParamList, SearchStackParamList, TabParamList } from "./types";
+import HomeScreen from "../screens/HomeScreen";
 import SearchScreen from "../screens/SearchScreen";
 import CardDetailScreen from "../screens/CardDetailScreen";
 import ChecklistHomeScreen from "../screens/ChecklistHomeScreen";
@@ -9,6 +11,7 @@ import SetChecklistScreen from "../screens/SetChecklistScreen";
 import PortfolioScreen from "../screens/PortfolioScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 
+const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 const SearchStack = createNativeStackNavigator<SearchStackParamList>();
 const ChecklistStack = createNativeStackNavigator<ChecklistStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -18,6 +21,35 @@ const screenOptions = {
   headerTintColor: "#f9fafb",
   headerTitleStyle: { color: "#f9fafb" },
 };
+
+// Icônes de la barre d'onglets (voir styles.ts pour les couleurs actif/inactif
+// dans Tab.Navigator plus bas). Une paire outline/plein par onglet, comme la
+// convention iOS/Material.
+const TAB_ICONS: Record<keyof TabParamList, { active: keyof typeof Ionicons.glyphMap; inactive: keyof typeof Ionicons.glyphMap }> = {
+  HomeTab: { active: "home", inactive: "home-outline" },
+  SearchTab: { active: "search", inactive: "search-outline" },
+  ChecklistTab: { active: "checkmark-done", inactive: "checkmark-done-outline" },
+  PortfolioTab: { active: "albums", inactive: "albums-outline" },
+  SettingsTab: { active: "settings", inactive: "settings-outline" },
+};
+
+function HomeStackNavigator() {
+  const { t } = useTranslation();
+  return (
+    <HomeStack.Navigator screenOptions={screenOptions}>
+      <HomeStack.Screen
+        name="HomeMain"
+        component={HomeScreen}
+        options={{ title: t("tabs.home") }}
+      />
+      <HomeStack.Screen
+        name="CardDetail"
+        component={CardDetailScreen}
+        options={{ title: t("cardDetail.title") }}
+      />
+    </HomeStack.Navigator>
+  );
+}
 
 function SearchStackNavigator() {
   const { t } = useTranslation();
@@ -65,13 +97,22 @@ export default function RootNavigator() {
 
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({ route }) => ({
         ...screenOptions,
         tabBarStyle: { backgroundColor: "#111827" },
         tabBarActiveTintColor: "#34d399",
         tabBarInactiveTintColor: "#6b7280",
-      }}
+        tabBarIcon: ({ focused, color, size }) => {
+          const icons = TAB_ICONS[route.name as keyof TabParamList];
+          return <Ionicons name={focused ? icons.active : icons.inactive} size={size} color={color} />;
+        },
+      })}
     >
+      <Tab.Screen
+        name="HomeTab"
+        component={HomeStackNavigator}
+        options={{ title: t("tabs.home"), headerShown: false }}
+      />
       <Tab.Screen
         name="SearchTab"
         component={SearchStackNavigator}

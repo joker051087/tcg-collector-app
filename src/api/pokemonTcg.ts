@@ -133,8 +133,19 @@ export async function listSets(): Promise<UnifiedSet[]> {
     throw new Error(`Pokemon TCG API error: ${res.status}`);
   }
   const json = await res.json();
-  const sets = (json.data ?? []) as { id: string; name: string; total?: number }[];
-  return sets.map((s) => ({ id: s.id, game: "pokemon" as const, name: s.name, cardCount: s.total }));
+  const sets = (json.data ?? []) as {
+    id: string;
+    name: string;
+    total?: number;
+    images?: { symbol?: string; logo?: string };
+  }[];
+  return sets.map((s) => ({
+    id: s.id,
+    game: "pokemon" as const,
+    name: s.name,
+    cardCount: s.total,
+    imageUrl: s.images?.logo,
+  }));
 }
 
 // Toutes les cartes d'une série (écran Checklist) — filtre par set.id, qui

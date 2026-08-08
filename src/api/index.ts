@@ -53,6 +53,12 @@ export async function searchCards(
     case "lorcana":
     case "riftbound":
     case "dragonball":
+    case "digimon":
+    case "fleshandblood":
+    case "starwarsunlimited":
+    case "unionarena":
+    case "gundam":
+    case "finalfantasy":
       return tcgApiGamesApi.searchCards(game, query);
   }
 }
@@ -79,6 +85,12 @@ export async function listSets(game: Game): Promise<UnifiedSet[]> {
     case "lorcana":
     case "riftbound":
     case "dragonball":
+    case "digimon":
+    case "fleshandblood":
+    case "starwarsunlimited":
+    case "unionarena":
+    case "gundam":
+    case "finalfantasy":
       return tcgApiGamesApi.listSets(game);
   }
 }
@@ -95,6 +107,12 @@ export async function fetchSetCards(game: Game, setId: string): Promise<UnifiedC
     case "lorcana":
     case "riftbound":
     case "dragonball":
+    case "digimon":
+    case "fleshandblood":
+    case "starwarsunlimited":
+    case "unionarena":
+    case "gundam":
+    case "finalfantasy":
       return tcgApiGamesApi.fetchCardsBySetId(game, setId);
   }
 }
@@ -111,6 +129,12 @@ export async function getCardById(game: Game, id: string): Promise<UnifiedCard> 
     case "lorcana":
     case "riftbound":
     case "dragonball":
+    case "digimon":
+    case "fleshandblood":
+    case "starwarsunlimited":
+    case "unionarena":
+    case "gundam":
+    case "finalfantasy":
       return tcgApiGamesApi.getCardById(game, id);
   }
 }

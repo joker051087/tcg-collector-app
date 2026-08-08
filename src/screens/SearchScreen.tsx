@@ -36,10 +36,10 @@ const RESULT_TYPE_LABEL_KEYS: Record<ResultType, string> = {
   sealed: "search.resultTypeSealed",
 };
 
-export default function SearchScreen({ navigation }: Props) {
+export default function SearchScreen({ navigation, route }: Props) {
   const { t } = useTranslation();
   const language = useSettingsStore((s) => s.language);
-  const [game, setGame] = useState<Game>("pokemon");
+  const [game, setGame] = useState<Game>(route.params?.initialGame ?? "pokemon");
   const [resultType, setResultType] = useState<ResultType>("cards");
   const [mode, setMode] = useState<SearchMode>("name");
   const [query, setQuery] = useState("");
@@ -57,6 +57,13 @@ export default function SearchScreen({ navigation }: Props) {
   useEffect(() => {
     if (isTcgApiGame && mode !== "name") setMode("name");
   }, [isTcgApiGame, mode]);
+
+  // Si on arrive depuis la grille "Explorer un jeu" de l'Accueil alors que
+  // l'onglet Recherche existe déjà (donc pas de remount), il faut appliquer
+  // le nouveau jeu manuellement.
+  useEffect(() => {
+    if (route.params?.initialGame) setGame(route.params.initialGame);
+  }, [route.params?.initialGame]);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);

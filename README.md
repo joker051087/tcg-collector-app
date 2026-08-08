@@ -3,10 +3,11 @@
 Prototype cliquable pour une app de gestion de collection TCG (comme Collectr), construit
 avec **React Native + Expo** pour tourner sur iOS, Android et Web depuis un seul codebase.
 
-Ce prototype couvre sept jeux : **Pokémon**, **Magic: The Gathering**, **Yu-Gi-Oh!**, **One
-Piece**, **Lorcana**, **Riftbound** et **Dragon Ball** (Fusion World). Les trois premiers
-("vague 1" du plan, `Plan_App_TCG.md`) utilisent chacun leur API gratuite dédiée ; les quatre
-derniers ("vague 2") n'ont pas d'équivalent gratuit dédié et passent donc par **tcgapi.dev**,
+Ce prototype couvre treize jeux : **Pokémon**, **Magic: The Gathering**, **Yu-Gi-Oh!**, **One
+Piece**, **Lorcana**, **Riftbound**, **Dragon Ball** (Fusion World), **Digimon**, **Flesh and
+Blood**, **Star Wars: Unlimited**, **Union Arena**, **Gundam** et **Final Fantasy**. Les trois
+premiers ("vague 1" du plan, `Plan_App_TCG.md`) utilisent chacun leur API gratuite dédiée ; les
+dix autres ("vague 2") n'ont pas d'équivalent gratuit dédié et passent donc par **tcgapi.dev**,
 le même service tiers déjà utilisé pour les produits scellés (voir plus bas) :
 
 | Jeu | Source | Doc |
@@ -14,7 +15,7 @@ le même service tiers déjà utilisé pour les produits scellés (voir plus bas
 | Pokémon | pokemontcg.io | https://docs.pokemontcg.io/ |
 | Magic | Scryfall | https://scryfall.com/docs/api |
 | Yu-Gi-Oh! | YGOPRODeck | https://ygoprodeck.com/api-guide/ |
-| One Piece, Lorcana, Riftbound, Dragon Ball | tcgapi.dev | https://tcgapi.dev/introduction |
+| One Piece, Lorcana, Riftbound, Dragon Ball, Digimon, Flesh and Blood, Star Wars: Unlimited, Union Arena, Gundam, Final Fantasy | tcgapi.dev | https://tcgapi.dev/introduction |
 
 Toutes les cartes, quel que soit le jeu, sont ramenées à un même format commun
 (`UnifiedCard`, voir `src/types/index.ts`) avant d'arriver dans l'UI — la recherche, la fiche
@@ -53,6 +54,11 @@ carte et l'écran collection n'ont donc pas besoin de savoir de quel jeu vient u
   ses cartes et indique lesquelles sont déjà dans ta collection ("Possédée"/"Manquante") avec
   un compteur de progression — pratique pour savoir ce qu'il te reste à trouver pour compléter
   un set. Tape directement sur une carte manquante pour l'ajouter à ta collection
+- **Page d'accueil** (premier onglet) : tableau de bord avec la valeur de ta collection
+  (marché/nette/nombre de cartes), des accès rapides vers Recherche/Checklist/Ma collection,
+  un carrousel des dernières cartes ajoutées, et une grille des 13 jeux pour lancer une
+  recherche directement sur celui qui t'intéresse. Icônes sur tous les onglets de la barre de
+  navigation (`@expo/vector-icons`, déjà inclus avec Expo)
 
 ## Installation
 
@@ -249,9 +255,8 @@ Conformément au plan produit, ces points sont prévus pour les versions suivant
   l'instant en local sur ton PC, à côté d'Expo. Avant une vraie mise en prod, il faudra le
   déployer sur un hébergeur (Render, Railway...) pour qu'il soit accessible sans dépendre du
   même réseau Wi-Fi que le téléphone.
-- **Multi-TCG** — Pokémon, Magic, Yu-Gi-Oh!, One Piece, Lorcana, Riftbound et Dragon Ball sont
-  branchés. D'autres jeux (Star Wars: Unlimited, Flesh and Blood, Digimon...) peuvent être
-  ajoutés facilement via tcgapi.dev, qui les couvre déjà tous (voir "Ajouter un nouveau jeu").
+- **Multi-TCG** — 13 jeux sont branchés (voir en tête de fichier). D'autres peuvent être ajoutés
+  facilement via tcgapi.dev, qui couvre 89+ jeux au total (voir "Ajouter un nouveau jeu").
 - **Scan photo de carte** — prévu en V2, volontairement pas dans ce prototype (c'est le point
   le plus complexe techniquement et le principal point faible constaté chez Collectr).
 - **Comptes utilisateurs / synchronisation cloud** — la collection est stockée uniquement en

@@ -5,10 +5,21 @@
     "cardNotFound": "Carte introuvable."
   },
   "tabs": {
+    "home": "Accueil",
     "search": "Recherche",
     "checklist": "Checklist",
     "portfolio": "Ma collection",
     "settings": "Réglages"
+  },
+  "home": {
+    "greeting": "Bonjour !",
+    "subtitle": "Voici un aperçu de ta collection.",
+    "quickActions": "Accès rapide",
+    "recentlyAdded": "Ajouts récents",
+    "exploreGames": "Explorer un jeu",
+    "emptyTitle": "Bienvenue sur TCG Collector",
+    "emptySubtitle": "Ajoute tes premières cartes pour voir ta collection prendre vie ici.",
+    "emptyCta": "Commencer à chercher"
   },
   "search": {
     "title": "Recherche",
@@ -20,6 +31,12 @@
     "placeholderLorcana": "Rechercher une carte Lorcana (ex : Mickey Mouse)",
     "placeholderRiftbound": "Rechercher une carte Riftbound (ex : Ahri)",
     "placeholderDragonball": "Rechercher une carte Dragon Ball (ex : Son Goku)",
+    "placeholderDigimon": "Rechercher une carte Digimon (ex : Agumon)",
+    "placeholderFleshandblood": "Rechercher une carte Flesh and Blood (ex : Dorinthea Ironsong)",
+    "placeholderStarwarsunlimited": "Rechercher une carte Star Wars: Unlimited (ex : Dark Vador)",
+    "placeholderUnionarena": "Rechercher une carte Union Arena (ex : Luffy)",
+    "placeholderGundam": "Rechercher une carte Gundam (ex : RX-78-2)",
+    "placeholderFinalfantasy": "Rechercher une carte Final Fantasy (ex : Cloud Strife)",
     "modeName": "Nom",
     "modeNumber": "Numéro",
     "placeholderNumber": "Numéro de la carte (ex : 4/102, SDY-006...)",

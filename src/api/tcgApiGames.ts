@@ -91,6 +91,35 @@ export async function listSets(game: Game): Promise<UnifiedSet[]> {
     .map((s) => ({ id: String(s.id), game, name: s.name, cardCount: s.card_count }));
 }
 
+// Visuel d'une série précise (booster box / display / deck), pour illustrer
+// l'écran Checklist d'une série (voir SetChecklistScreen.tsx). tcgapi.dev n'a
+// pas d'image de série au sens strict — on se sert de ses "Sealed Products"
+// (déjà utilisés par ailleurs, voir sealedProducts.ts), filtrés précisément
+// par set_id côté serveur (voir /proxy/tcgapi/sealed-for-set). Volontairement
+// appelé une série à la fois (jamais en boucle sur toute une liste) : la
+// quota tcgapi.dev (100 requêtes/jour en offre gratuite) est partagée par
+// toute l'app, un appel par série ouverte reste raisonnable, en boucler 70+
+// d'un coup ne le serait pas.
+export async function getSealedImageForSet(
+  game: Game,
+  setId: string,
+  setName: string
+): Promise<string | undefined> {
+  const slug = TCGAPI_SLUG[game];
+  const url = `${BASE_URL}/sealed-for-set?game=${encodeURIComponent(slug)}&setId=${encodeURIComponent(
+    setId
+  )}&q=${encodeURIComponent(setName)}`;
+  try {
+    const res = await fetchWithRetry(url);
+    if (!res.ok) return undefined;
+    const json = await res.json();
+    const items = (json.data ?? []) as { image_url?: string }[];
+    return items[0]?.image_url;
+  } catch {
+    return undefined;
+  }
+}
+
 // Toutes les cartes d'une série (écran Checklist), avec pagination — 3 pages
 // (jusqu'à 300 cartes) largement suffisant pour ces jeux (leurs plus grosses
 // séries tournent autour de 150-200 cartes).

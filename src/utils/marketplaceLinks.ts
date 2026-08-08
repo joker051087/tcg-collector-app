@@ -29,6 +29,12 @@ const CARDMARKET_GAME_PATHS: Record<UnifiedCard["game"], string> = {
   lorcana: "Lorcana",
   riftbound: "Riftbound",
   dragonball: "DragonBallSuper",
+  digimon: "DigimonCardGame",
+  fleshandblood: "FleshAndBlood",
+  starwarsunlimited: "StarWarsUnlimited",
+  unionarena: "UnionArena",
+  gundam: "GundamCardGame",
+  finalfantasy: "FinalFantasyTCG",
 };
 
 const TCGPLAYER_GAME_PATHS: Record<UnifiedCard["game"], string> = {
@@ -39,6 +45,12 @@ const TCGPLAYER_GAME_PATHS: Record<UnifiedCard["game"], string> = {
   lorcana: "lorcana",
   riftbound: "riftbound",
   dragonball: "dragon-ball-super",
+  digimon: "digimon-card-game",
+  fleshandblood: "flesh-and-blood-tcg",
+  starwarsunlimited: "star-wars-unlimited",
+  unionarena: "union-arena",
+  gundam: "gundam-card-game",
+  finalfantasy: "final-fantasy-tcg",
 };
 
 export const MARKETPLACE_LINKS: MarketplaceLink[] = [

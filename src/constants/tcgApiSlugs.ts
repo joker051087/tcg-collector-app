@@ -17,4 +17,10 @@ export const TCGAPI_SLUG: Record<Game, string> = {
   // aussi côté tcgapi.dev (slug "dragon-ball-super-ccg") si besoin de
   // l'ajouter plus tard.
   dragonball: "dragon-ball-super-fusion-world",
+  digimon: "digimon-card-game",
+  fleshandblood: "flesh-and-blood-tcg",
+  starwarsunlimited: "star-wars-unlimited",
+  unionarena: "union-arena",
+  gundam: "gundam-card-game",
+  finalfantasy: "final-fantasy-tcg",
 };

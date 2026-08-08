@@ -10,7 +10,20 @@
 // tcgapi.dev pour les 4 (voir src/api/tcgApiGames.ts et
 // src/constants/tcgApiSlugs.ts pour la correspondance avec les "slugs"
 // attendus par ce service).
-export type Game = "pokemon" | "magic" | "yugioh" | "onepiece" | "lorcana" | "riftbound" | "dragonball";
+export type Game =
+  | "pokemon"
+  | "magic"
+  | "yugioh"
+  | "onepiece"
+  | "lorcana"
+  | "riftbound"
+  | "dragonball"
+  | "digimon"
+  | "fleshandblood"
+  | "starwarsunlimited"
+  | "unionarena"
+  | "gundam"
+  | "finalfantasy";
 
 export interface UnifiedCard {
   id: string;
@@ -38,6 +51,10 @@ export interface UnifiedSet {
   game: Game;
   name: string;
   cardCount?: number;
+  /** Logo/icône de la série quand la source le fournit (pokemontcg.io,
+   * Scryfall) — voir src/constants/gameLogos.ts pour le repli utilisé
+   * ailleurs (logo du jeu) quand ce n'est pas le cas. */
+  imageUrl?: string;
 }
 
 export type CardCondition =

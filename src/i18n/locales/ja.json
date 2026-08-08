@@ -5,10 +5,21 @@
     "cardNotFound": "カードが見つかりません。"
   },
   "tabs": {
+    "home": "ホーム",
     "search": "検索",
     "checklist": "チェックリスト",
     "portfolio": "マイコレクション",
     "settings": "設定"
+  },
+  "home": {
+    "greeting": "こんにちは!",
+    "subtitle": "コレクションの概要はこちら。",
+    "quickActions": "クイックアクセス",
+    "recentlyAdded": "最近追加したカード",
+    "exploreGames": "ゲームを探す",
+    "emptyTitle": "TCG Collectorへようこそ",
+    "emptySubtitle": "最初のカードを追加して、コレクションをここに表示させましょう。",
+    "emptyCta": "検索を始める"
   },
   "search": {
     "title": "検索",
@@ -20,6 +31,12 @@
     "placeholderLorcana": "ロルカナカードを検索(例:ミッキーマウス)",
     "placeholderRiftbound": "リフトバウンドカードを検索(例:アーリ)",
     "placeholderDragonball": "ドラゴンボールカードを検索(例:孫悟空)",
+    "placeholderDigimon": "デジモンカードを検索(例:アグモン)",
+    "placeholderFleshandblood": "Flesh and Bloodカードを検索(例:ドリンシア・アイアンソング)",
+    "placeholderStarwarsunlimited": "Star Wars: Unlimitedカードを検索(例:ダース・ベイダー)",
+    "placeholderUnionarena": "ユニオンアリーナカードを検索(例:ルフィ)",
+    "placeholderGundam": "ガンダムカードを検索(例:RX-78-2)",
+    "placeholderFinalfantasy": "ファイナルファンタジーカードを検索(例:クラウド・ストライフ)",
     "modeName": "名前",
     "modeNumber": "番号",
     "placeholderNumber": "カード番号(例:4/102、SDY-006...)",

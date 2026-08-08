@@ -8,6 +8,12 @@ export const SUPPORTED_GAMES: Game[] = [
   "lorcana",
   "riftbound",
   "dragonball",
+  "digimon",
+  "fleshandblood",
+  "starwarsunlimited",
+  "unionarena",
+  "gundam",
+  "finalfantasy",
 ];
 
 // Jeux dont la recherche passe par tcgapi.dev plutôt qu'une API dédiée (voir
@@ -15,7 +21,18 @@ export const SUPPORTED_GAMES: Game[] = [
 // numéro de carte fiable (pas de filtre "number:", juste une recherche
 // plein-texte sur le nom), donc le mode "Numéro" de l'écran Recherche est
 // masqué pour ces jeux (voir SearchScreen.tsx).
-export const TCGAPI_GAMES: Game[] = ["onepiece", "lorcana", "riftbound", "dragonball"];
+export const TCGAPI_GAMES: Game[] = [
+  "onepiece",
+  "lorcana",
+  "riftbound",
+  "dragonball",
+  "digimon",
+  "fleshandblood",
+  "starwarsunlimited",
+  "unionarena",
+  "gundam",
+  "finalfantasy",
+];
 
 // Noms de marque : on ne les traduit pas, ils restent identiques dans
 // toutes les langues (comme sur les boîtes de jeu elles-mêmes).
@@ -27,6 +44,12 @@ export const GAME_LABELS: Record<Game, string> = {
   lorcana: "Lorcana",
   riftbound: "Riftbound",
   dragonball: "Dragon Ball",
+  digimon: "Digimon",
+  fleshandblood: "Flesh and Blood",
+  starwarsunlimited: "Star Wars: Unlimited",
+  unionarena: "Union Arena",
+  gundam: "Gundam",
+  finalfantasy: "Final Fantasy",
 };
 
 // Clés de traduction (voir src/i18n/locales/*.json, namespace "search").
@@ -38,4 +61,10 @@ export const GAME_PLACEHOLDER_KEYS: Record<Game, string> = {
   lorcana: "search.placeholderLorcana",
   riftbound: "search.placeholderRiftbound",
   dragonball: "search.placeholderDragonball",
+  digimon: "search.placeholderDigimon",
+  fleshandblood: "search.placeholderFleshandblood",
+  starwarsunlimited: "search.placeholderStarwarsunlimited",
+  unionarena: "search.placeholderUnionarena",
+  gundam: "search.placeholderGundam",
+  finalfantasy: "search.placeholderFinalfantasy",
 };

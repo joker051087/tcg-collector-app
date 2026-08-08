@@ -5,10 +5,21 @@
     "cardNotFound": "Karte nicht gefunden."
   },
   "tabs": {
+    "home": "Start",
     "search": "Suche",
     "checklist": "Checkliste",
     "portfolio": "Meine Sammlung",
     "settings": "Einstellungen"
+  },
+  "home": {
+    "greeting": "Hallo!",
+    "subtitle": "Hier ist eine Übersicht deiner Sammlung.",
+    "quickActions": "Schnellzugriff",
+    "recentlyAdded": "Zuletzt hinzugefügt",
+    "exploreGames": "Ein Spiel entdecken",
+    "emptyTitle": "Willkommen bei TCG Collector",
+    "emptySubtitle": "Füge deine ersten Karten hinzu, damit deine Sammlung hier zum Leben erwacht.",
+    "emptyCta": "Suche starten"
   },
   "search": {
     "title": "Suche",
@@ -20,6 +31,12 @@
     "placeholderLorcana": "Lorcana-Karte suchen (z. B. Mickey Mouse)",
     "placeholderRiftbound": "Riftbound-Karte suchen (z. B. Ahri)",
     "placeholderDragonball": "Dragon-Ball-Karte suchen (z. B. Son Goku)",
+    "placeholderDigimon": "Digimon-Karte suchen (z. B. Agumon)",
+    "placeholderFleshandblood": "Flesh-and-Blood-Karte suchen (z. B. Dorinthea Ironsong)",
+    "placeholderStarwarsunlimited": "Star-Wars: Unlimited-Karte suchen (z. B. Darth Vader)",
+    "placeholderUnionarena": "Union-Arena-Karte suchen (z. B. Luffy)",
+    "placeholderGundam": "Gundam-Karte suchen (z. B. RX-78-2)",
+    "placeholderFinalfantasy": "Final-Fantasy-Karte suchen (z. B. Cloud Strife)",
     "modeName": "Name",
     "modeNumber": "Nummer",
     "placeholderNumber": "Kartennummer (z. B. 4/102, SDY-006...)",

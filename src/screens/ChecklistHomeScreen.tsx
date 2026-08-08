@@ -7,6 +7,7 @@ import { listSets } from "../api";
 import { Game, UnifiedSet } from "../types";
 import { GAME_LABELS, SUPPORTED_GAMES } from "../constants/games";
 import SelectableChips from "../components/SelectableChips";
+import GameLogo from "../components/GameLogo";
 import { usePortfolioStore } from "../store/portfolioStore";
 
 type Props = NativeStackScreenProps<ChecklistStackParamList, "ChecklistHome">;
@@ -98,9 +99,15 @@ export default function ChecklistHomeScreen({ navigation }: Props) {
             <Pressable
               style={styles.row}
               onPress={() =>
-                navigation.navigate("SetChecklist", { game, setId: item.id, setName: item.name })
+                navigation.navigate("SetChecklist", {
+                  game,
+                  setId: item.id,
+                  setName: item.name,
+                  setImageUrl: item.imageUrl,
+                })
               }
             >
+              <GameLogo game={game} uri={item.imageUrl} size={36} />
               <View style={styles.rowInfo}>
                 <Text style={styles.rowName} numberOfLines={1}>
                   {item.name}
@@ -162,6 +169,7 @@ const styles = StyleSheet.create({
   },
   rowInfo: {
     flex: 1,
+    marginLeft: 12,
     marginRight: 8,
   },
   rowName: {
