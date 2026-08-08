@@ -8,6 +8,7 @@ import SearchScreen from "../screens/SearchScreen";
 import CardDetailScreen from "../screens/CardDetailScreen";
 import ChecklistHomeScreen from "../screens/ChecklistHomeScreen";
 import SetChecklistScreen from "../screens/SetChecklistScreen";
+import WishlistScreen from "../screens/WishlistScreen";
 import PortfolioScreen from "../screens/PortfolioScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 
@@ -87,6 +88,11 @@ function ChecklistStackNavigator() {
         name="CardDetail"
         component={CardDetailScreen}
         options={{ title: t("cardDetail.title") }}
+      />
+      <ChecklistStack.Screen
+        name="Wishlist"
+        component={WishlistScreen}
+        options={{ title: t("wishlist.title") }}
       />
     </ChecklistStack.Navigator>
   );

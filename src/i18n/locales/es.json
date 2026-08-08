@@ -100,5 +100,18 @@
     "missing": "Falta",
     "errorLoadingSets": "No se pudieron cargar las series.",
     "errorLoadingSet": "No se pudo cargar esta serie."
+  },
+  "wishlist": {
+    "title": "Lista de deseos",
+    "emptyTitle": "Tu lista de deseos está vacía",
+    "emptySubtitle": "Desde la Checklist, toca el corazón junto a una carta que te falte para añadirla aquí.",
+    "copyForBulkBuy": "Copiar para compra masiva",
+    "copiedTitle": "Lista copiada",
+    "copiedMessage": "La lista se copió. Pégala en la herramienta \"Mass Entry\" de TCGplayer para añadir varias cartas al carrito a la vez. Puede que algunas cartas no se reconozcan automáticamente (el nombre/serie no siempre coincide exactamente) — revísalas y complétalas a mano si hace falta.",
+    "later": "Más tarde",
+    "openTcgplayer": "Abrir TCGplayer",
+    "remove": "Quitar",
+    "disclaimer": "La compra masiva funciona a través de TCGplayer (Mass Entry). Cardmarket no ofrece importar una lista — usa los enlaces individuales debajo de cada carta.",
+    "marketplaceHint": "Para comprar una sola carta, abre su ficha y usa los enlaces {{names}}."
   }
 }

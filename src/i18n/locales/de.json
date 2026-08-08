@@ -100,5 +100,18 @@
     "missing": "Fehlt",
     "errorLoadingSets": "Serien konnten nicht geladen werden.",
     "errorLoadingSet": "Diese Serie konnte nicht geladen werden."
+  },
+  "wishlist": {
+    "title": "Wunschliste",
+    "emptyTitle": "Deine Wunschliste ist leer",
+    "emptySubtitle": "Tippe in der Checkliste auf das Herz neben einer fehlenden Karte, um sie hier hinzuzufügen.",
+    "copyForBulkBuy": "Für Sammelkauf kopieren",
+    "copiedTitle": "Liste kopiert",
+    "copiedMessage": "Die Liste wurde kopiert. Füge sie in TCGplayers Tool \"Mass Entry\" ein, um mehrere Karten auf einmal in den Warenkorb zu legen. Manche Karten werden möglicherweise nicht automatisch erkannt (Name/Serie stimmen nicht immer exakt überein) — prüfe sie und ergänze sie bei Bedarf von Hand.",
+    "later": "Später",
+    "openTcgplayer": "TCGplayer öffnen",
+    "remove": "Entfernen",
+    "disclaimer": "Der Sammelkauf funktioniert über TCGplayer (Mass Entry). Cardmarket bietet keinen Listen-Import — nutze stattdessen die einzelnen Links unter jeder Karte.",
+    "marketplaceHint": "Um eine einzelne Karte zu kaufen, öffne ihre Detailseite und nutze die Links {{names}}."
   }
 }

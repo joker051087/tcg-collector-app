@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { ChecklistStackParamList } from "../navigation/types";
 import { listSets } from "../api";
@@ -10,6 +11,7 @@ import { GAME_LABELS, SUPPORTED_GAMES, TCGAPI_GAMES } from "../constants/games";
 import SelectableChips from "../components/SelectableChips";
 import GameLogo from "../components/GameLogo";
 import { usePortfolioStore } from "../store/portfolioStore";
+import { useWishlistStore } from "../store/wishlistStore";
 
 type Props = NativeStackScreenProps<ChecklistStackParamList, "ChecklistHome">;
 
@@ -29,6 +31,29 @@ export default function ChecklistHomeScreen({ navigation }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
   const portfolioItems = usePortfolioStore((state) => state.items);
+  const wishlistCount = useWishlistStore((state) => state.items.length);
+
+  // Bouton d'accès à la liste de souhaits dans l'en-tête — voir
+  // WishlistScreen.tsx. useLayoutEffect (pas useEffect) pour éviter un
+  // flash sans le bouton au premier rendu.
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Wishlist")}
+          style={styles.wishlistHeaderButton}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Ionicons name="heart" size={22} color="#f472b6" />
+          {wishlistCount > 0 && (
+            <View style={styles.wishlistBadge}>
+              <Text style={styles.wishlistBadgeText}>{wishlistCount}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, wishlistCount]);
 
   // Image "générique" d'une série (voir tcgApiGames.ts, listSets) parfois
   // trompeuse — pas forcément le booster (peut être une carte au hasard).
@@ -178,6 +203,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#111827",
+  },
+  wishlistHeaderButton: {
+    marginRight: 8,
+  },
+  wishlistBadge: {
+    position: "absolute",
+    top: -6,
+    right: -8,
+    backgroundColor: "#f472b6",
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 3,
+  },
+  wishlistBadgeText: {
+    color: "#111827",
+    fontSize: 10,
+    fontWeight: "700",
   },
   gameSelector: {
     paddingHorizontal: 12,

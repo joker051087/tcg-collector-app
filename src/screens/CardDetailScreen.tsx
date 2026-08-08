@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import { Image } from "expo-image";
+import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { SearchStackParamList } from "../navigation/types";
@@ -22,6 +23,7 @@ import { getNetRealisticPrice } from "../utils/pricing";
 import { MARKETPLACE_LINKS } from "../utils/marketplaceLinks";
 import { useCurrencyFormatter } from "../hooks/useCurrencyFormatter";
 import { usePortfolioStore } from "../store/portfolioStore";
+import { useWishlistStore } from "../store/wishlistStore";
 import SelectableChips from "../components/SelectableChips";
 
 type Props = NativeStackScreenProps<SearchStackParamList, "CardDetail">;
@@ -48,6 +50,11 @@ export default function CardDetailScreen({ route }: Props) {
   const [grade, setGrade] = useState("10");
 
   const addItem = usePortfolioStore((state) => state.addItem);
+  const toggleWishlist = useWishlistStore((state) => state.toggleItem);
+  // Sélecteur dérivé (pas juste la fonction isInWishlist du store) pour que
+  // l'écran se re-rende bien quand on coche/décoche — card peut être null au
+  // tout premier rendu (avant chargement), d'où la garde.
+  const inWishlist = useWishlistStore((state) => (card ? state.items.some((i) => i.id === card.id) : false));
 
   useEffect(() => {
     // presetCard : la carte vient déjà de la recherche (cas des produits
@@ -116,12 +123,28 @@ export default function CardDetailScreen({ route }: Props) {
     Linking.openURL(getUrl(card!));
   }
 
+  function handleToggleWishlist() {
+    toggleWishlist(card!);
+  }
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Image source={{ uri: card.imageLarge }} style={styles.image} contentFit="contain" />
 
       <Text style={styles.gameTag}>{GAME_LABELS[card.game]}</Text>
-      <Text style={styles.name}>{card.name}</Text>
+      <View style={styles.nameRow}>
+        <Text style={[styles.name, styles.nameFlex]}>{card.name}</Text>
+        <TouchableOpacity
+          onPress={handleToggleWishlist}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Ionicons
+            name={inWishlist ? "heart" : "heart-outline"}
+            size={26}
+            color={inWishlist ? "#f472b6" : "#9ca3af"}
+          />
+        </TouchableOpacity>
+      </View>
       <Text style={styles.set}>
         {card.setName}
         {card.number ? ` · #${card.number}` : ""} {card.rarity ? `· ${card.rarity}` : ""}
@@ -232,11 +255,19 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
+  nameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 4,
+    gap: 8,
+  },
   name: {
     fontSize: 22,
     fontWeight: "700",
     color: "#f9fafb",
-    marginTop: 4,
+  },
+  nameFlex: {
+    flex: 1,
   },
   set: {
     fontSize: 13,

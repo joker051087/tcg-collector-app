@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
+import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { ChecklistStackParamList } from "../navigation/types";
@@ -9,6 +10,7 @@ import { findSetBoosterImage } from "../api/sealedProducts";
 import { TCGAPI_GAMES } from "../constants/games";
 import { UnifiedCard } from "../types";
 import { usePortfolioStore } from "../store/portfolioStore";
+import { useWishlistStore } from "../store/wishlistStore";
 import GameLogo from "../components/GameLogo";
 
 type Props = NativeStackScreenProps<ChecklistStackParamList, "SetChecklist">;
@@ -32,6 +34,9 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
   // fois, jamais toute la liste, voir findSetBoosterImage). Si ça ne trouve
   // rien, on garde setImageUrl tel quel.
   const [heroImageUrl, setHeroImageUrl] = useState<string | undefined>(setImageUrl);
+  const wishlistCards = useWishlistStore((state) => state.items);
+  const toggleWishlist = useWishlistStore((state) => state.toggleItem);
+  const wishlistIds = useMemo(() => new Set(wishlistCards.map((c) => c.id)), [wishlistCards]);
 
   useEffect(() => {
     navigation.setOptions({ title: setName });
@@ -123,6 +128,7 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => {
           const owned = ownedIds.has(item.id);
+          const inWishlist = wishlistIds.has(item.id);
           return (
             <Pressable
               style={styles.row}
@@ -143,6 +149,19 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
                   {item.number ? `#${item.number}` : ""}
                 </Text>
               </View>
+              {!owned && (
+                <TouchableOpacity
+                  onPress={() => toggleWishlist(item)}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  style={styles.wishlistButton}
+                >
+                  <Ionicons
+                    name={inWishlist ? "heart" : "heart-outline"}
+                    size={18}
+                    color={inWishlist ? "#f472b6" : "#6b7280"}
+                  />
+                </TouchableOpacity>
+              )}
               <Text style={owned ? styles.badgeOwned : styles.badgeMissing}>
                 {owned ? t("checklist.owned") : t("checklist.missing")}
               </Text>
@@ -244,5 +263,8 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#6b7280",
     marginLeft: 8,
+  },
+  wishlistButton: {
+    marginLeft: 10,
   },
 });

@@ -23,6 +23,9 @@ export type ChecklistStackParamList = {
   // éviter un re-fetch — affiché en haut de l'écran via GameLogo.
   SetChecklist: { game: Game; setId: string; setName: string; setImageUrl?: string };
   CardDetail: { game: Game; cardId: string; presetCard?: UnifiedCard };
+  // Liste de souhaits (cartes manquantes cochées depuis la Checklist, ou
+  // ajoutées depuis une fiche carte) — voir wishlistStore.ts.
+  Wishlist: undefined;
 };
 
 // Accueil : tableau de bord (stats collection, accès rapides, dernières

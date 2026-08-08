@@ -100,5 +100,18 @@
     "missing": "Missing",
     "errorLoadingSets": "Unable to load sets.",
     "errorLoadingSet": "Unable to load this set."
+  },
+  "wishlist": {
+    "title": "Wishlist",
+    "emptyTitle": "Your wishlist is empty",
+    "emptySubtitle": "From the Checklist, tap the heart next to a missing card to add it here.",
+    "copyForBulkBuy": "Copy for bulk buy",
+    "copiedTitle": "List copied",
+    "copiedMessage": "The list was copied. Paste it into TCGplayer's \"Mass Entry\" tool to add several cards to your cart at once. Some cards may not be recognized automatically (name/set aren't always an exact match) — check and add them by hand if needed.",
+    "later": "Later",
+    "openTcgplayer": "Open TCGplayer",
+    "remove": "Remove",
+    "disclaimer": "Bulk buying works through TCGplayer (Mass Entry). Cardmarket doesn't offer a list import — use the individual links under each card instead.",
+    "marketplaceHint": "To buy a single card, open its detail page and use the {{names}} links."
   }
 }

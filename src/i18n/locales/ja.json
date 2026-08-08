@@ -100,5 +100,18 @@
     "missing": "未所持",
     "errorLoadingSets": "シリーズを読み込めませんでした。",
     "errorLoadingSet": "このシリーズを読み込めませんでした。"
+  },
+  "wishlist": {
+    "title": "ウィッシュリスト",
+    "emptyTitle": "ウィッシュリストは空です",
+    "emptySubtitle": "チェックリストで未所持のカードの横にあるハートをタップすると、ここに追加されます。",
+    "copyForBulkBuy": "まとめ買い用にコピー",
+    "copiedTitle": "リストをコピーしました",
+    "copiedMessage": "リストをコピーしました。TCGplayerの「Mass Entry」ツールに貼り付けると、複数のカードを一度にカートに追加できます。名前やシリーズが完全に一致せず自動認識されないカードもあるので、必要に応じて確認・手動追加してください。",
+    "later": "後で",
+    "openTcgplayer": "TCGplayerを開く",
+    "remove": "削除",
+    "disclaimer": "まとめ買いはTCGplayer（Mass Entry）経由で利用できます。Cardmarketはリストのインポートに対応していないため、各カード下の個別リンクを使ってください。",
+    "marketplaceHint": "カードを1枚だけ購入する場合は、詳細画面を開いて{{names}}のリンクを使ってください。"
   }
 }
