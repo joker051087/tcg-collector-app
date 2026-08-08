@@ -18,7 +18,10 @@
     "modeName": "名前",
     "modeNumber": "番号",
     "placeholderNumber": "カード番号(例:4/102、SDY-006...)",
-    "placeholderNumberPokemon": "番号(例:020/064 または SFA 020/064)"
+    "placeholderNumberPokemon": "番号(例:020/064 または SFA 020/064)",
+    "resultTypeCards": "カード",
+    "resultTypeSealed": "封入商品",
+    "placeholderSealed": "封入商品を検索(例:スカーレット&バイオレット ボックス)"
   },
   "cardDetail": {
     "title": "カード詳細",
@@ -32,7 +35,10 @@
     "grade": "グレード",
     "quantity": "数量",
     "addedAlertTitle": "追加しました",
-    "addedAlertMessage": "{{name}}をコレクションに追加しました。"
+    "addedAlertMessage": "{{name}}をコレクションに追加しました。",
+    "viewOnCardmarket": "Cardmarket",
+    "viewOnTcgplayer": "TCGplayer",
+    "viewOnEbay": "eBay"
   },
   "portfolio": {
     "emptyTitle": "コレクションはまだ空です",

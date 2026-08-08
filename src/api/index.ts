@@ -3,6 +3,7 @@ import { LanguageCode } from "../i18n";
 import * as pokemonApi from "./pokemonTcg";
 import * as magicApi from "./scryfall";
 import * as yugiohApi from "./ygoprodeck";
+import * as sealedApi from "./sealedProducts";
 
 export type SearchMode = "name" | "number";
 
@@ -43,6 +44,13 @@ export async function searchCards(
     case "yugioh":
       return yugiohApi.searchCards(query);
   }
+}
+
+// Produits scellés (coffrets, displays, boosters) — même dispatch que
+// searchCards, mais une seule source (tcgapi.dev) pour les 3 jeux, voir
+// sealedProducts.ts.
+export async function searchSealedProducts(game: Game, query: string): Promise<UnifiedCard[]> {
+  return sealedApi.searchSealedProducts(game, query);
 }
 
 export async function getCardById(game: Game, id: string): Promise<UnifiedCard> {

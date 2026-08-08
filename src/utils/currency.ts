@@ -11,6 +11,22 @@ export function convertFromUsd(
   return amountUsd * rate;
 }
 
+// Sens inverse : convertit un montant depuis une devise source (ex EUR,
+// prix Cardmarket) vers USD, la devise interne de l'app (voir
+// src/utils/marketPrice.ts). Renvoie null si le taux n'est pas disponible —
+// l'appelant doit alors se rabattre sur une autre source de prix.
+export function convertToUsd(
+  amount: number,
+  currency: CurrencyCode,
+  rates: Record<CurrencyCode, number> | null
+): number | null {
+  if (currency === "USD") return amount;
+  if (!rates) return null;
+  const rate = rates[currency];
+  if (!rate) return null;
+  return amount / rate;
+}
+
 export function formatCurrency(amount: number, currency: CurrencyCode): string {
   try {
     return amount.toLocaleString(undefined, {

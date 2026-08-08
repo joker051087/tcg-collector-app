@@ -1,5 +1,6 @@
 import { UnifiedCard } from "../types";
 import { fetchWithRetry } from "../utils/fetchWithRetry";
+import { resolveEurPriceAsUsd } from "../utils/marketPrice";
 import { API_BASE_URL } from "../config/api";
 
 // Passe désormais par le backend local (server/), qui met les résultats en
@@ -20,6 +21,8 @@ interface RawScryfallCard {
   prices?: {
     usd?: string | null;
     usd_foil?: string | null;
+    eur?: string | null;
+    eur_foil?: string | null;
   };
 }
 
@@ -30,7 +33,19 @@ function resolveImages(raw: RawScryfallCard): { small: string; large: string } {
   return { small: "", large: "" };
 }
 
+// Cardmarket (EUR) est privilégié sur TCGplayer (USD) — voir
+// src/utils/marketPrice.ts. Scryfall fournit directement les deux (prices.eur
+// vient de Cardmarket, prices.usd de TCGplayer).
 function resolveMarketPrice(raw: RawScryfallCard): number | undefined {
+  const eur = raw.prices?.eur ?? raw.prices?.eur_foil;
+  if (eur) {
+    const parsedEur = parseFloat(eur);
+    if (!Number.isNaN(parsedEur)) {
+      const usd = resolveEurPriceAsUsd(parsedEur);
+      if (usd != null) return usd;
+    }
+  }
+
   const usd = raw.prices?.usd ?? raw.prices?.usd_foil;
   if (!usd) return undefined;
   const parsed = parseFloat(usd);

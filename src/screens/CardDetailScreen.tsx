@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -18,6 +19,7 @@ import { CARD_CONDITIONS, CardCondition, GradingCompany, OwnershipType, UnifiedC
 import { GAME_LABELS } from "../constants/games";
 import { CONDITION_LABEL_KEYS, OWNERSHIP_TYPE_LABEL_KEYS } from "../constants/labels";
 import { getNetRealisticPrice } from "../utils/pricing";
+import { MARKETPLACE_LINKS } from "../utils/marketplaceLinks";
 import { useCurrencyFormatter } from "../hooks/useCurrencyFormatter";
 import { usePortfolioStore } from "../store/portfolioStore";
 import SelectableChips from "../components/SelectableChips";
@@ -30,20 +32,33 @@ const GRADING_COMPANIES: GradingCompany[] = ["PSA", "CGC", "BGS", "SGC"];
 export default function CardDetailScreen({ route }: Props) {
   const { t } = useTranslation();
   const { formatUsdAmount } = useCurrencyFormatter();
-  const { cardId, game } = route.params;
-  const [card, setCard] = useState<UnifiedCard | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { cardId, game, presetCard } = route.params;
+  const [card, setCard] = useState<UnifiedCard | null>(presetCard ?? null);
+  const [loading, setLoading] = useState(!presetCard);
   const [error, setError] = useState<string | null>(null);
 
   const [quantity, setQuantity] = useState("1");
   const [condition, setCondition] = useState<CardCondition>("Near Mint");
-  const [ownershipType, setOwnershipType] = useState<OwnershipType>("raw");
+  // Un produit scellé (presetCard vient de la recherche "Produits scellés")
+  // est par défaut ajouté avec le type "Scellée" plutôt que "Brute" — c'est
+  // presque toujours ce que l'utilisateur veut dans ce cas, il peut toujours
+  // changer.
+  const [ownershipType, setOwnershipType] = useState<OwnershipType>(presetCard ? "sealed" : "raw");
   const [gradingCompany, setGradingCompany] = useState<GradingCompany>("PSA");
   const [grade, setGrade] = useState("10");
 
   const addItem = usePortfolioStore((state) => state.addItem);
 
   useEffect(() => {
+    // presetCard : la carte vient déjà de la recherche (cas des produits
+    // scellés, voir navigation/types.ts) — pas besoin de la re-charger via
+    // getCardById, qui ne connaît d'ailleurs pas ces id.
+    if (presetCard) {
+      setCard(presetCard);
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
     setLoading(true);
     getCardById(game, cardId)
@@ -60,7 +75,7 @@ export default function CardDetailScreen({ route }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [game, cardId]);
+  }, [game, cardId, presetCard]);
 
   if (loading) {
     return (
@@ -97,6 +112,10 @@ export default function CardDetailScreen({ route }: Props) {
     Alert.alert(t("cardDetail.addedAlertTitle"), t("cardDetail.addedAlertMessage", { name: card!.name }));
   }
 
+  function handleOpenMarketplace(getUrl: (card: UnifiedCard) => string) {
+    Linking.openURL(getUrl(card!));
+  }
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Image source={{ uri: card.imageLarge }} style={styles.image} contentFit="contain" />
@@ -121,6 +140,18 @@ export default function CardDetailScreen({ route }: Props) {
         </View>
       </View>
       <Text style={styles.disclaimer}>{t("cardDetail.disclaimer")}</Text>
+
+      <View style={styles.marketplaceRow}>
+        {MARKETPLACE_LINKS.map((marketplace) => (
+          <TouchableOpacity
+            key={marketplace.id}
+            style={styles.marketplaceButton}
+            onPress={() => handleOpenMarketplace(marketplace.getUrl)}
+          >
+            <Text style={styles.marketplaceButtonText}>{t(marketplace.labelKey)}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
       <Text style={styles.sectionTitle}>{t("cardDetail.addToCollection")}</Text>
 
@@ -243,6 +274,26 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: "#6b7280",
     marginTop: 6,
+  },
+  marketplaceRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 16,
+  },
+  marketplaceButton: {
+    flex: 1,
+    minWidth: "30%",
+    borderWidth: 1,
+    borderColor: "#f59e0b",
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  marketplaceButtonText: {
+    color: "#f59e0b",
+    fontWeight: "700",
+    fontSize: 13,
   },
   sectionTitle: {
     fontSize: 16,

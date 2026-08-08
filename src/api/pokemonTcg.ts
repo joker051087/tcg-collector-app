@@ -3,6 +3,7 @@ import { LanguageCode } from "../i18n";
 import { fetchWithRetry } from "../utils/fetchWithRetry";
 import { POKEAPI_LANGUAGE_CODES } from "../constants/pokeApiLanguages";
 import { usePokemonNamesStore } from "../store/pokemonNamesStore";
+import { resolveEurPriceAsUsd } from "../utils/marketPrice";
 import { API_BASE_URL } from "../config/api";
 
 // Passe désormais par le backend local (server/), qui met les résultats en
@@ -25,15 +26,25 @@ interface RawPokemonCard {
   };
 }
 
+// Cardmarket (EUR, marché européen) est privilégié sur TCGplayer (USD,
+// marché US) — les deux peuvent afficher des prix très différents pour la
+// même carte, et Cardmarket est la marketplace la plus pertinente pour nos
+// utilisateurs (voir src/utils/marketPrice.ts). On se rabat sur TCGplayer
+// si le prix Cardmarket est absent, ou si les taux de change ne sont pas
+// encore chargés pour le convertir en USD.
 function resolveMarketPrice(raw: RawPokemonCard): number | undefined {
+  const cardmarket = raw.cardmarket?.prices;
+  const eurPrice = cardmarket?.trendPrice ?? cardmarket?.averageSellPrice;
+  if (eurPrice != null) {
+    const usd = resolveEurPriceAsUsd(eurPrice);
+    if (usd != null) return usd;
+  }
+
   const tcgPrices = raw.tcgplayer?.prices;
   if (tcgPrices) {
     const firstVariant = Object.values(tcgPrices)[0];
     if (firstVariant?.market != null) return firstVariant.market;
   }
-  const cardmarket = raw.cardmarket?.prices;
-  if (cardmarket?.trendPrice != null) return cardmarket.trendPrice;
-  if (cardmarket?.averageSellPrice != null) return cardmarket.averageSellPrice;
   return undefined;
 }
 

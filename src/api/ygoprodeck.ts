@@ -1,5 +1,6 @@
 import { UnifiedCard } from "../types";
 import { fetchWithRetry } from "../utils/fetchWithRetry";
+import { resolveEurPriceAsUsd } from "../utils/marketPrice";
 import { API_BASE_URL } from "../config/api";
 
 // Passe désormais par le backend local (server/), qui met les résultats en
@@ -20,11 +21,23 @@ interface RawYugiohCard {
   }[];
 }
 
+// Cardmarket (EUR) est privilégié sur TCGplayer (USD) — voir
+// src/utils/marketPrice.ts.
 function resolveMarketPrice(raw: RawYugiohCard): number | undefined {
   const priceEntry = raw.card_prices?.[0];
-  const priceStr = priceEntry?.tcgplayer_price ?? priceEntry?.cardmarket_price;
-  if (!priceStr) return undefined;
-  const parsed = parseFloat(priceStr);
+
+  const cardmarketStr = priceEntry?.cardmarket_price;
+  if (cardmarketStr) {
+    const parsedEur = parseFloat(cardmarketStr);
+    if (!Number.isNaN(parsedEur) && parsedEur !== 0) {
+      const usd = resolveEurPriceAsUsd(parsedEur);
+      if (usd != null) return usd;
+    }
+  }
+
+  const tcgStr = priceEntry?.tcgplayer_price;
+  if (!tcgStr) return undefined;
+  const parsed = parseFloat(tcgStr);
   return Number.isNaN(parsed) || parsed === 0 ? undefined : parsed;
 }
 

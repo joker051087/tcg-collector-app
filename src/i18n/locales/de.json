@@ -18,7 +18,10 @@
     "modeName": "Name",
     "modeNumber": "Nummer",
     "placeholderNumber": "Kartennummer (z. B. 4/102, SDY-006...)",
-    "placeholderNumberPokemon": "Nummer (z. B. 020/064 oder SFA 020/064)"
+    "placeholderNumberPokemon": "Nummer (z. B. 020/064 oder SFA 020/064)",
+    "resultTypeCards": "Karten",
+    "resultTypeSealed": "Versiegelte Produkte",
+    "placeholderSealed": "Versiegeltes Produkt suchen (z. B. Karmesin & Purpur Booster Box)"
   },
   "cardDetail": {
     "title": "Kartendetails",
@@ -32,7 +35,10 @@
     "grade": "Note",
     "quantity": "Menge",
     "addedAlertTitle": "Hinzugefügt",
-    "addedAlertMessage": "{{name}} wurde deiner Sammlung hinzugefügt."
+    "addedAlertMessage": "{{name}} wurde deiner Sammlung hinzugefügt.",
+    "viewOnCardmarket": "Cardmarket",
+    "viewOnTcgplayer": "TCGplayer",
+    "viewOnEbay": "eBay"
   },
   "portfolio": {
     "emptyTitle": "Deine Sammlung ist leer",

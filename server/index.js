@@ -23,6 +23,11 @@ app.use(cors());
 
 const PORT = process.env.PORT || 4000;
 const POKEMONTCG_API_KEY = process.env.POKEMONTCG_API_KEY || "";
+// Clé pour tcgapi.dev (produits scellés : coffrets, displays, boosters...).
+// TCGplayer a fermé son API officielle aux nouveaux développeurs (voir
+// README.md, section "Produits scellés") — tcgapi.dev est un service tiers
+// qui republie ces mêmes données de prix. Clé gratuite sur https://tcgapi.dev/signup.
+const TCGAPI_KEY = process.env.TCGAPI_KEY || "";
 
 const TTL = {
   cards: 60 * 60 * 1000, // 1h — recherche/fiche carte (catalogue + prix)
@@ -30,6 +35,7 @@ const TTL = {
   pokemonNames: 7 * 24 * 60 * 60 * 1000, // 7 jours — les noms Pokémon changent rarement
   yugiohFullDb: 24 * 60 * 60 * 1000, // 24h — gros téléchargement (base complète), pas la peine plus souvent
   pokemonSets: 30 * 24 * 60 * 60 * 1000, // 30 jours — la liste des sets ne change qu'à chaque sortie
+  sealed: 12 * 60 * 60 * 1000, // 12h — tcgapi.dev ne met à jour ses prix qu'une fois par jour
 };
 
 async function fetchWithRetry(url, init, retries = 2, delayMs = 500) {
@@ -288,6 +294,30 @@ app.get("/proxy/pokemon-names", async (req, res) => {
     console.error("Erreur proxy pokemon-names:", err.message);
     return res.status(502).json({ error: "Erreur de communication avec PokeAPI" });
   }
+});
+
+// --- Produits scellés (tcgapi.dev — voir note TCGAPI_KEY plus haut) ---
+// Endpoint tiers non affilié à TCGplayer/Anthropic. "type=Sealed Products"
+// filtre côté tcgapi.dev pour ne retourner que coffrets/displays/boosters
+// (pas les cartes à l'unité). Le slug de jeu attendu par tcgapi.dev
+// correspond directement à nos clés internes ("pokemon"/"magic"/"yugioh").
+app.get("/proxy/sealed/search", async (req, res) => {
+  const { q, game } = req.query;
+  if (!q || !game) return res.status(400).json({ error: "Paramètres q et game requis" });
+  if (!TCGAPI_KEY) {
+    return res.status(501).json({
+      error: "TCGAPI_KEY non configurée côté serveur — voir server/.env.example",
+    });
+  }
+  const url = `https://api.tcgapi.dev/v1/search?q=${encodeURIComponent(q)}&game=${encodeURIComponent(
+    game
+  )}&type=${encodeURIComponent("Sealed Products")}&per_page=50`;
+  await proxyJson(res, {
+    cacheKey: `sealed:${game}:${q}`,
+    upstreamUrl: url,
+    upstreamInit: { headers: { "X-API-Key": TCGAPI_KEY } },
+    ttlMs: TTL.sealed,
+  });
 });
 
 app.get("/health", (req, res) => res.json({ ok: true, cache: cacheStats() }));

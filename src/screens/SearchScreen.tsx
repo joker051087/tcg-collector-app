@@ -10,7 +10,7 @@ import {
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { SearchStackParamList } from "../navigation/types";
-import { searchCards, SearchMode } from "../api";
+import { searchCards, searchSealedProducts, SearchMode } from "../api";
 import { Game, UnifiedCard } from "../types";
 import { GAME_LABELS, GAME_PLACEHOLDER_KEYS, SUPPORTED_GAMES } from "../constants/games";
 import { useSettingsStore } from "../store/settingsStore";
@@ -25,10 +25,22 @@ const SEARCH_MODE_LABEL_KEYS: Record<SearchMode, string> = {
   number: "search.modeNumber",
 };
 
+// Cartes à l'unité (comportement historique) vs produits scellés (coffrets,
+// displays, boosters — voir src/api/sealedProducts.ts). Deux sources de
+// données complètement différentes, d'où un toggle séparé du mode
+// nom/numéro, qui ne s'applique qu'aux cartes.
+type ResultType = "cards" | "sealed";
+const RESULT_TYPES: ResultType[] = ["cards", "sealed"];
+const RESULT_TYPE_LABEL_KEYS: Record<ResultType, string> = {
+  cards: "search.resultTypeCards",
+  sealed: "search.resultTypeSealed",
+};
+
 export default function SearchScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const language = useSettingsStore((s) => s.language);
   const [game, setGame] = useState<Game>("pokemon");
+  const [resultType, setResultType] = useState<ResultType>("cards");
   const [mode, setMode] = useState<SearchMode>("name");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<UnifiedCard[]>([]);
@@ -49,7 +61,10 @@ export default function SearchScreen({ navigation }: Props) {
       setLoading(true);
       setError(null);
       try {
-        const cards = await searchCards(game, query, language, mode);
+        const cards =
+          resultType === "sealed"
+            ? await searchSealedProducts(game, query)
+            : await searchCards(game, query, language, mode);
         setResults(cards);
       } catch (err) {
         console.error("Erreur de recherche:", err);
@@ -62,7 +77,7 @@ export default function SearchScreen({ navigation }: Props) {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [query, game, language, mode]);
+  }, [query, game, language, mode, resultType]);
 
   return (
     <View style={styles.container}>
@@ -77,19 +92,32 @@ export default function SearchScreen({ navigation }: Props) {
 
       <View style={styles.modeSelector}>
         <SelectableChips
-          options={SEARCH_MODES}
-          value={mode}
-          onChange={setMode}
-          getLabel={(m) => t(SEARCH_MODE_LABEL_KEYS[m])}
+          options={RESULT_TYPES}
+          value={resultType}
+          onChange={setResultType}
+          getLabel={(r) => t(RESULT_TYPE_LABEL_KEYS[r])}
         />
       </View>
+
+      {resultType === "cards" && (
+        <View style={styles.modeSelector}>
+          <SelectableChips
+            options={SEARCH_MODES}
+            value={mode}
+            onChange={setMode}
+            getLabel={(m) => t(SEARCH_MODE_LABEL_KEYS[m])}
+          />
+        </View>
+      )}
 
       <TextInput
         style={styles.input}
         placeholder={
-          mode === "number"
-            ? t(game === "pokemon" ? "search.placeholderNumberPokemon" : "search.placeholderNumber")
-            : t(GAME_PLACEHOLDER_KEYS[game])
+          resultType === "sealed"
+            ? t("search.placeholderSealed")
+            : mode === "number"
+              ? t(game === "pokemon" ? "search.placeholderNumberPokemon" : "search.placeholderNumber")
+              : t(GAME_PLACEHOLDER_KEYS[game])
         }
         placeholderTextColor="#6b7280"
         value={query}
@@ -114,7 +142,16 @@ export default function SearchScreen({ navigation }: Props) {
         renderItem={({ item }) => (
           <CardListItem
             card={item}
-            onPress={() => navigation.navigate("CardDetail", { game, cardId: item.id })}
+            onPress={() =>
+              navigation.navigate("CardDetail", {
+                game,
+                cardId: item.id,
+                // Un produit scellé n'a pas de fiche à re-charger (voir
+                // navigation/types.ts) — on transmet directement le résultat
+                // de recherche déjà complet.
+                presetCard: resultType === "sealed" ? item : undefined,
+              })
+            }
           />
         )}
         keyboardShouldPersistTaps="handled"

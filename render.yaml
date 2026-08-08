@@ -11,3 +11,5 @@ services:
       # déploiement (onglet Environment) — voir README.md, section "Backend".
       - key: POKEMONTCG_API_KEY
         sync: false
+      - key: TCGAPI_KEY
+        sync: false

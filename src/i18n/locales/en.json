@@ -18,7 +18,10 @@
     "modeName": "Name",
     "modeNumber": "Number",
     "placeholderNumber": "Card number (e.g. 4/102, SDY-006...)",
-    "placeholderNumberPokemon": "Number (e.g. 020/064 or SFA 020/064)"
+    "placeholderNumberPokemon": "Number (e.g. 020/064 or SFA 020/064)",
+    "resultTypeCards": "Cards",
+    "resultTypeSealed": "Sealed products",
+    "placeholderSealed": "Search a sealed product (e.g. Scarlet & Violet Booster Box)"
   },
   "cardDetail": {
     "title": "Card Detail",
@@ -32,7 +35,10 @@
     "grade": "Grade",
     "quantity": "Quantity",
     "addedAlertTitle": "Added",
-    "addedAlertMessage": "{{name}} was added to your collection."
+    "addedAlertMessage": "{{name}} was added to your collection.",
+    "viewOnCardmarket": "Cardmarket",
+    "viewOnTcgplayer": "TCGplayer",
+    "viewOnEbay": "eBay"
   },
   "portfolio": {
     "emptyTitle": "Your collection is empty",

@@ -18,7 +18,10 @@
     "modeName": "Nome",
     "modeNumber": "Numero",
     "placeholderNumber": "Numero della carta (es: 4/102, SDY-006...)",
-    "placeholderNumberPokemon": "Numero (es: 020/064 o SFA 020/064)"
+    "placeholderNumberPokemon": "Numero (es: 020/064 o SFA 020/064)",
+    "resultTypeCards": "Carte",
+    "resultTypeSealed": "Prodotti sigillati",
+    "placeholderSealed": "Cerca un prodotto sigillato (es: Display Scarlatto e Violetto)"
   },
   "cardDetail": {
     "title": "Dettaglio carta",
@@ -32,7 +35,10 @@
     "grade": "Voto",
     "quantity": "Quantità",
     "addedAlertTitle": "Aggiunta",
-    "addedAlertMessage": "{{name}} è stata aggiunta alla tua collezione."
+    "addedAlertMessage": "{{name}} è stata aggiunta alla tua collezione.",
+    "viewOnCardmarket": "Cardmarket",
+    "viewOnTcgplayer": "TCGplayer",
+    "viewOnEbay": "eBay"
   },
   "portfolio": {
     "emptyTitle": "La tua collezione è vuota",

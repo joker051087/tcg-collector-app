@@ -41,6 +41,10 @@ carte et l'écran collection n'ont donc pas besoin de savoir de quel jeu vient u
   "Dracaufeu" est automatiquement traduite vers "Charizard" avant d'interroger l'API, via un
   dictionnaire de correspondance de noms téléchargé une fois depuis PokeAPI et mis en cache
   localement 7 jours (voir `src/store/pokemonNamesStore.ts`)
+- **Produits scellés** (coffrets, displays, boosters) pour les 3 jeux, avec recherche et prix
+  automatique — bascule "Cartes / Produits scellés" en haut de l'écran Recherche. Les données
+  viennent de tcgapi.dev (voir section "Clés API" : TCGplayer, la source la plus logique, a
+  fermé son API officielle aux nouveaux développeurs en 2024)
 
 ## Installation
 
@@ -87,8 +91,8 @@ Cela ouvre le Metro Bundler. Depuis là :
 
 ## Backend
 
-`server/` est un petit serveur Node.js/Express qui sert d'intermédiaire entre l'app et les 4 API
-tierces (pokemontcg.io, Scryfall, YGOPRODeck, open.er-api.com, PokeAPI) : il **met les réponses
+`server/` est un petit serveur Node.js/Express qui sert d'intermédiaire entre l'app et les 5 API
+tierces (pokemontcg.io, Scryfall, YGOPRODeck, open.er-api.com, PokeAPI, tcgapi.dev) : il **met les réponses
 en cache** (1h pour les cartes/prix, 24h pour les taux de change, 7 jours pour les noms Pokémon
 traduits) pour absorber la lenteur/instabilité de ces API gratuites, réduire le nombre d'appels
 réels envoyés, et éviter d'exposer la clé API Pokémon dans le bundle de l'app.
@@ -135,7 +139,8 @@ Un fichier `render.yaml` est déjà prêt à la racine du projet (pointe vers `s
    viens de créer. Render détecte automatiquement `render.yaml` et propose de déployer le
    service `tcg-collector-backend`.
 6. Une fois déployé, va dans l'onglet **Environment** du service et renseigne
-   `POKEMONTCG_API_KEY` (optionnel, voir section "Clés API").
+   `POKEMONTCG_API_KEY` (optionnel) et `TCGAPI_KEY` (nécessaire pour les produits scellés) —
+   voir section "Clés API".
 7. Render te donne une URL publique (ex. `https://tcg-collector-backend.onrender.com`). Mets-la
    dans le `.env` à la racine du projet :
    ```
@@ -154,6 +159,12 @@ Un fichier `render.yaml` est déjà prêt à la racine du projet (pointe vers `s
 - **Yu-Gi-Oh! (YGOPRODeck)** : aucune clé requise.
 - **Taux de change (open.er-api.com)** : aucune clé requise.
 - **Noms Pokémon traduits (PokeAPI)** : aucune clé requise.
+- **Produits scellés (tcgapi.dev)** : requise pour cette fonctionnalité (sans elle, la
+  recherche de produits scellés est simplement désactivée, le reste de l'app fonctionne
+  normalement). Compte gratuit sur https://tcgapi.dev/signup (100 requêtes/jour, pas de carte
+  bancaire), copie `server/.env.example` en `server/.env`, renseigne `TCGAPI_KEY`. Service
+  tiers non affilié à TCGplayer, utilisé car TCGplayer a fermé son API officielle aux nouveaux
+  développeurs depuis 2024.
 
 ## Structure du projet
 
@@ -169,6 +180,7 @@ tcg-collector-app/
       pokeApiNames.ts         # client backend (dictionnaire de noms Pokémon multilingues)
       scryfall.ts             # client backend (Magic) -> UnifiedCard
       ygoprodeck.ts           # client backend (Yu-Gi-Oh!) -> UnifiedCard
+      sealedProducts.ts       # client backend (produits scellés, tcgapi.dev) -> UnifiedCard
       exchangeRates.ts        # client backend (taux de change, base USD)
     config/api.ts             # URL du backend (EXPO_PUBLIC_API_BASE_URL)
     types/index.ts            # UnifiedCard, Game, types collection

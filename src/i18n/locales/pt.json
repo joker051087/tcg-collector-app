@@ -18,7 +18,10 @@
     "modeName": "Nome",
     "modeNumber": "Número",
     "placeholderNumber": "Número da carta (ex: 4/102, SDY-006...)",
-    "placeholderNumberPokemon": "Número (ex: 020/064 ou SFA 020/064)"
+    "placeholderNumberPokemon": "Número (ex: 020/064 ou SFA 020/064)",
+    "resultTypeCards": "Cartas",
+    "resultTypeSealed": "Produtos lacrados",
+    "placeholderSealed": "Buscar um produto lacrado (ex: Display Escarlate e Violeta)"
   },
   "cardDetail": {
     "title": "Detalhe da carta",
@@ -32,7 +35,10 @@
     "grade": "Nota",
     "quantity": "Quantidade",
     "addedAlertTitle": "Adicionada",
-    "addedAlertMessage": "{{name}} foi adicionada à tua coleção."
+    "addedAlertMessage": "{{name}} foi adicionada à tua coleção.",
+    "viewOnCardmarket": "Cardmarket",
+    "viewOnTcgplayer": "TCGplayer",
+    "viewOnEbay": "eBay"
   },
   "portfolio": {
     "emptyTitle": "A tua coleção está vazia",
