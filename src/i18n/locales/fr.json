@@ -1,0 +1,62 @@
+{
+  "common": {
+    "errorLoadingResults": "Impossible de charger les résultats. Vérifie ta connexion et réessaie.",
+    "errorLoadingCard": "Impossible de charger cette carte.",
+    "cardNotFound": "Carte introuvable."
+  },
+  "tabs": {
+    "search": "Recherche",
+    "portfolio": "Ma collection",
+    "settings": "Réglages"
+  },
+  "search": {
+    "title": "Recherche",
+    "emptyResults": "Aucune carte {{game}} trouvée pour « {{query}} ».",
+    "placeholderPokemon": "Rechercher une carte Pokémon (ex : Dracaufeu)",
+    "placeholderMagic": "Rechercher une carte Magic (ex : Black Lotus)",
+    "placeholderYugioh": "Rechercher une carte Yu-Gi-Oh! (ex : Dark Magician)"
+  },
+  "cardDetail": {
+    "title": "Détail de la carte",
+    "marketPrice": "Prix marché",
+    "netPrice": "Prix net réaliste*",
+    "disclaimer": "* estimation après frais de revente moyens (~13%), à titre indicatif.",
+    "addToCollection": "Ajouter à ma collection",
+    "type": "Type",
+    "condition": "État",
+    "gradingCompany": "Organisme de gradation",
+    "grade": "Note",
+    "quantity": "Quantité",
+    "addedAlertTitle": "Ajoutée",
+    "addedAlertMessage": "{{name}} a été ajoutée à ta collection."
+  },
+  "portfolio": {
+    "emptyTitle": "Ta collection est vide",
+    "emptySubtitle": "Va dans l'onglet Recherche pour ajouter tes premières cartes.",
+    "marketValue": "Valeur marché",
+    "netValue": "Valeur nette réaliste",
+    "cardCount": "Cartes",
+    "market": "Marché",
+    "net": "Net",
+    "remove": "Retirer"
+  },
+  "condition": {
+    "mint": "Neuve",
+    "nearMint": "Presque neuve",
+    "excellent": "Excellent état",
+    "good": "Bon état",
+    "lightPlayed": "Légèrement jouée",
+    "played": "Jouée",
+    "poor": "Mauvais état"
+  },
+  "ownership": {
+    "raw": "Brute",
+    "graded": "Gradée",
+    "sealed": "Scellée"
+  },
+  "settings": {
+    "title": "Réglages",
+    "language": "Langue",
+    "currency": "Devise"
+  }
+}

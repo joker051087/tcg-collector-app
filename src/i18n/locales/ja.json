@@ -1,0 +1,62 @@
+{
+  "common": {
+    "errorLoadingResults": "結果を読み込めませんでした。接続を確認して再試行してください。",
+    "errorLoadingCard": "このカードを読み込めませんでした。",
+    "cardNotFound": "カードが見つかりません。"
+  },
+  "tabs": {
+    "search": "検索",
+    "portfolio": "マイコレクション",
+    "settings": "設定"
+  },
+  "search": {
+    "title": "検索",
+    "emptyResults": "「{{query}}」に一致する{{game}}のカードが見つかりません。",
+    "placeholderPokemon": "ポケモンカードを検索(例:リザードン)",
+    "placeholderMagic": "マジックカードを検索(例:Black Lotus)",
+    "placeholderYugioh": "遊戯王カードを検索(例:ブラック・マジシャン)"
+  },
+  "cardDetail": {
+    "title": "カード詳細",
+    "marketPrice": "市場価格",
+    "netPrice": "実質手取り価格*",
+    "disclaimer": "※平均的な販売手数料(約13%)を差し引いた概算値です。参考情報です。",
+    "addToCollection": "コレクションに追加",
+    "type": "種類",
+    "condition": "状態",
+    "gradingCompany": "鑑定会社",
+    "grade": "グレード",
+    "quantity": "数量",
+    "addedAlertTitle": "追加しました",
+    "addedAlertMessage": "{{name}}をコレクションに追加しました。"
+  },
+  "portfolio": {
+    "emptyTitle": "コレクションはまだ空です",
+    "emptySubtitle": "検索タブから最初のカードを追加してください。",
+    "marketValue": "市場価値",
+    "netValue": "実質手取り価値",
+    "cardCount": "枚数",
+    "market": "市場",
+    "net": "手取り",
+    "remove": "削除"
+  },
+  "condition": {
+    "mint": "美品",
+    "nearMint": "ほぼ美品",
+    "excellent": "優良",
+    "good": "良好",
+    "lightPlayed": "軽度の使用感",
+    "played": "使用感あり",
+    "poor": "状態不良"
+  },
+  "ownership": {
+    "raw": "未鑑定",
+    "graded": "鑑定済み",
+    "sealed": "未開封"
+  },
+  "settings": {
+    "title": "設定",
+    "language": "言語",
+    "currency": "通貨"
+  }
+}

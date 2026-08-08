@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "TCG Collector",
+    "slug": "tcg-collector-app",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "scheme": "tcgcollector",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourcompany.tcgcollector"
+    },
+    "android": {
+      "package": "com.yourcompany.tcgcollector",
+      "adaptiveIcon": {
+        "backgroundColor": "#111827"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}

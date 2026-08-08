@@ -1,0 +1,58 @@
+// Modèle de données unifié multi-TCG : chaque API de jeu (Pokémon, Magic,
+// Yu-Gi-Oh!...) a un format de réponse complètement différent. Les clients
+// API (src/api/*) sont responsables de mapper leur réponse brute vers ce
+// format commun, pour que le reste de l'app (recherche, fiche carte,
+// collection, calcul de valeur) n'ait jamais besoin de savoir de quel jeu
+// vient une carte.
+
+export type Game = "pokemon" | "magic" | "yugioh";
+
+export interface UnifiedCard {
+  id: string;
+  game: Game;
+  name: string;
+  setName: string;
+  /** Numéro/collector number/set code selon le jeu, purement informatif. */
+  number?: string;
+  rarity?: string;
+  imageSmall: string;
+  imageLarge: string;
+  /** Prix marché déjà résolu en USD par le client API, ou undefined si inconnu. */
+  marketPriceUsd?: number;
+}
+
+export type CardCondition =
+  | "Mint"
+  | "Near Mint"
+  | "Excellent"
+  | "Good"
+  | "Light Played"
+  | "Played"
+  | "Poor";
+
+export const CARD_CONDITIONS: CardCondition[] = [
+  "Mint",
+  "Near Mint",
+  "Excellent",
+  "Good",
+  "Light Played",
+  "Played",
+  "Poor",
+];
+
+export type OwnershipType = "raw" | "graded" | "sealed";
+
+export type GradingCompany = "PSA" | "CGC" | "BGS" | "SGC";
+
+export interface CollectionItem {
+  itemId: string;
+  cardId: string;
+  card: UnifiedCard;
+  quantity: number;
+  condition: CardCondition;
+  ownershipType: OwnershipType;
+  gradingCompany?: GradingCompany;
+  grade?: number;
+  purchasePrice?: number;
+  addedAt: string;
+}

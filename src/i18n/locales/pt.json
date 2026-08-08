@@ -1,0 +1,62 @@
+{
+  "common": {
+    "errorLoadingResults": "Não foi possível carregar os resultados. Verifica a tua ligação e tenta novamente.",
+    "errorLoadingCard": "Não foi possível carregar esta carta.",
+    "cardNotFound": "Carta não encontrada."
+  },
+  "tabs": {
+    "search": "Pesquisa",
+    "portfolio": "A minha coleção",
+    "settings": "Definições"
+  },
+  "search": {
+    "title": "Pesquisa",
+    "emptyResults": "Nenhuma carta de {{game}} encontrada para «{{query}}».",
+    "placeholderPokemon": "Pesquisar uma carta Pokémon (ex: Charizard)",
+    "placeholderMagic": "Pesquisar uma carta Magic (ex: Black Lotus)",
+    "placeholderYugioh": "Pesquisar uma carta Yu-Gi-Oh! (ex: Dark Magician)"
+  },
+  "cardDetail": {
+    "title": "Detalhe da carta",
+    "marketPrice": "Preço de mercado",
+    "netPrice": "Preço líquido realista*",
+    "disclaimer": "* estimativa após taxas médias de revenda (~13%), apenas indicativa.",
+    "addToCollection": "Adicionar à minha coleção",
+    "type": "Tipo",
+    "condition": "Estado",
+    "gradingCompany": "Empresa de gradação",
+    "grade": "Nota",
+    "quantity": "Quantidade",
+    "addedAlertTitle": "Adicionada",
+    "addedAlertMessage": "{{name}} foi adicionada à tua coleção."
+  },
+  "portfolio": {
+    "emptyTitle": "A tua coleção está vazia",
+    "emptySubtitle": "Vai ao separador Pesquisa para adicionar as tuas primeiras cartas.",
+    "marketValue": "Valor de mercado",
+    "netValue": "Valor líquido realista",
+    "cardCount": "Cartas",
+    "market": "Mercado",
+    "net": "Líquido",
+    "remove": "Remover"
+  },
+  "condition": {
+    "mint": "Nova",
+    "nearMint": "Quase nova",
+    "excellent": "Excelente estado",
+    "good": "Bom estado",
+    "lightPlayed": "Ligeiramente jogada",
+    "played": "Jogada",
+    "poor": "Mau estado"
+  },
+  "ownership": {
+    "raw": "Solta",
+    "graded": "Gradada",
+    "sealed": "Selada"
+  },
+  "settings": {
+    "title": "Definições",
+    "language": "Idioma",
+    "currency": "Moeda"
+  }
+}

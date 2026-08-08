@@ -1,0 +1,62 @@
+{
+  "common": {
+    "errorLoadingResults": "No se pudieron cargar los resultados. Comprueba tu conexión e inténtalo de nuevo.",
+    "errorLoadingCard": "No se pudo cargar esta carta.",
+    "cardNotFound": "Carta no encontrada."
+  },
+  "tabs": {
+    "search": "Buscar",
+    "portfolio": "Mi colección",
+    "settings": "Ajustes"
+  },
+  "search": {
+    "title": "Buscar",
+    "emptyResults": "No se encontró ninguna carta de {{game}} para «{{query}}».",
+    "placeholderPokemon": "Buscar una carta Pokémon (ej: Charizard)",
+    "placeholderMagic": "Buscar una carta de Magic (ej: Black Lotus)",
+    "placeholderYugioh": "Buscar una carta de Yu-Gi-Oh! (ej: Dark Magician)"
+  },
+  "cardDetail": {
+    "title": "Detalle de la carta",
+    "marketPrice": "Precio de mercado",
+    "netPrice": "Precio neto realista*",
+    "disclaimer": "* estimación tras comisiones de reventa promedio (~13%), solo a título informativo.",
+    "addToCollection": "Añadir a mi colección",
+    "type": "Tipo",
+    "condition": "Estado",
+    "gradingCompany": "Empresa de gradación",
+    "grade": "Nota",
+    "quantity": "Cantidad",
+    "addedAlertTitle": "Añadida",
+    "addedAlertMessage": "{{name}} se añadió a tu colección."
+  },
+  "portfolio": {
+    "emptyTitle": "Tu colección está vacía",
+    "emptySubtitle": "Ve a la pestaña Buscar para añadir tus primeras cartas.",
+    "marketValue": "Valor de mercado",
+    "netValue": "Valor neto realista",
+    "cardCount": "Cartas",
+    "market": "Mercado",
+    "net": "Neto",
+    "remove": "Quitar"
+  },
+  "condition": {
+    "mint": "Nueva",
+    "nearMint": "Casi nueva",
+    "excellent": "Excelente estado",
+    "good": "Buen estado",
+    "lightPlayed": "Ligeramente jugada",
+    "played": "Jugada",
+    "poor": "Mal estado"
+  },
+  "ownership": {
+    "raw": "Suelta",
+    "graded": "Gradeada",
+    "sealed": "Sellada"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "language": "Idioma",
+    "currency": "Moneda"
+  }
+}

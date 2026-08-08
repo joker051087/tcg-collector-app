@@ -1,0 +1,215 @@
+// Backend de cache/proxy pour l'app TCG Collector.
+//
+// Rôle : centraliser les appels vers les API tierces (pokemontcg.io,
+// Scryfall, YGOPRODeck, open.er-api.com, PokeAPI) derrière un cache partagé,
+// pour deux raisons (voir Plan_App_TCG.md, section "Risques") :
+//   1. Réduire le nombre d'appels réels envoyés à ces API gratuites (limites
+//      de débit, et pokemontcg.io en particulier a un taux d'erreur 5xx
+//      observé non négligeable) — un même résultat mis en cache profite à
+//      toutes les recherches suivantes, pas seulement à un appareil.
+//   2. Ne plus exposer la clé API Pokémon (si tu en configures une) dans le
+//      bundle de l'app — elle ne vit désormais que côté serveur.
+//
+// Pour l'instant ce serveur tourne en local sur ta machine, lancé à côté
+// d'Expo pendant le dev (voir README.md racine, section "Backend").
+
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import { getCached, setCached, cacheStats } from "./cache.js";
+
+const app = express();
+app.use(cors());
+
+const PORT = process.env.PORT || 4000;
+const POKEMONTCG_API_KEY = process.env.POKEMONTCG_API_KEY || "";
+
+const TTL = {
+  cards: 60 * 60 * 1000, // 1h — recherche/fiche carte (catalogue + prix)
+  exchangeRates: 24 * 60 * 60 * 1000, // 24h
+  pokemonNames: 7 * 24 * 60 * 60 * 1000, // 7 jours — les noms Pokémon changent rarement
+};
+
+async function fetchWithRetry(url, init, retries = 2, delayMs = 500) {
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, init);
+      if (res.status >= 500 && attempt < retries) {
+        await new Promise((r) => setTimeout(r, delayMs * (attempt + 1)));
+        continue;
+      }
+      return res;
+    } catch (err) {
+      lastErr = err;
+      if (attempt < retries) {
+        await new Promise((r) => setTimeout(r, delayMs * (attempt + 1)));
+        continue;
+      }
+    }
+  }
+  throw lastErr;
+}
+
+// Sert le cache si frais, sinon interroge l'API en amont, met le résultat en
+// cache (seulement en cas de succès — on ne met jamais en cache une erreur),
+// et le renvoie tel quel (même forme JSON que l'API d'origine) : les clients
+// TS existants n'ont donc pas besoin de changer leur logique de parsing,
+// seulement l'URL qu'ils appellent.
+async function proxyJson(res, { cacheKey, upstreamUrl, upstreamInit, ttlMs }) {
+  const cached = getCached(cacheKey);
+  if (cached) {
+    res.set("X-Cache", "HIT");
+    return res.json(cached);
+  }
+
+  try {
+    const upstreamRes = await fetchWithRetry(upstreamUrl, upstreamInit);
+    const text = await upstreamRes.text();
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      json = null;
+    }
+
+    if (!upstreamRes.ok) {
+      return res.status(upstreamRes.status).json(json ?? { error: text });
+    }
+
+    setCached(cacheKey, json, ttlMs);
+    res.set("X-Cache", "MISS");
+    return res.json(json);
+  } catch (err) {
+    console.error(`Erreur proxy (${cacheKey}):`, err.message);
+    return res.status(502).json({ error: "Erreur de communication avec l'API en amont" });
+  }
+}
+
+// --- Pokémon (pokemontcg.io) ---
+app.get("/proxy/pokemon/cards", async (req, res) => {
+  const q = req.query.q;
+  if (!q) return res.status(400).json({ error: "Paramètre q requis" });
+  const url = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(
+    q
+  )}&pageSize=30&orderBy=-set.releaseDate`;
+  const headers = POKEMONTCG_API_KEY ? { "X-Api-Key": POKEMONTCG_API_KEY } : {};
+  await proxyJson(res, {
+    cacheKey: `pokemon:search:${q}`,
+    upstreamUrl: url,
+    upstreamInit: { headers },
+    ttlMs: TTL.cards,
+  });
+});
+
+app.get("/proxy/pokemon/cards/:id", async (req, res) => {
+  const { id } = req.params;
+  const headers = POKEMONTCG_API_KEY ? { "X-Api-Key": POKEMONTCG_API_KEY } : {};
+  await proxyJson(res, {
+    cacheKey: `pokemon:card:${id}`,
+    upstreamUrl: `https://api.pokemontcg.io/v2/cards/${encodeURIComponent(id)}`,
+    upstreamInit: { headers },
+    ttlMs: TTL.cards,
+  });
+});
+
+// --- Magic (Scryfall) ---
+const SCRYFALL_HEADERS = {
+  Accept: "application/json;q=0.9,*/*;q=0.8",
+  "User-Agent": "TCGCollectorApp/0.1 (prototype)",
+};
+
+app.get("/proxy/magic/cards", async (req, res) => {
+  const q = req.query.q;
+  if (!q) return res.status(400).json({ error: "Paramètre q requis" });
+  const url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(
+    q
+  )}&unique=cards&order=released&dir=asc`;
+  await proxyJson(res, {
+    cacheKey: `magic:search:${q}`,
+    upstreamUrl: url,
+    upstreamInit: { headers: SCRYFALL_HEADERS },
+    ttlMs: TTL.cards,
+  });
+});
+
+app.get("/proxy/magic/cards/:id", async (req, res) => {
+  const { id } = req.params;
+  await proxyJson(res, {
+    cacheKey: `magic:card:${id}`,
+    upstreamUrl: `https://api.scryfall.com/cards/${encodeURIComponent(id)}`,
+    upstreamInit: { headers: SCRYFALL_HEADERS },
+    ttlMs: TTL.cards,
+  });
+});
+
+// --- Yu-Gi-Oh! (YGOPRODeck) ---
+app.get("/proxy/yugioh/cards", async (req, res) => {
+  const { fname, id } = req.query;
+  if (!fname && !id) return res.status(400).json({ error: "Paramètre fname ou id requis" });
+  const params = fname ? `fname=${encodeURIComponent(fname)}` : `id=${encodeURIComponent(id)}`;
+  await proxyJson(res, {
+    cacheKey: `yugioh:${params}`,
+    upstreamUrl: `https://db.ygoprodeck.com/api/v7/cardinfo.php?${params}`,
+    ttlMs: TTL.cards,
+  });
+});
+
+// --- Taux de change (open.er-api.com) ---
+app.get("/proxy/exchange-rates", async (req, res) => {
+  await proxyJson(res, {
+    cacheKey: "exchange-rates",
+    upstreamUrl: "https://open.er-api.com/v6/latest/USD",
+    ttlMs: TTL.exchangeRates,
+  });
+});
+
+// --- Dictionnaire de noms Pokémon multilingues (PokeAPI GraphQL) ---
+app.get("/proxy/pokemon-names", async (req, res) => {
+  const lang = req.query.lang;
+  if (!lang) return res.status(400).json({ error: "Paramètre lang requis" });
+
+  const cacheKey = `pokemon-names:${lang}`;
+  const cached = getCached(cacheKey);
+  if (cached) {
+    res.set("X-Cache", "HIT");
+    return res.json(cached);
+  }
+
+  const query = `
+    query GetPokemonNames($languages: [String!]) {
+      pokemon_v2_pokemonspeciesname(
+        where: { pokemon_v2_language: { name: { _in: $languages } } }
+      ) {
+        name
+        pokemon_species_id
+        pokemon_v2_language { name }
+      }
+    }
+  `;
+
+  try {
+    const upstreamRes = await fetchWithRetry("https://beta.pokeapi.co/graphql/v1beta", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query, variables: { languages: ["en", lang] } }),
+    });
+    const json = await upstreamRes.json();
+    if (!upstreamRes.ok || json.errors) {
+      return res.status(502).json({ error: json.errors?.[0]?.message ?? "Erreur PokeAPI" });
+    }
+    setCached(cacheKey, json, TTL.pokemonNames);
+    res.set("X-Cache", "MISS");
+    return res.json(json);
+  } catch (err) {
+    console.error("Erreur proxy pokemon-names:", err.message);
+    return res.status(502).json({ error: "Erreur de communication avec PokeAPI" });
+  }
+});
+
+app.get("/health", (req, res) => res.json({ ok: true, cache: cacheStats() }));
+
+app.listen(PORT, () => {
+  console.log(`Backend TCG Collector démarré sur http://localhost:${PORT}`);
+  console.log(`Depuis ton téléphone (Expo Go), utilise l'IP locale de ce PC, pas "localhost".`);
+});

@@ -1,0 +1,62 @@
+{
+  "common": {
+    "errorLoadingResults": "Ergebnisse konnten nicht geladen werden. Verbindung prüfen und erneut versuchen.",
+    "errorLoadingCard": "Diese Karte konnte nicht geladen werden.",
+    "cardNotFound": "Karte nicht gefunden."
+  },
+  "tabs": {
+    "search": "Suche",
+    "portfolio": "Meine Sammlung",
+    "settings": "Einstellungen"
+  },
+  "search": {
+    "title": "Suche",
+    "emptyResults": "Keine {{game}}-Karte für „{{query}}“ gefunden.",
+    "placeholderPokemon": "Pokémon-Karte suchen (z. B. Glurak)",
+    "placeholderMagic": "Magic-Karte suchen (z. B. Black Lotus)",
+    "placeholderYugioh": "Yu-Gi-Oh!-Karte suchen (z. B. Dark Magician)"
+  },
+  "cardDetail": {
+    "title": "Kartendetails",
+    "marketPrice": "Marktpreis",
+    "netPrice": "Realistischer Nettopreis*",
+    "disclaimer": "* Schätzung nach durchschnittlichen Wiederverkaufsgebühren (~13%), nur zur Orientierung.",
+    "addToCollection": "Zu meiner Sammlung hinzufügen",
+    "type": "Typ",
+    "condition": "Zustand",
+    "gradingCompany": "Grading-Unternehmen",
+    "grade": "Note",
+    "quantity": "Menge",
+    "addedAlertTitle": "Hinzugefügt",
+    "addedAlertMessage": "{{name}} wurde deiner Sammlung hinzugefügt."
+  },
+  "portfolio": {
+    "emptyTitle": "Deine Sammlung ist leer",
+    "emptySubtitle": "Gehe zum Tab Suche, um deine ersten Karten hinzuzufügen.",
+    "marketValue": "Marktwert",
+    "netValue": "Realistischer Nettowert",
+    "cardCount": "Karten",
+    "market": "Markt",
+    "net": "Netto",
+    "remove": "Entfernen"
+  },
+  "condition": {
+    "mint": "Neuwertig",
+    "nearMint": "Fast neuwertig",
+    "excellent": "Ausgezeichnet",
+    "good": "Gut",
+    "lightPlayed": "Leicht bespielt",
+    "played": "Bespielt",
+    "poor": "Schlecht"
+  },
+  "ownership": {
+    "raw": "Roh",
+    "graded": "Gegradet",
+    "sealed": "Versiegelt"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "language": "Sprache",
+    "currency": "Währung"
+  }
+}

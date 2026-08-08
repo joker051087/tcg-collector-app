@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: tcg-collector-backend
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      # À renseigner manuellement dans le dashboard Render après le premier
+      # déploiement (onglet Environment) — voir README.md, section "Backend".
+      - key: POKEMONTCG_API_KEY
+        sync: false

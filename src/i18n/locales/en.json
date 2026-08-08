@@ -1,0 +1,62 @@
+{
+  "common": {
+    "errorLoadingResults": "Couldn't load results. Check your connection and try again.",
+    "errorLoadingCard": "Couldn't load this card.",
+    "cardNotFound": "Card not found."
+  },
+  "tabs": {
+    "search": "Search",
+    "portfolio": "My Collection",
+    "settings": "Settings"
+  },
+  "search": {
+    "title": "Search",
+    "emptyResults": "No {{game}} card found for \"{{query}}\".",
+    "placeholderPokemon": "Search a Pokémon card (e.g. Charizard)",
+    "placeholderMagic": "Search a Magic card (e.g. Black Lotus)",
+    "placeholderYugioh": "Search a Yu-Gi-Oh! card (e.g. Dark Magician)"
+  },
+  "cardDetail": {
+    "title": "Card Detail",
+    "marketPrice": "Market Price",
+    "netPrice": "Net Realistic Price*",
+    "disclaimer": "* estimate after average resale fees (~13%), for reference only.",
+    "addToCollection": "Add to My Collection",
+    "type": "Type",
+    "condition": "Condition",
+    "gradingCompany": "Grading Company",
+    "grade": "Grade",
+    "quantity": "Quantity",
+    "addedAlertTitle": "Added",
+    "addedAlertMessage": "{{name}} was added to your collection."
+  },
+  "portfolio": {
+    "emptyTitle": "Your collection is empty",
+    "emptySubtitle": "Go to the Search tab to add your first cards.",
+    "marketValue": "Market Value",
+    "netValue": "Net Realistic Value",
+    "cardCount": "Cards",
+    "market": "Market",
+    "net": "Net",
+    "remove": "Remove"
+  },
+  "condition": {
+    "mint": "Mint",
+    "nearMint": "Near Mint",
+    "excellent": "Excellent",
+    "good": "Good",
+    "lightPlayed": "Light Played",
+    "played": "Played",
+    "poor": "Poor"
+  },
+  "ownership": {
+    "raw": "Raw",
+    "graded": "Graded",
+    "sealed": "Sealed"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "currency": "Currency"
+  }
+}
