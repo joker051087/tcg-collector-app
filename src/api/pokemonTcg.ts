@@ -121,17 +121,42 @@ export async function getCardById(id: string): Promise<UnifiedCard> {
   return toUnifiedCard(json.data as RawPokemonCard);
 }
 
-// Recherche par numéro de carte (ex : "4" pour Charizard #4/102 dans Base
-// Set). Le champ "number" de pokemontcg.io est le numéro tel qu'imprimé sur
-// la carte (souvent juste la partie avant le "/"). Comme un même numéro
-// existe dans des dizaines de sets différents, les résultats peuvent être
-// nombreux — pas de filtre par set dans cette première version.
-export async function searchCardsByNumber(query: string): Promise<UnifiedCard[]> {
-  const trimmed = query.trim();
-  if (!trimmed) return [];
+// Trois formats reconnus :
+//   - "020/064"       -> numéro seul
+//   - "SFA 020/064"   -> code de set + numéro
+//   - "SFA"           -> code de set seul (parcourt tout le set)
+// Le "/064" (total de cartes du set) sert seulement à guider l'utilisateur,
+// pokemontcg.io ne l'utilise pas pour filtrer — il est ignoré ici. Le code
+// de set (ex "SFA" pour Shrouded Fable) correspond au champ set.ptcgoCode.
+type ParsedPokemonQuery =
+  | { type: "number"; number: string; setCode?: string }
+  | { type: "set"; setCode: string };
 
-  const q = encodeURIComponent(`number:"${trimmed}"`);
-  const url = `${BASE_URL}/cards?q=${q}`;
+function parsePokemonNumberQuery(raw: string): ParsedPokemonQuery | null {
+  const trimmed = raw.trim();
+
+  const withNumber = trimmed.match(/^(?:([a-zA-Z]{2,6})\s+)?(\d+)(?:\s*\/\s*\d+)?$/);
+  if (withNumber) {
+    const [, setCode, number] = withNumber;
+    return { type: "number", number, setCode: setCode?.toUpperCase() };
+  }
+
+  const setOnly = trimmed.match(/^[a-zA-Z]{2,6}$/);
+  if (setOnly) {
+    return { type: "set", setCode: trimmed.toUpperCase() };
+  }
+
+  return null;
+}
+
+async function fetchCardsByFilter(
+  filter: string,
+  options?: { pageSize?: number; orderBy?: string }
+): Promise<UnifiedCard[]> {
+  const params = new URLSearchParams({ q: filter });
+  if (options?.pageSize) params.set("pageSize", String(options.pageSize));
+  if (options?.orderBy) params.set("orderBy", options.orderBy);
+  const url = `${BASE_URL}/cards?${params.toString()}`;
 
   const res = await fetchWithRetry(url);
   if (!res.ok) {
@@ -140,4 +165,54 @@ export async function searchCardsByNumber(query: string): Promise<UnifiedCard[]>
   const json = await res.json();
   const cards = (json.data ?? []) as RawPokemonCard[];
   return cards.map(toUnifiedCard);
+}
+
+// Recherche par numéro de carte, ou par set entier si seul un code de set
+// est tapé (ex : "SFA" liste toutes les cartes de Shrouded Fable). Le champ
+// "number" de pokemontcg.io est le numéro tel qu'imprimé sur la carte, mais
+// selon les sets il est stocké AVEC ou SANS le zéro de tête (ex: Shrouded
+// Fable stocke "20", pas "020") — on tente donc les deux variantes et on
+// fusionne les résultats. Sans code de set, un même numéro existe dans des
+// dizaines de sets différents et les résultats peuvent être nombreux.
+export async function searchCardsByNumber(query: string): Promise<UnifiedCard[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const parsed = parsePokemonNumberQuery(trimmed);
+
+  if (parsed?.type === "set") {
+    // Un set entier peut dépasser la limite par défaut (30) — 250 est le
+    // maximum autorisé par pokemontcg.io, largement suffisant. Tri par
+    // numéro pour un parcours naturel plutôt que par date de sortie.
+    return fetchCardsByFilter(`set.ptcgoCode:"${parsed.setCode}"`, {
+      pageSize: 250,
+      orderBy: "number",
+    });
+  }
+
+  const rawNumber = parsed?.type === "number" ? parsed.number : trimmed;
+  const strippedNumber = rawNumber.replace(/^0+(?=\d)/, "");
+  const numberCandidates = Array.from(new Set([rawNumber, strippedNumber]));
+
+  const filters = numberCandidates.map((num) => {
+    const parts = [`number:"${num}"`];
+    if (parsed?.type === "number" && parsed.setCode) {
+      parts.push(`set.ptcgoCode:"${parsed.setCode}"`);
+    }
+    return parts.join(" ");
+  });
+
+  const resultsPerFilter = await Promise.all(filters.map((filter) => fetchCardsByFilter(filter)));
+
+  const seen = new Set<string>();
+  const merged: UnifiedCard[] = [];
+  for (const cards of resultsPerFilter) {
+    for (const card of cards) {
+      if (!seen.has(card.id)) {
+        seen.add(card.id);
+        merged.push(card);
+      }
+    }
+  }
+  return merged;
 }

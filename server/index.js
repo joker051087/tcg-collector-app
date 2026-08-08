@@ -91,12 +91,18 @@ async function proxyJson(res, { cacheKey, upstreamUrl, upstreamInit, ttlMs }) {
 app.get("/proxy/pokemon/cards", async (req, res) => {
   const q = req.query.q;
   if (!q) return res.status(400).json({ error: "Paramètre q requis" });
+  // pageSize/orderBy passthrough : utilisé notamment pour parcourir un set
+  // entier (ex: recherche par code de set seul, "SFA") où 30 résultats ne
+  // suffisent pas et où l'ordre par numéro est plus utile que par date.
+  // 250 est le maximum autorisé par pokemontcg.io.
+  const pageSize = Math.min(Math.max(Number(req.query.pageSize) || 30, 1), 250);
+  const orderBy = req.query.orderBy || "-set.releaseDate";
   const url = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(
     q
-  )}&pageSize=30&orderBy=-set.releaseDate`;
+  )}&pageSize=${pageSize}&orderBy=${encodeURIComponent(orderBy)}`;
   const headers = POKEMONTCG_API_KEY ? { "X-Api-Key": POKEMONTCG_API_KEY } : {};
   await proxyJson(res, {
-    cacheKey: `pokemon:search:${q}`,
+    cacheKey: `pokemon:search:${q}:${pageSize}:${orderBy}`,
     upstreamUrl: url,
     upstreamInit: { headers },
     ttlMs: TTL.cards,

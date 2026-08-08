@@ -17,7 +17,8 @@
     "placeholderYugioh": "Pesquisar uma carta Yu-Gi-Oh! (ex: Dark Magician)",
     "modeName": "Nome",
     "modeNumber": "Número",
-    "placeholderNumber": "Número da carta (ex: 4/102, SDY-006...)"
+    "placeholderNumber": "Número da carta (ex: 4/102, SDY-006...)",
+    "placeholderNumberPokemon": "Número (ex: 020/064 ou SFA 020/064)"
   },
   "cardDetail": {
     "title": "Detalhe da carta",

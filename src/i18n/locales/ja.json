@@ -17,7 +17,8 @@
     "placeholderYugioh": "遊戯王カードを検索(例:ブラック・マジシャン)",
     "modeName": "名前",
     "modeNumber": "番号",
-    "placeholderNumber": "カード番号(例:4/102、SDY-006...)"
+    "placeholderNumber": "カード番号(例:4/102、SDY-006...)",
+    "placeholderNumberPokemon": "番号(例:020/064 または SFA 020/064)"
   },
   "cardDetail": {
     "title": "カード詳細",

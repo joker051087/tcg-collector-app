@@ -86,7 +86,11 @@ export default function SearchScreen({ navigation }: Props) {
 
       <TextInput
         style={styles.input}
-        placeholder={mode === "number" ? t("search.placeholderNumber") : t(GAME_PLACEHOLDER_KEYS[game])}
+        placeholder={
+          mode === "number"
+            ? t(game === "pokemon" ? "search.placeholderNumberPokemon" : "search.placeholderNumber")
+            : t(GAME_PLACEHOLDER_KEYS[game])
+        }
         placeholderTextColor="#6b7280"
         value={query}
         onChangeText={setQuery}
