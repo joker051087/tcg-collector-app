@@ -167,6 +167,23 @@ async function fetchCardsByFilter(
   return cards.map(toUnifiedCard);
 }
 
+// Le champ set.ptcgoCode n'est PAS fiable pour filtrer les cartes : il est
+// bien présent sur l'objet Set renvoyé par /v2/sets, mais constaté MANQUANT
+// sur les cartes elles-mêmes pour certains sets (ex Paldean Fates), alors
+// qu'il est présent pour d'autres (ex Shrouded Fable) — un problème dans les
+// données de pokemontcg.io, pas dans notre requête. On résout donc d'abord
+// le code tapé (ex "PAF") vers l'identifiant interne du set (ex "sv4pt5") via
+// /v2/sets, où le champ est toujours fiable, puis on filtre les cartes par
+// set.id — qui, lui, est toujours renseigné sur chaque carte.
+async function resolveSetId(ptcgoCode: string): Promise<string | null> {
+  const url = `${BASE_URL}/sets?ptcgoCode=${encodeURIComponent(ptcgoCode)}`;
+  const res = await fetchWithRetry(url);
+  if (!res.ok) return null;
+  const json = await res.json();
+  const sets = (json.data ?? []) as { id: string }[];
+  return sets[0]?.id ?? null;
+}
+
 // Recherche par numéro de carte, ou par set entier si seul un code de set
 // est tapé (ex : "SFA" liste toutes les cartes de Shrouded Fable). Le champ
 // "number" de pokemontcg.io est le numéro tel qu'imprimé sur la carte, mais
@@ -181,23 +198,25 @@ export async function searchCardsByNumber(query: string): Promise<UnifiedCard[]>
   const parsed = parsePokemonNumberQuery(trimmed);
 
   if (parsed?.type === "set") {
+    const setId = await resolveSetId(parsed.setCode);
+    if (!setId) return [];
     // Un set entier peut dépasser la limite par défaut (30) — 250 est le
     // maximum autorisé par pokemontcg.io, largement suffisant. Tri par
     // numéro pour un parcours naturel plutôt que par date de sortie.
-    return fetchCardsByFilter(`set.ptcgoCode:"${parsed.setCode}"`, {
-      pageSize: 250,
-      orderBy: "number",
-    });
+    return fetchCardsByFilter(`set.id:"${setId}"`, { pageSize: 250, orderBy: "number" });
   }
 
   const rawNumber = parsed?.type === "number" ? parsed.number : trimmed;
   const strippedNumber = rawNumber.replace(/^0+(?=\d)/, "");
   const numberCandidates = Array.from(new Set([rawNumber, strippedNumber]));
 
+  const setId =
+    parsed?.type === "number" && parsed.setCode ? await resolveSetId(parsed.setCode) : null;
+
   const filters = numberCandidates.map((num) => {
     const parts = [`number:"${num}"`];
-    if (parsed?.type === "number" && parsed.setCode) {
-      parts.push(`set.ptcgoCode:"${parsed.setCode}"`);
+    if (setId) {
+      parts.push(`set.id:"${setId}"`);
     }
     return parts.join(" ");
   });

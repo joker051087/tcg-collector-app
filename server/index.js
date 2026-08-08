@@ -29,6 +29,7 @@ const TTL = {
   exchangeRates: 24 * 60 * 60 * 1000, // 24h
   pokemonNames: 7 * 24 * 60 * 60 * 1000, // 7 jours — les noms Pokémon changent rarement
   yugiohFullDb: 24 * 60 * 60 * 1000, // 24h — gros téléchargement (base complète), pas la peine plus souvent
+  pokemonSets: 30 * 24 * 60 * 60 * 1000, // 30 jours — la liste des sets ne change qu'à chaque sortie
 };
 
 async function fetchWithRetry(url, init, retries = 2, delayMs = 500) {
@@ -106,6 +107,25 @@ app.get("/proxy/pokemon/cards", async (req, res) => {
     upstreamUrl: url,
     upstreamInit: { headers },
     ttlMs: TTL.cards,
+  });
+});
+
+// Résout un code de set court (ex "PAF") vers l'identifiant interne du set
+// (ex "sv4pt5"). Nécessaire car le champ set.ptcgoCode, lui, n'est PAS fiable
+// pour filtrer les CARTES : il est présent sur l'objet Set renvoyé par
+// /v2/sets, mais manquant sur les cartes elles-mêmes pour certains sets
+// (constaté sur Paldean Fates par exemple) — alors que set.id, lui, est
+// toujours renseigné sur chaque carte.
+app.get("/proxy/pokemon/sets", async (req, res) => {
+  const ptcgoCode = req.query.ptcgoCode;
+  if (!ptcgoCode) return res.status(400).json({ error: "Paramètre ptcgoCode requis" });
+  const headers = POKEMONTCG_API_KEY ? { "X-Api-Key": POKEMONTCG_API_KEY } : {};
+  const url = `https://api.pokemontcg.io/v2/sets?q=${encodeURIComponent(`ptcgoCode:${ptcgoCode}`)}`;
+  await proxyJson(res, {
+    cacheKey: `pokemon:sets:${ptcgoCode}`,
+    upstreamUrl: url,
+    upstreamInit: { headers },
+    ttlMs: TTL.pokemonSets,
   });
 });
 
