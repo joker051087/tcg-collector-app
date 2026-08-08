@@ -5,6 +5,8 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { ChecklistStackParamList } from "../navigation/types";
 import { fetchSetCards } from "../api";
+import { findSetBoosterImage } from "../api/sealedProducts";
+import { TCGAPI_GAMES } from "../constants/games";
 import { UnifiedCard } from "../types";
 import { usePortfolioStore } from "../store/portfolioStore";
 import GameLogo from "../components/GameLogo";
@@ -23,10 +25,28 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const portfolioItems = usePortfolioStore((state) => state.items);
+  // Pour les jeux tcgapi.dev, setImageUrl (voir tcgApiGames.ts) est une image
+  // "représentative" quelconque du set (parfois une carte, pas forcément le
+  // booster) — on va chercher spécifiquement le visuel du booster/paquet
+  // parmi les produits scellés de la série, à la demande (une série à la
+  // fois, jamais toute la liste, voir findSetBoosterImage). Si ça ne trouve
+  // rien, on garde setImageUrl tel quel.
+  const [heroImageUrl, setHeroImageUrl] = useState<string | undefined>(setImageUrl);
 
   useEffect(() => {
     navigation.setOptions({ title: setName });
   }, [navigation, setName]);
+
+  useEffect(() => {
+    if (!TCGAPI_GAMES.includes(game)) return;
+    let cancelled = false;
+    findSetBoosterImage(game, setName).then((url) => {
+      if (!cancelled && url) setHeroImageUrl(url);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [game, setName]);
 
   useEffect(() => {
     let cancelled = false;
@@ -83,8 +103,9 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
         <View style={styles.progressHeader}>
           <GameLogo
             game={game}
-            uri={setImageUrl}
-            size={40}
+            uri={heroImageUrl}
+            size={TCGAPI_GAMES.includes(game) ? 64 : 40}
+            shape={TCGAPI_GAMES.includes(game) ? "square" : "circle"}
           />
           <View style={styles.progressTextBlock}>
             <Text style={styles.progressText}>
