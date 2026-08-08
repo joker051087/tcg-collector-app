@@ -39,11 +39,19 @@ const TTL = {
   setsList: 30 * 24 * 60 * 60 * 1000, // 30 jours — liste des séries par jeu (écran Checklist)
 };
 
+// Délai max avant d'abandonner un appel amont — sans ça, si une API tierce
+// reste bloquée sans répondre (constaté sur tcgapi.dev/v1/search, semble-t-il
+// lié au quota gratuit de 100 requêtes/jour), la requête du client reste
+// bloquée indéfiniment au lieu d'échouer proprement et vite.
+const UPSTREAM_TIMEOUT_MS = 10000;
+
 async function fetchWithRetry(url, init, retries = 2, delayMs = 500) {
   let lastErr;
   for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
     try {
-      const res = await fetch(url, init);
+      const res = await fetch(url, { ...init, signal: controller.signal });
       if (res.status >= 500 && attempt < retries) {
         await new Promise((r) => setTimeout(r, delayMs * (attempt + 1)));
         continue;
@@ -55,6 +63,8 @@ async function fetchWithRetry(url, init, retries = 2, delayMs = 500) {
         await new Promise((r) => setTimeout(r, delayMs * (attempt + 1)));
         continue;
       }
+    } finally {
+      clearTimeout(timer);
     }
   }
   throw lastErr;
