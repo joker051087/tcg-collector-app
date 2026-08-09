@@ -185,12 +185,14 @@ const styles = StyleSheet.create({
   camera: {
     flex: 1,
   },
+  // Cadre aux proportions d'une carte standard (63 x 88 mm, ratio ~0.716)
+  // plutôt qu'un simple rectangle — aide à bien cadrer la carte entière.
   frameOverlay: {
     position: "absolute",
-    top: "3%",
-    left: "3%",
-    right: "3%",
-    bottom: "3%",
+    top: "4%",
+    bottom: "4%",
+    aspectRatio: 0.716,
+    alignSelf: "center",
     borderWidth: 2,
     borderColor: colors.accent,
     borderRadius: radius.md,
