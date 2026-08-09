@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "scheme": "tcgcollector",
+    "icon": "./assets/icon.png",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -16,11 +17,13 @@
     "android": {
       "package": "com.yourcompany.tcgcollector",
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0f0f13"
       }
     },
     "web": {
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-web-browser",
@@ -28,6 +31,14 @@
         "expo-camera",
         {
           "cameraPermission": "TCG Collector a besoin de l'appareil photo pour scanner tes cartes."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#0f0f13"
         }
       ]
     ]
