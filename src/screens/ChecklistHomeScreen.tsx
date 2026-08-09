@@ -204,13 +204,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#111827",
   },
+  // Taille fixe avec un peu de marge autour du cœur : le badge est positionné
+  // en absolu SANS déborder de ce cadre (contrairement à un décalage négatif
+  // "collé" au bord), sinon la zone d'en-tête de react-navigation le
+  // rogne net sur Android, ce qui donnait un badge à moitié coupé/déformé.
   wishlistHeaderButton: {
     marginRight: 8,
+    width: 34,
+    height: 34,
+    alignItems: "center",
+    justifyContent: "center",
   },
   wishlistBadge: {
     position: "absolute",
-    top: -6,
-    right: -8,
+    top: 1,
+    right: 1,
     backgroundColor: "#f472b6",
     borderRadius: 8,
     minWidth: 16,
