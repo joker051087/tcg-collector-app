@@ -105,13 +105,16 @@
     "title": "Wunschliste",
     "emptyTitle": "Deine Wunschliste ist leer",
     "emptySubtitle": "Tippe in der Checkliste auf das Herz neben einer fehlenden Karte, um sie hier hinzuzufügen.",
-    "copyForBulkBuy": "Für Sammelkauf kopieren",
+    "copyForTcgplayer": "Kopieren (TCGplayer)",
+    "copyForCardmarket": "Kopieren (Cardmarket)",
     "copiedTitle": "Liste kopiert",
-    "copiedMessage": "Die Liste wurde kopiert. Füge sie in TCGplayers Tool \"Mass Entry\" ein, um mehrere Karten auf einmal in den Warenkorb zu legen. Manche Karten werden möglicherweise nicht automatisch erkannt (Name/Serie stimmen nicht immer exakt überein) — prüfe sie und ergänze sie bei Bedarf von Hand.",
+    "copiedMessageTcgplayer": "Die Liste wurde kopiert. Füge sie in TCGplayers Tool \"Mass Entry\" ein, um mehrere Karten auf einmal in den Warenkorb zu legen. Manche Karten werden möglicherweise nicht automatisch erkannt (Name/Serie stimmen nicht immer exakt überein) — prüfe sie und ergänze sie bei Bedarf von Hand.",
+    "copiedMessageCardmarket": "Die Liste wurde kopiert. Öffne (oder erstelle) auf Cardmarket eine Wunschliste und füge sie in das Feld \"Add Decklist\" ein. Manche Karten werden möglicherweise nicht automatisch erkannt — prüfe sie und ergänze sie bei Bedarf von Hand. Für Pokémon-Karten nicht verfügbar (Cardmarket benötigt den Attacken-Text, den wir nicht haben).",
     "later": "Später",
     "openTcgplayer": "TCGplayer öffnen",
+    "openCardmarket": "Cardmarket öffnen",
     "remove": "Entfernen",
-    "disclaimer": "Der Sammelkauf funktioniert über TCGplayer (Mass Entry). Cardmarket bietet keinen Listen-Import — nutze stattdessen die einzelnen Links unter jeder Karte.",
+    "disclaimer": "Der Sammelkauf funktioniert über TCGplayer (Mass Entry) und für manche Spiele über die Cardmarket-Wunschliste — zwei externe Tools, die nicht immer zu 100% zuverlässig sind. Prüfe vor dem Bezahlen, was übernommen wurde.",
     "marketplaceHint": "Um eine einzelne Karte zu kaufen, öffne ihre Detailseite und nutze die Links {{names}}."
   }
 }

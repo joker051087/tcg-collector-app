@@ -10,6 +10,7 @@ import { GAME_LABELS } from "../constants/games";
 import { Game, UnifiedCard } from "../types";
 import { MARKETPLACE_LINKS } from "../utils/marketplaceLinks";
 import { buildMassEntryText, MASS_ENTRY_URL } from "../utils/massEntry";
+import { buildCardmarketWantsText, getCardmarketWantsUrl, supportsCardmarketWantsImport } from "../utils/cardmarketWants";
 
 type Props = NativeStackScreenProps<ChecklistStackParamList, "Wishlist">;
 
@@ -42,15 +43,28 @@ export default function WishlistScreen({ navigation }: Props) {
     }));
   }, [items]);
 
-  async function handleCopyForGame(game: Game, cards: UnifiedCard[]) {
+  async function handleCopyForTcgplayer(cards: UnifiedCard[]) {
     const text = buildMassEntryText(cards);
     await Clipboard.setStringAsync(text);
     Alert.alert(
       t("wishlist.copiedTitle"),
-      t("wishlist.copiedMessage"),
+      t("wishlist.copiedMessageTcgplayer"),
       [
         { text: t("wishlist.later"), style: "cancel" },
         { text: t("wishlist.openTcgplayer"), onPress: () => Linking.openURL(MASS_ENTRY_URL) },
+      ]
+    );
+  }
+
+  async function handleCopyForCardmarket(game: Game, cards: UnifiedCard[]) {
+    const text = buildCardmarketWantsText(cards);
+    await Clipboard.setStringAsync(text);
+    Alert.alert(
+      t("wishlist.copiedTitle"),
+      t("wishlist.copiedMessageCardmarket"),
+      [
+        { text: t("wishlist.later"), style: "cancel" },
+        { text: t("wishlist.openCardmarket"), onPress: () => Linking.openURL(getCardmarketWantsUrl(game)) },
       ]
     );
   }
@@ -78,12 +92,24 @@ export default function WishlistScreen({ navigation }: Props) {
           <Text style={styles.sectionTitle}>
             {section.title} ({section.data.length})
           </Text>
-          <TouchableOpacity
-            style={styles.copyButton}
-            onPress={() => handleCopyForGame(section.game, section.data)}
-          >
-            <Text style={styles.copyButtonText}>{t("wishlist.copyForBulkBuy")}</Text>
-          </TouchableOpacity>
+          <View style={styles.copyButtonRow}>
+            <TouchableOpacity
+              style={styles.copyButton}
+              onPress={() => handleCopyForTcgplayer(section.data)}
+            >
+              <Text style={styles.copyButtonText}>{t("wishlist.copyForTcgplayer")}</Text>
+            </TouchableOpacity>
+            {supportsCardmarketWantsImport(section.game) && (
+              <TouchableOpacity
+                style={[styles.copyButton, styles.copyButtonCardmarket]}
+                onPress={() => handleCopyForCardmarket(section.game, section.data)}
+              >
+                <Text style={[styles.copyButtonText, styles.copyButtonTextCardmarket]}>
+                  {t("wishlist.copyForCardmarket")}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       )}
       renderItem={({ item }) => (
@@ -145,17 +171,20 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
     backgroundColor: "#1f2937",
     paddingVertical: 10,
     paddingHorizontal: 14,
+    gap: 8,
   },
   sectionTitle: {
     fontSize: 13,
     fontWeight: "700",
     color: "#f9fafb",
+  },
+  copyButtonRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
   },
   copyButton: {
     borderWidth: 1,
@@ -168,6 +197,12 @@ const styles = StyleSheet.create({
     color: "#f59e0b",
     fontSize: 12,
     fontWeight: "700",
+  },
+  copyButtonCardmarket: {
+    borderColor: "#38bdf8",
+  },
+  copyButtonTextCardmarket: {
+    color: "#38bdf8",
   },
   row: {
     flexDirection: "row",

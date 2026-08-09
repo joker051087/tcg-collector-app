@@ -21,7 +21,10 @@ function buildQuery(card: UnifiedCard): string {
 // PAS vérifiés en direct — Cardmarket bloque nos outils de vérification
 // automatique (voir tentatives précédentes). À tester une fois déployé ; si
 // un lien tombe à côté, il suffit de corriger la valeur ici.
-const CARDMARKET_GAME_PATHS: Record<UnifiedCard["game"], string> = {
+// Exporté : réutilisé par cardmarketWants.ts pour construire le lien vers la
+// page "My Wants" de Cardmarket (voir handleCopyForCardmarket dans
+// WishlistScreen.tsx).
+export const CARDMARKET_GAME_PATHS: Record<UnifiedCard["game"], string> = {
   pokemon: "Pokemon",
   magic: "Magic",
   yugioh: "YuGiOh",

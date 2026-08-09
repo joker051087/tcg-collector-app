@@ -105,13 +105,16 @@
     "title": "Lista de desejos",
     "emptyTitle": "A tua lista de desejos está vazia",
     "emptySubtitle": "Na Checklist, toca no coração ao lado de uma carta em falta para a adicionar aqui.",
-    "copyForBulkBuy": "Copiar para compra em conjunto",
+    "copyForTcgplayer": "Copiar (TCGplayer)",
+    "copyForCardmarket": "Copiar (Cardmarket)",
     "copiedTitle": "Lista copiada",
-    "copiedMessage": "A lista foi copiada. Cola-a na ferramenta \"Mass Entry\" da TCGplayer para adicionar várias cartas ao carrinho de uma vez. Algumas cartas podem não ser reconhecidas automaticamente (nome/série nem sempre coincidem exatamente) — verifica e completa à mão se necessário.",
+    "copiedMessageTcgplayer": "A lista foi copiada. Cola-a na ferramenta \"Mass Entry\" da TCGplayer para adicionar várias cartas ao carrinho de uma vez. Algumas cartas podem não ser reconhecidas automaticamente (nome/série nem sempre coincidem exatamente) — verifica e completa à mão se necessário.",
+    "copiedMessageCardmarket": "A lista foi copiada. Na Cardmarket, abre (ou cria) uma lista de desejos e cola-a no campo \"Add Decklist\". Algumas cartas podem não ser reconhecidas automaticamente — verifica e completa à mão se necessário. Não disponível para cartas Pokémon (a Cardmarket exige o texto dos ataques, que não temos).",
     "later": "Mais tarde",
     "openTcgplayer": "Abrir TCGplayer",
+    "openCardmarket": "Abrir Cardmarket",
     "remove": "Remover",
-    "disclaimer": "A compra em conjunto funciona através da TCGplayer (Mass Entry). A Cardmarket não permite importar uma lista — usa os links individuais debaixo de cada carta.",
+    "disclaimer": "A compra em conjunto funciona através da TCGplayer (Mass Entry) e, para alguns jogos, através da lista de desejos da Cardmarket — duas ferramentas externas que nem sempre são 100% fiáveis, confirma o que foi adicionado antes de pagar.",
     "marketplaceHint": "Para comprar uma única carta, abre a sua ficha e usa os links {{names}}."
   }
 }
