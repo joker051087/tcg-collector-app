@@ -11,7 +11,7 @@ Ce guide t'explique, étape par étape, comment créer et configurer le projet F
 1. Ouvre https://console.firebase.google.com dans ton navigateur.
 2. Connecte-toi avec ton compte Google (kamelnafla@gmail.com).
 3. Clique sur **"Ajouter un projet"**.
-4. Nom du projet : `TCG Collector` (ou ce que tu veux). Clique **Continuer**.
+4. Nom du projet : `TCG Hallcard` (ou ce que tu veux). Clique **Continuer**.
 5. Sur l'écran Google Analytics, tu peux **désactiver** l'option (pas nécessaire). Clique **Créer le projet**.
 6. Attends que Firebase termine (une barre de chargement), puis clique **Continuer**.
 
@@ -19,10 +19,10 @@ Ce guide t'explique, étape par étape, comment créer et configurer le projet F
 
 ## Étape 2 — Ajouter une application Web (pour récupérer la configuration)
 
-Même si TCG Collector est une appli mobile, Firebase demande de créer une "app Web" pour générer les clés de configuration — c'est normal.
+Même si TCG Hallcard est une appli mobile, Firebase demande de créer une "app Web" pour générer les clés de configuration — c'est normal.
 
 1. Sur la page d'accueil du projet, clique sur l'icône **`</>`** (Web).
-2. Nom de l'app : `TCG Collector`. Ne coche PAS "Configurer Firebase Hosting".
+2. Nom de l'app : `TCG Hallcard`. Ne coche PAS "Configurer Firebase Hosting".
 3. Clique **Enregistrer l'application**.
 4. Une fenêtre affiche un bloc de code qui ressemble à ça :
 
@@ -59,7 +59,7 @@ const firebaseConfig = {
 Quand tu actives Google à l'étape 3, Firebase crée automatiquement une clé technique nécessaire au bouton "Se connecter avec Google". Il faut aller la chercher :
 
 1. Ouvre https://console.cloud.google.com/apis/credentials
-2. En haut de la page, vérifie que le bon projet est sélectionné (le menu déroulant doit afficher "TCG Collector" ou le nom que tu as choisi — sinon clique dessus et sélectionne-le).
+2. En haut de la page, vérifie que le bon projet est sélectionné (le menu déroulant doit afficher "TCG Hallcard" ou le nom que tu as choisi — sinon clique dessus et sélectionne-le).
 3. Dans la liste "ID clients OAuth 2.0", trouve celui nommé **"Web client (auto created by Google Service)"**.
 4. Clique dessus. Copie la valeur **"ID client"** (elle se termine par `.apps.googleusercontent.com`).
 5. Garde cette valeur de côté — ce sera `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`.

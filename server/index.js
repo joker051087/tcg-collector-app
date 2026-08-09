@@ -1,4 +1,4 @@
-// Backend de cache/proxy pour l'app TCG Collector.
+// Backend de cache/proxy pour l'app TCG Hallcard.
 //
 // Rôle : centraliser les appels vers les API tierces (pokemontcg.io,
 // Scryfall, YGOPRODeck, open.er-api.com, PokeAPI) derrière un cache partagé,
@@ -585,6 +585,6 @@ app.post("/scan/ocr", upload.single("image"), async (req, res) => {
 app.get("/health", (req, res) => res.json({ ok: true, cache: cacheStats() }));
 
 app.listen(PORT, () => {
-  console.log(`Backend TCG Collector démarré sur http://localhost:${PORT}`);
+  console.log(`Backend TCG Hallcard démarré sur http://localhost:${PORT}`);
   console.log(`Depuis ton téléphone (Expo Go), utilise l'IP locale de ce PC, pas "localhost".`);
 });

@@ -1,4 +1,4 @@
-# TCG Collector — prototype MVP
+# TCG Hallcard — prototype MVP
 
 Prototype cliquable pour une app de gestion de collection TCG (comme Collectr), construit
 avec **React Native + Expo** pour tourner sur iOS, Android et Web depuis un seul codebase.

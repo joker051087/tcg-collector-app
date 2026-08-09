@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "TCG Collector",
-    "slug": "tcg-collector-app",
+    "name": "TCG Hallcard",
+    "slug": "tcg-hallcard-app",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "scheme": "tcgcollector",
+    "scheme": "tcghallcard",
     "icon": "./assets/icon.png",
     "assetBundlePatterns": [
       "**/*"
@@ -30,7 +30,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "TCG Collector a besoin de l'appareil photo pour scanner tes cartes."
+          "cameraPermission": "TCG Hallcard a besoin de l'appareil photo pour scanner tes cartes."
         }
       ],
       [

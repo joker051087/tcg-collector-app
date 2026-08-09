@@ -17,7 +17,7 @@
     "quickActions": "Acesso rápido",
     "recentlyAdded": "Adicionadas recentemente",
     "exploreGames": "Explorar um jogo",
-    "emptyTitle": "Bem-vindo ao TCG Collector",
+    "emptyTitle": "Bem-vindo ao TCG Hallcard",
     "emptySubtitle": "Adiciona as tuas primeiras cartas para veres a tua coleção ganhar vida aqui.",
     "emptyCta": "Começar a pesquisar"
   },
@@ -117,7 +117,7 @@
   "scanner": {
     "title": "Scanner",
     "permissionTitle": "Permitir a câmara",
-    "permissionSubtitle": "O TCG Collector precisa da câmara para digitalizar as tuas cartas.",
+    "permissionSubtitle": "O TCG Hallcard precisa da câmara para digitalizar as tuas cartas.",
     "permissionButton": "Permitir",
     "modeVisionHint": "Reconhecimento visual: enquadra a carta, ela será identificada automaticamente (se não disponível, usa leitura de texto).",
     "modeOcrHint": "Leitura de texto: enquadra bem o nome da carta, será feita uma pesquisa com o texto lido.",
