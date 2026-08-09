@@ -13,3 +13,9 @@ services:
         sync: false
       - key: TCGAPI_KEY
         sync: false
+      - key: OCR_SPACE_API_KEY
+        sync: false
+      - key: SCRYDEX_API_KEY
+        sync: false
+      - key: SCRYDEX_TEAM_ID
+        sync: false
