@@ -11,11 +11,14 @@ import { CARDMARKET_GAME_PATHS } from "./marketplaceLinks";
 //     crochets, l'extension entre parenthèses.
 //   - One Piece / Digimon : "nom NUMÉRO Extension" — le numéro SANS
 //     crochets/parenthèses, suivi du nom de l'extension.
-//   - Pokémon : nécessite le texte des attaques/capacités en plus du nom
-//     ("Umbreon EX Moon Mirage Onyx", pas juste "Umbreon") — donnée qu'on n'a
-//     pas dans UnifiedCard, donc PAS supporté ici (contrairement à TCGplayer
-//     Mass Entry, voir massEntry.ts, qui lui accepte nom+set+numéro pour
-//     Pokémon).
+//   - Pokémon : la doc Cardmarket dit que le nom seul ne suffit pas, qu'il
+//     faut aussi le texte des attaques/capacités ("Umbreon EX Moon Mirage
+//     Onyx", pas juste "Umbreon") — donnée qu'on n'a pas dans UnifiedCard.
+//     Activé quand même à la demande de l'utilisateur (nom + extension,
+//     comme Magic) pour tester en conditions réelles si ça suffit malgré
+//     tout sur les cartes à nom unique dans leur set ; à revoir selon le
+//     retour terrain (voir wishlist.copiedMessageCardmarket, qui garde un
+//     avertissement).
 //   - Les 7 autres jeux (Riftbound, Dragon Ball, Digimon déjà listé, Flesh &
 //     Blood, Star Wars: Unlimited, Union Arena, Gundam, Final Fantasy) : pas
 //     de page d'aide dédiée trouvée -> pas de format garanti, donc exclus
@@ -23,6 +26,7 @@ import { CARDMARKET_GAME_PATHS } from "./marketplaceLinks";
 type WantsFormat = "name-expansion" | "name-number-expansion";
 
 const CARDMARKET_WANTS_FORMAT: Partial<Record<Game, WantsFormat>> = {
+  pokemon: "name-expansion",
   magic: "name-expansion",
   yugioh: "name-expansion",
   lorcana: "name-expansion",

@@ -109,7 +109,7 @@
     "copyForCardmarket": "コピー（Cardmarket）",
     "copiedTitle": "リストをコピーしました",
     "copiedMessageTcgplayer": "リストをコピーしました。TCGplayerの「Mass Entry」ツールに貼り付けると、複数のカードを一度にカートに追加できます。名前やシリーズが完全に一致せず自動認識されないカードもあるので、必要に応じて確認・手動追加してください。",
-    "copiedMessageCardmarket": "リストをコピーしました。Cardmarketでウィッシュリストを開く（または新規作成）し、「Add Decklist」欄に貼り付けてください。自動認識されないカードもあるので、必要に応じて確認・手動追加してください。ポケモンカードには対応していません（Cardmarketは技のテキストが必要ですが、このアプリのデータには含まれていません）。",
+    "copiedMessageCardmarket": "リストをコピーしました。Cardmarketでウィッシュリストを開く（または新規作成）し、「Add Decklist」欄に貼り付けてください。自動認識されないカードもあるので、必要に応じて確認・手動追加してください。特にポケモンの場合、Cardmarketがワザのテキストまで要求することがあるため、うまくいかないこともあります。",
     "later": "後で",
     "openTcgplayer": "TCGplayerを開く",
     "openCardmarket": "Cardmarketを開く",
