@@ -89,7 +89,13 @@
   "settings": {
     "title": "Einstellungen",
     "language": "Sprache",
-    "currency": "Währung"
+    "currency": "Währung",
+    "account": "Konto",
+    "accountUnavailable": "Anmeldung noch nicht verfügbar.",
+    "accountHint": "Melde dich mit Google an, um deine Sammlung online zu sichern und auf einem anderen Gerät abzurufen.",
+    "accountSynced": "Angemeldet · Synchronisierung aktiv",
+    "signInWithGoogle": "Mit Google anmelden",
+    "signOut": "Abmelden"
   },
   "checklist": {
     "title": "Checkliste",

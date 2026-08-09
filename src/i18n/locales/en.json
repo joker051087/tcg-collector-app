@@ -89,7 +89,13 @@
   "settings": {
     "title": "Settings",
     "language": "Language",
-    "currency": "Currency"
+    "currency": "Currency",
+    "account": "Account",
+    "accountUnavailable": "Sign-in isn't available yet.",
+    "accountHint": "Sign in with Google to back up your collection online and access it from another device.",
+    "accountSynced": "Signed in · sync active",
+    "signInWithGoogle": "Sign in with Google",
+    "signOut": "Sign out"
   },
   "checklist": {
     "title": "Checklist",

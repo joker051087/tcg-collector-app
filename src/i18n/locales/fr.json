@@ -89,7 +89,13 @@
   "settings": {
     "title": "Réglages",
     "language": "Langue",
-    "currency": "Devise"
+    "currency": "Devise",
+    "account": "Compte",
+    "accountUnavailable": "Connexion pas encore disponible.",
+    "accountHint": "Connecte-toi avec Google pour sauvegarder ta collection en ligne et la retrouver sur un autre appareil.",
+    "accountSynced": "Connecté · synchronisation active",
+    "signInWithGoogle": "Se connecter avec Google",
+    "signOut": "Se déconnecter"
   },
   "checklist": {
     "title": "Checklist",

@@ -1,0 +1,16 @@
+// Règles de sécurité Firestore — à coller dans Firebase Console :
+// Firestore Database > Rules (voir GUIDE_FIREBASE.md, étape 6).
+//
+// Principe : chaque utilisateur connecté ne peut lire/écrire QUE ses propres
+// documents (users/{son propre uid}/...). Personne d'autre, y compris un
+// autre utilisateur connecté, ne peut voir ou modifier les données de
+// quelqu'un d'autre. Un utilisateur non connecté n'a accès à rien.
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/data/{document} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

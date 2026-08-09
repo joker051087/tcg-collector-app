@@ -89,7 +89,13 @@
   "settings": {
     "title": "Impostazioni",
     "language": "Lingua",
-    "currency": "Valuta"
+    "currency": "Valuta",
+    "account": "Account",
+    "accountUnavailable": "L'accesso non è ancora disponibile.",
+    "accountHint": "Accedi con Google per salvare la tua collezione online e ritrovarla su un altro dispositivo.",
+    "accountSynced": "Connesso · sincronizzazione attiva",
+    "signInWithGoogle": "Accedi con Google",
+    "signOut": "Esci"
   },
   "checklist": {
     "title": "Checklist",

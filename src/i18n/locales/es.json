@@ -89,7 +89,13 @@
   "settings": {
     "title": "Ajustes",
     "language": "Idioma",
-    "currency": "Moneda"
+    "currency": "Moneda",
+    "account": "Cuenta",
+    "accountUnavailable": "El inicio de sesión aún no está disponible.",
+    "accountHint": "Inicia sesión con Google para guardar tu colección en línea y acceder a ella desde otro dispositivo.",
+    "accountSynced": "Conectado · sincronización activa",
+    "signInWithGoogle": "Iniciar sesión con Google",
+    "signOut": "Cerrar sesión"
   },
   "checklist": {
     "title": "Checklist",

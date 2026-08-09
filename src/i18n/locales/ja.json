@@ -89,7 +89,13 @@
   "settings": {
     "title": "設定",
     "language": "言語",
-    "currency": "通貨"
+    "currency": "通貨",
+    "account": "アカウント",
+    "accountUnavailable": "サインインはまだ利用できません。",
+    "accountHint": "Googleでサインインすると、コレクションをオンラインに保存し、別の端末からもアクセスできます。",
+    "accountSynced": "サインイン済み・同期中",
+    "signInWithGoogle": "Googleでサインイン",
+    "signOut": "サインアウト"
   },
   "checklist": {
     "title": "チェックリスト",
