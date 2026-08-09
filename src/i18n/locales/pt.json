@@ -109,7 +109,7 @@
     "copyForCardmarket": "Copiar (Cardmarket)",
     "copiedTitle": "Lista copiada",
     "copiedMessageTcgplayer": "A lista foi copiada. Cola-a na ferramenta \"Mass Entry\" da TCGplayer para adicionar várias cartas ao carrinho de uma vez. Algumas cartas podem não ser reconhecidas automaticamente (nome/série nem sempre coincidem exatamente) — verifica e completa à mão se necessário.",
-    "copiedMessageCardmarket": "A lista foi copiada. Na Cardmarket, abre (ou cria) uma lista de desejos e cola-a no campo \"Add Decklist\". Algumas cartas podem não ser reconhecidas automaticamente — verifica e completa à mão se necessário. Para o Pokémon em especial, a Cardmarket por vezes também pede o texto do ataque para reconhecer a carta, por isso pode não funcionar sempre.",
+    "copiedMessageCardmarket": "A lista foi copiada. Na Cardmarket, abre (ou cria) uma lista de desejos e cola-a no campo \"Add Decklist\". Algumas cartas podem não ser reconhecidas automaticamente — verifica e completa à mão se necessário. Não disponível para cartas Pokémon (testado: a Cardmarket exige o texto dos ataques, que não temos).",
     "later": "Mais tarde",
     "openTcgplayer": "Abrir TCGplayer",
     "openCardmarket": "Abrir Cardmarket",
