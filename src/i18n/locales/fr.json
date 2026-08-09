@@ -119,7 +119,7 @@
     "permissionTitle": "Autoriser l'appareil photo",
     "permissionSubtitle": "TCG Collector a besoin de l'appareil photo pour scanner tes cartes.",
     "permissionButton": "Autoriser",
-    "modeVisionHint": "Reconnaissance visuelle : cadre la carte, elle sera identifiée automatiquement.",
+    "modeVisionHint": "Reconnaissance visuelle : cadre la carte, elle sera identifiée automatiquement (repli sur la lecture de texte si indisponible).",
     "modeOcrHint": "Lecture de texte : cadre bien le nom de la carte, une recherche sera lancée avec le texte lu.",
     "noMatch": "Carte non reconnue. Réessaie avec un meilleur éclairage, ou cherche-la manuellement.",
     "noText": "Aucun texte lisible détecté. Réessaie en te rapprochant.",

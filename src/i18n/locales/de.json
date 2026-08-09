@@ -119,7 +119,7 @@
     "permissionTitle": "Kamerazugriff erlauben",
     "permissionSubtitle": "TCG Collector benötigt die Kamera, um deine Karten zu scannen.",
     "permissionButton": "Erlauben",
-    "modeVisionHint": "Bilderkennung: Karte einrahmen, sie wird automatisch erkannt.",
+    "modeVisionHint": "Bilderkennung: Karte einrahmen, sie wird automatisch erkannt (bei Nichtverfügbarkeit wird auf Texterkennung zurückgegriffen).",
     "modeOcrHint": "Texterkennung: Kartennamen gut einrahmen, es wird mit dem erkannten Text gesucht.",
     "noMatch": "Karte nicht erkannt. Versuch es mit besserer Beleuchtung erneut oder suche manuell.",
     "noText": "Kein lesbarer Text erkannt. Geh näher heran und versuch es erneut.",

@@ -38,24 +38,32 @@ export default function ScannerScreen({ navigation, route }: Props) {
       if (!photo?.uri) throw new Error(t("scanner.errorCapture"));
 
       if (usesVision) {
-        const result = await identifyCardByImage(photo.uri, game);
-        if (!result) {
-          setError(t("scanner.noMatch"));
-          return;
+        try {
+          const result = await identifyCardByImage(photo.uri, game);
+          if (result) {
+            navigation.replace("CardDetail", {
+              game,
+              cardId: result.card.id,
+              presetCard: result.card,
+            });
+            return;
+          }
+          // Aucun match trouvé — on retente avec la lecture de texte
+          // ci-dessous plutôt que de s'arrêter là.
+        } catch (visionErr) {
+          // Scrydex non configuré côté serveur (voir GUIDE_SCANNER.md,
+          // optionnel) ou service indisponible — on retente avec la lecture
+          // de texte plutôt que de bloquer l'utilisateur sur une erreur.
+          console.warn("Scan visuel indisponible, repli sur la lecture de texte:", visionErr);
         }
-        navigation.replace("CardDetail", {
-          game,
-          cardId: result.card.id,
-          presetCard: result.card,
-        });
-      } else {
-        const text = await extractTextFromImage(photo.uri);
-        if (!text) {
-          setError(t("scanner.noText"));
-          return;
-        }
-        navigation.replace("SearchHome", { initialGame: game, initialQuery: text });
       }
+
+      const text = await extractTextFromImage(photo.uri);
+      if (!text) {
+        setError(t("scanner.noText"));
+        return;
+      }
+      navigation.replace("SearchHome", { initialGame: game, initialQuery: text });
     } catch (err: any) {
       console.error("Erreur scanner:", err);
       setError(err?.message ?? t("scanner.errorGeneric"));

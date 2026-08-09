@@ -119,7 +119,7 @@
     "permissionTitle": "Permitir la cámara",
     "permissionSubtitle": "TCG Collector necesita la cámara para escanear tus cartas.",
     "permissionButton": "Permitir",
-    "modeVisionHint": "Reconocimiento visual: encuadra la carta y se identificará automáticamente.",
+    "modeVisionHint": "Reconocimiento visual: encuadra la carta y se identificará automáticamente (si no está disponible, se usa la lectura de texto).",
     "modeOcrHint": "Lectura de texto: encuadra bien el nombre de la carta, se lanzará una búsqueda con el texto leído.",
     "noMatch": "Carta no reconocida. Inténtalo con mejor luz o búscala manualmente.",
     "noText": "No se detectó texto legible. Acércate más e inténtalo de nuevo.",

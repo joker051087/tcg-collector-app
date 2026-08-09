@@ -119,7 +119,7 @@
     "permissionTitle": "Consenti la fotocamera",
     "permissionSubtitle": "TCG Collector ha bisogno della fotocamera per scansionare le tue carte.",
     "permissionButton": "Consenti",
-    "modeVisionHint": "Riconoscimento visivo: inquadra la carta, verrà identificata automaticamente.",
+    "modeVisionHint": "Riconoscimento visivo: inquadra la carta, verrà identificata automaticamente (se non disponibile, si passa alla lettura del testo).",
     "modeOcrHint": "Lettura del testo: inquadra bene il nome della carta, verrà avviata una ricerca con il testo letto.",
     "noMatch": "Carta non riconosciuta. Riprova con più luce, oppure cercala manualmente.",
     "noText": "Nessun testo leggibile rilevato. Avvicinati e riprova.",

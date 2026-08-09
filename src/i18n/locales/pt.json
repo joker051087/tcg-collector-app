@@ -119,7 +119,7 @@
     "permissionTitle": "Permitir a câmara",
     "permissionSubtitle": "O TCG Collector precisa da câmara para digitalizar as tuas cartas.",
     "permissionButton": "Permitir",
-    "modeVisionHint": "Reconhecimento visual: enquadra a carta, ela será identificada automaticamente.",
+    "modeVisionHint": "Reconhecimento visual: enquadra a carta, ela será identificada automaticamente (se não disponível, usa leitura de texto).",
     "modeOcrHint": "Leitura de texto: enquadra bem o nome da carta, será feita uma pesquisa com o texto lido.",
     "noMatch": "Carta não reconhecida. Tenta novamente com melhor iluminação, ou procura-a manualmente.",
     "noText": "Nenhum texto legível detetado. Aproxima-te e tenta novamente.",

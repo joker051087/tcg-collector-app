@@ -119,7 +119,7 @@
     "permissionTitle": "Allow camera access",
     "permissionSubtitle": "TCG Collector needs camera access to scan your cards.",
     "permissionButton": "Allow",
-    "modeVisionHint": "Visual recognition: frame the card and it'll be identified automatically.",
+    "modeVisionHint": "Visual recognition: frame the card and it'll be identified automatically (falls back to text reading if unavailable).",
     "modeOcrHint": "Text reading: frame the card's name clearly, a search will run with the text detected.",
     "noMatch": "Card not recognized. Try again with better lighting, or search for it manually.",
     "noText": "No readable text detected. Try again closer to the card.",
