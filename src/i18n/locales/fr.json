@@ -105,16 +105,7 @@
     "title": "Liste de souhaits",
     "emptyTitle": "Ta liste de souhaits est vide",
     "emptySubtitle": "Depuis la Checklist, appuie sur le cœur à côté d'une carte manquante pour l'ajouter ici.",
-    "copyForTcgplayer": "Copier (TCGplayer)",
-    "copyForCardmarket": "Copier (Cardmarket)",
-    "copiedTitle": "Liste copiée",
-    "copiedMessageTcgplayer": "La liste a été copiée. Colle-la dans l'outil \"Mass Entry\" de TCGplayer pour ajouter plusieurs cartes au panier en une fois. Certaines cartes peuvent ne pas être reconnues automatiquement (nom/série pas toujours identiques) — vérifie et complète à la main si besoin.",
-    "copiedMessageCardmarket": "La liste a été copiée. Sur Cardmarket, ouvre (ou crée) une liste de souhaits puis colle-la dans le champ \"Add Decklist\". Certaines cartes peuvent ne pas être reconnues automatiquement — vérifie et complète à la main si besoin. Non disponible pour les cartes Pokémon (testé : Cardmarket exige le texte des attaques, qu'on n'a pas).",
-    "later": "Plus tard",
-    "openTcgplayer": "Ouvrir TCGplayer",
-    "openCardmarket": "Ouvrir Cardmarket",
     "remove": "Retirer",
-    "disclaimer": "Achat groupé disponible via TCGplayer (Mass Entry) et, pour certains jeux, via la liste de souhaits Cardmarket — deux outils tiers pas toujours fiables à 100%, vérifie ce qui a été ajouté avant de payer.",
-    "marketplaceHint": "Pour acheter une carte seule, ouvre sa fiche et utilise les liens {{names}}."
+    "marketplaceHint": "Pour acheter une carte, ouvre sa fiche et utilise les liens {{names}}."
   }
 }

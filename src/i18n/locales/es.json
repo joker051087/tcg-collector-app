@@ -105,16 +105,7 @@
     "title": "Lista de deseos",
     "emptyTitle": "Tu lista de deseos está vacía",
     "emptySubtitle": "Desde la Checklist, toca el corazón junto a una carta que te falte para añadirla aquí.",
-    "copyForTcgplayer": "Copiar (TCGplayer)",
-    "copyForCardmarket": "Copiar (Cardmarket)",
-    "copiedTitle": "Lista copiada",
-    "copiedMessageTcgplayer": "La lista se copió. Pégala en la herramienta \"Mass Entry\" de TCGplayer para añadir varias cartas al carrito a la vez. Puede que algunas cartas no se reconozcan automáticamente (el nombre/serie no siempre coincide exactamente) — revísalas y complétalas a mano si hace falta.",
-    "copiedMessageCardmarket": "La lista se copió. En Cardmarket, abre (o crea) una lista de deseos y pégala en el campo \"Add Decklist\". Puede que algunas cartas no se reconozcan automáticamente — revísalas y complétalas a mano si hace falta. No disponible para cartas Pokémon (probado: Cardmarket exige el texto de los ataques, que no tenemos).",
-    "later": "Más tarde",
-    "openTcgplayer": "Abrir TCGplayer",
-    "openCardmarket": "Abrir Cardmarket",
     "remove": "Quitar",
-    "disclaimer": "La compra masiva funciona a través de TCGplayer (Mass Entry) y, para algunos juegos, mediante la lista de deseos de Cardmarket — dos herramientas externas que no siempre son 100% fiables, revisa lo que se añadió antes de pagar.",
-    "marketplaceHint": "Para comprar una sola carta, abre su ficha y usa los enlaces {{names}}."
+    "marketplaceHint": "Para comprar una carta, abre su ficha y usa los enlaces {{names}}."
   }
 }

@@ -105,16 +105,7 @@
     "title": "Wishlist",
     "emptyTitle": "Your wishlist is empty",
     "emptySubtitle": "From the Checklist, tap the heart next to a missing card to add it here.",
-    "copyForTcgplayer": "Copy (TCGplayer)",
-    "copyForCardmarket": "Copy (Cardmarket)",
-    "copiedTitle": "List copied",
-    "copiedMessageTcgplayer": "The list was copied. Paste it into TCGplayer's \"Mass Entry\" tool to add several cards to your cart at once. Some cards may not be recognized automatically (name/set aren't always an exact match) — check and add them by hand if needed.",
-    "copiedMessageCardmarket": "The list was copied. On Cardmarket, open (or create) a wants list and paste it into the \"Add Decklist\" field. Some cards may not be recognized automatically — check and add them by hand if needed. Not available for Pokémon cards (tested: Cardmarket requires the attack text, which we don't have).",
-    "later": "Later",
-    "openTcgplayer": "Open TCGplayer",
-    "openCardmarket": "Open Cardmarket",
     "remove": "Remove",
-    "disclaimer": "Bulk buying works through TCGplayer (Mass Entry) and, for some games, through Cardmarket's wants list — two third-party tools that aren't always 100% reliable, so double-check what got added before paying.",
-    "marketplaceHint": "To buy a single card, open its detail page and use the {{names}} links."
+    "marketplaceHint": "To buy a card, open its detail page and use the {{names}} links."
   }
 }
