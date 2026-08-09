@@ -66,11 +66,6 @@ export default function HomeScreen({ navigation }: Props) {
 
       <View style={styles.quickActions}>
         <QuickAction
-          icon="camera"
-          label={t("scanner.title")}
-          onPress={() => navigation.navigate("SearchTab", { screen: "Scanner", params: undefined })}
-        />
-        <QuickAction
           icon="search"
           label={t("tabs.search")}
           onPress={() => navigation.navigate("SearchTab", { screen: "SearchHome", params: undefined })}

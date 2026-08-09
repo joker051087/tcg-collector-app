@@ -1,14 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 import { SearchStackParamList } from "../navigation/types";
@@ -68,28 +59,8 @@ export default function SearchScreen({ navigation, route }: Props) {
     if (route.params?.initialGame) setGame(route.params.initialGame);
   }, [route.params?.initialGame]);
 
-  // Retour du Scanner en mode lecture de texte (voir ScannerScreen.tsx) :
-  // préremplit la recherche avec le texte lu sur la carte plutôt que de
-  // forcer l'utilisateur à le retaper.
-  useEffect(() => {
-    if (route.params?.initialQuery) setQuery(route.params.initialQuery);
-  }, [route.params?.initialQuery]);
-
-  // Bouton scanner dans l'en-tête — ouvre l'appareil photo avec le jeu
-  // actuellement sélectionné, voir ScannerScreen.tsx.
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Scanner", { initialGame: game })}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          style={styles.scannerHeaderButton}
-        >
-          <Ionicons name="camera-outline" size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation, game]);
+  // Scanner : mis de côté pour l'instant (voir RootNavigator.tsx) — plus de
+  // bouton dans l'en-tête ni de préremplissage de la recherche depuis lui.
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -215,9 +186,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
-  },
-  scannerHeaderButton: {
-    marginRight: 8,
   },
   gameSelector: {
     paddingHorizontal: 12,
