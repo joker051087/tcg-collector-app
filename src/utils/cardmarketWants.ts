@@ -34,18 +34,31 @@ export function supportsCardmarketWantsImport(game: Game): boolean {
   return game in CARDMARKET_WANTS_FORMAT;
 }
 
+// tcgapi.dev (One Piece, Digimon...) suffixe parfois le nom d'un marqueur de
+// rareté/variante entre parenthèses (ex "Ms. All Sunday (SP)" pour une
+// version spéciale) — confirmé par un test utilisateur réel : Cardmarket
+// utilise LUI-MÊME les parenthèses pour sa propre syntaxe (extension, ou
+// "(V.x)" pour la version), donc ce suffixe entre en collision et fait
+// échouer la reconnaissance de la carte. On le retire avant de construire la
+// ligne (uniquement pour Cardmarket — TCGplayer, qui n'a pas ce conflit de
+// syntaxe, garde le nom tel quel dans massEntry.ts).
+function stripParentheticalSuffix(name: string): string {
+  return name.replace(/\s*\([^)]*\)\s*$/, "").trim();
+}
+
 export function buildCardmarketWantsText(cards: UnifiedCard[]): string {
   return cards
     .map((c) => {
       const format = CARDMARKET_WANTS_FORMAT[c.game];
+      const name = stripParentheticalSuffix(c.name);
       const hasSet = c.setName && c.setName !== "—";
       if (format === "name-number-expansion") {
         const numberPart = c.number ? ` ${c.number}` : "";
         const setPart = hasSet ? ` ${c.setName}` : "";
-        return `1x ${c.name}${numberPart}${setPart}`;
+        return `1x ${name}${numberPart}${setPart}`;
       }
       const setPart = hasSet ? ` (${c.setName})` : "";
-      return `1x ${c.name}${setPart}`;
+      return `1x ${name}${setPart}`;
     })
     .join("\n");
 }
