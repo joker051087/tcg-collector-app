@@ -113,5 +113,17 @@
     "emptySubtitle": "Na Checklist, toca no coração ao lado de uma carta em falta para a adicionar aqui.",
     "remove": "Remover",
     "marketplaceHint": "Para comprar uma carta, abre a sua ficha e usa os links {{names}}."
+  },
+  "scanner": {
+    "title": "Scanner",
+    "permissionTitle": "Permitir a câmara",
+    "permissionSubtitle": "O TCG Collector precisa da câmara para digitalizar as tuas cartas.",
+    "permissionButton": "Permitir",
+    "modeVisionHint": "Reconhecimento visual: enquadra a carta, ela será identificada automaticamente.",
+    "modeOcrHint": "Leitura de texto: enquadra bem o nome da carta, será feita uma pesquisa com o texto lido.",
+    "noMatch": "Carta não reconhecida. Tenta novamente com melhor iluminação, ou procura-a manualmente.",
+    "noText": "Nenhum texto legível detetado. Aproxima-te e tenta novamente.",
+    "errorCapture": "Não foi possível tirar a foto.",
+    "errorGeneric": "O scanner teve um problema. Tenta novamente."
   }
 }

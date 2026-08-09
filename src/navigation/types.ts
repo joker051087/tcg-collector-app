@@ -5,12 +5,22 @@ export type SearchStackParamList = {
   // initialGame : fourni quand on arrive depuis la grille "Explorer un jeu"
   // de l'écran d'Accueil, pour ouvrir directement la recherche sur le jeu
   // choisi plutôt que sur Pokémon par défaut (voir SearchScreen.tsx).
-  SearchHome: { initialGame?: Game } | undefined;
+  // initialQuery : fourni quand on revient du Scanner en mode OCR (voir
+  // ScannerScreen.tsx) — préremplit la recherche avec le texte lu sur la
+  // carte plutôt que de laisser l'utilisateur le retaper.
+  SearchHome: { initialGame?: Game; initialQuery?: string } | undefined;
   // presetCard : fourni pour les produits scellés (tcgapi.dev), dont l'id
   // n'existe dans aucune des 3 API "cartes" — impossible d'utiliser
   // getCardById dans ce cas, on passe donc directement la carte déjà
-  // récupérée par la recherche plutôt que de la re-fetcher.
+  // récupérée par la recherche plutôt que de la re-fetcher. Même raison
+  // pour les cartes identifiées par le Scanner (voir ScannerScreen.tsx,
+  // id préfixé "scrydex-").
   CardDetail: { game: Game; cardId: string; presetCard?: UnifiedCard };
+  // Scanner : appareil photo pour identifier une carte (voir
+  // ScannerScreen.tsx) — reconnaissance visuelle (Scrydex Vision) pour les
+  // jeux couverts, lecture de texte (OCR) pour les autres, voir
+  // SCRYDEX_VISION_GAMES dans src/constants/games.ts.
+  Scanner: { initialGame?: Game } | undefined;
 };
 
 // Checklist : choisir un jeu puis une série, voir quelles cartes de cette

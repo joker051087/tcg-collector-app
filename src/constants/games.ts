@@ -34,6 +34,20 @@ export const TCGAPI_GAMES: Game[] = [
   "finalfantasy",
 ];
 
+// Jeux couverts par le scanner en mode "reconnaissance visuelle" (Scrydex
+// Vision, voir server/index.js /scan/vision et GUIDE_SCANNER.md) — les 7
+// autres jeux basculent automatiquement sur la lecture de texte (OCR), voir
+// ScannerScreen.tsx. Les clés à droite sont les identifiants attendus par
+// l'API Scrydex, différents de nos clés internes pour "magic".
+export const SCRYDEX_VISION_GAMES: Partial<Record<Game, string>> = {
+  pokemon: "pokemon",
+  magic: "magicthegathering",
+  onepiece: "onepiece",
+  lorcana: "lorcana",
+  riftbound: "riftbound",
+  gundam: "gundam",
+};
+
 // Noms de marque : on ne les traduit pas, ils restent identiques dans
 // toutes les langues (comme sur les boîtes de jeu elles-mêmes).
 export const GAME_LABELS: Record<Game, string> = {

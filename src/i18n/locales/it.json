@@ -113,5 +113,17 @@
     "emptySubtitle": "Dalla Checklist, tocca il cuore accanto a una carta mancante per aggiungerla qui.",
     "remove": "Rimuovi",
     "marketplaceHint": "Per acquistare una carta, apri la sua scheda e usa i link {{names}}."
+  },
+  "scanner": {
+    "title": "Scanner",
+    "permissionTitle": "Consenti la fotocamera",
+    "permissionSubtitle": "TCG Collector ha bisogno della fotocamera per scansionare le tue carte.",
+    "permissionButton": "Consenti",
+    "modeVisionHint": "Riconoscimento visivo: inquadra la carta, verrà identificata automaticamente.",
+    "modeOcrHint": "Lettura del testo: inquadra bene il nome della carta, verrà avviata una ricerca con il testo letto.",
+    "noMatch": "Carta non riconosciuta. Riprova con più luce, oppure cercala manualmente.",
+    "noText": "Nessun testo leggibile rilevato. Avvicinati e riprova.",
+    "errorCapture": "Impossibile scattare la foto.",
+    "errorGeneric": "Lo scanner ha riscontrato un problema. Riprova."
   }
 }

@@ -16,14 +16,20 @@
     "android": {
       "package": "com.yourcompany.tcgcollector",
       "adaptiveIcon": {
-        "backgroundColor": "#111827"
+        "backgroundColor": "#0f0f13"
       }
     },
     "web": {
       "bundler": "metro"
     },
     "plugins": [
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "TCG Collector a besoin de l'appareil photo pour scanner tes cartes."
+        }
+      ]
     ]
   }
 }

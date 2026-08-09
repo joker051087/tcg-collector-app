@@ -16,10 +16,19 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import multer from "multer";
 import { getCached, setCached, cacheStats } from "./cache.js";
 
 const app = express();
 app.use(cors());
+
+// Photos envoyées par l'écran Scanner (voir plus bas, /scan/vision et
+// /scan/ocr) — gardées en mémoire (jamais écrites sur disque, pas besoin,
+// elles ne servent qu'à être retransmises telles quelles au service tiers)
+// et limitées à 15 Mo (l'appareil photo d'un téléphone peut dépasser 20 Mo en
+// pleine résolution, mais l'app compresse déjà la photo avant l'envoi — voir
+// ScannerScreen.tsx).
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } });
 
 const PORT = process.env.PORT || 4000;
 const POKEMONTCG_API_KEY = process.env.POKEMONTCG_API_KEY || "";
@@ -28,6 +37,18 @@ const POKEMONTCG_API_KEY = process.env.POKEMONTCG_API_KEY || "";
 // README.md, section "Produits scellés") — tcgapi.dev est un service tiers
 // qui republie ces mêmes données de prix. Clé gratuite sur https://tcgapi.dev/signup.
 const TCGAPI_KEY = process.env.TCGAPI_KEY || "";
+// Scrydex Vision (scanner — reconnaissance visuelle de cartes, voir
+// GUIDE_SCANNER.md). Service payant (~29$/mois minimum), compte + équipe à
+// créer sur https://scrydex.com/register. Ne couvre que 6 jeux (Pokémon,
+// Magic, Lorcana, One Piece, Riftbound, Gundam) — voir SCRYDEX_VISION_GAMES
+// côté client (src/constants/games.ts) pour la correspondance avec les 13
+// jeux de l'appli ; les autres passent par /scan/ocr ci-dessous à la place.
+const SCRYDEX_API_KEY = process.env.SCRYDEX_API_KEY || "";
+const SCRYDEX_TEAM_ID = process.env.SCRYDEX_TEAM_ID || "";
+// OCR.space (scanner — lecture de texte, jeux non couverts par Scrydex
+// Vision). Gratuit, clé sur https://ocr.space/ocrapi/freekey (pas de carte
+// bancaire demandée).
+const OCR_SPACE_API_KEY = process.env.OCR_SPACE_API_KEY || "";
 
 const TTL = {
   cards: 60 * 60 * 1000, // 1h — recherche/fiche carte (catalogue + prix)
@@ -435,6 +456,130 @@ app.get("/proxy/tcgapi/sets/:id/cards", async (req, res) => {
     upstreamInit: { headers: { "X-API-Key": TCGAPI_KEY } },
     ttlMs: TTL.sealed,
   });
+});
+
+// --- Scanner : reconnaissance visuelle (Scrydex Vision) ---
+// Reçoit la photo prise par l'appli (multipart/form-data, champ "image"),
+// la retransmet à Scrydex Vision, et renvoie le meilleur résultat déjà
+// simplifié (le client n'a pas besoin du détail complet de la réponse
+// Scrydex — voir ScannerScreen.tsx). Pas de cache : chaque photo est unique.
+app.post("/scan/vision", upload.single("image"), async (req, res) => {
+  if (!SCRYDEX_API_KEY || !SCRYDEX_TEAM_ID) {
+    return res.status(501).json({
+      error: "SCRYDEX_API_KEY/SCRYDEX_TEAM_ID non configurées côté serveur — voir server/.env.example",
+    });
+  }
+  if (!req.file) return res.status(400).json({ error: "Image manquante" });
+
+  try {
+    const form = new FormData();
+    form.append("image", new Blob([req.file.buffer]), "card.jpg");
+    // "games" (optionnel) : liste séparée par virgules pour restreindre/
+    // accélérer la recherche — voir ScannerScreen.tsx, qui l'envoie toujours
+    // vu que le jeu est déjà choisi par l'utilisateur avant de scanner.
+    if (req.body.games) form.append("games", req.body.games);
+
+    const upstreamRes = await fetchWithRetry("https://api.scrydex.com/vision/v1/cards/identify", {
+      method: "POST",
+      headers: { "X-Api-Key": SCRYDEX_API_KEY, "X-Team-ID": SCRYDEX_TEAM_ID },
+      body: form,
+    });
+    const json = await upstreamRes.json();
+    if (!upstreamRes.ok) {
+      return res.status(upstreamRes.status).json(json ?? { error: "Erreur Scrydex Vision" });
+    }
+
+    const best = json?.data?.matches?.[0];
+    if (!best) {
+      return res.json({ match: null });
+    }
+
+    // Le prix n'est pas renvoyé par Vision (juste les métadonnées de la
+    // carte) — on va le chercher séparément via l'endpoint "Get a card" du
+    // jeu concerné. Best-effort : si ça échoue, on renvoie quand même la
+    // carte identifiée, juste sans prix (CardDetailScreen gère déjà ce cas,
+    // voir "—" affiché pour un prix inconnu).
+    let priceUsd;
+    try {
+      const game = json?.data?.analysis?.game;
+      const cardId = best.card?.id;
+      if (game && cardId) {
+        const priceRes = await fetchWithRetry(
+          `https://api.scrydex.com/${encodeURIComponent(game)}/v1/cards/${encodeURIComponent(cardId)}?include=prices`,
+          { headers: { "X-Api-Key": SCRYDEX_API_KEY, "X-Team-ID": SCRYDEX_TEAM_ID } }
+        );
+        if (priceRes.ok) {
+          const priceJson = await priceRes.json();
+          const variants = priceJson?.data?.variants ?? [];
+          for (const variant of variants) {
+            const raw = (variant.prices ?? []).find((p) => p.type === "raw" && typeof p.market === "number");
+            if (raw) {
+              priceUsd = raw.market;
+              break;
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Erreur enrichissement prix Scrydex Vision:", err.message);
+    }
+
+    return res.json({
+      match: {
+        score: best.score,
+        game: json?.data?.analysis?.game,
+        id: best.card?.id,
+        name: best.card?.name,
+        number: best.card?.number ?? best.card?.printed_number,
+        rarity: best.card?.rarity,
+        setName: best.card?.expansion?.name,
+        imageSmall: best.card?.images?.[0]?.small,
+        imageLarge: best.card?.images?.[0]?.large ?? best.card?.images?.[0]?.medium,
+        marketPriceUsd: priceUsd,
+      },
+    });
+  } catch (err) {
+    console.error("Erreur /scan/vision:", err.message);
+    return res.status(502).json({ error: "Erreur de communication avec Scrydex Vision" });
+  }
+});
+
+// --- Scanner : lecture de texte (OCR.space) ---
+// Utilisé pour les jeux non couverts par Scrydex Vision (voir
+// SCRYDEX_VISION_GAMES côté client) : on lit juste le texte visible sur la
+// carte et on laisse le client relancer une recherche classique avec, voir
+// ScannerScreen.tsx.
+app.post("/scan/ocr", upload.single("image"), async (req, res) => {
+  if (!OCR_SPACE_API_KEY) {
+    return res.status(501).json({
+      error: "OCR_SPACE_API_KEY non configurée côté serveur — voir server/.env.example",
+    });
+  }
+  if (!req.file) return res.status(400).json({ error: "Image manquante" });
+
+  try {
+    const form = new FormData();
+    form.append("apikey", OCR_SPACE_API_KEY);
+    form.append("file", new Blob([req.file.buffer]), "card.jpg");
+    form.append("language", req.body.language || "eng");
+    form.append("OCREngine", "2");
+    form.append("scale", "true");
+
+    const upstreamRes = await fetchWithRetry("https://api.ocr.space/parse/image", {
+      method: "POST",
+      body: form,
+    });
+    const json = await upstreamRes.json();
+    if (!upstreamRes.ok || json.IsErroredOnProcessing) {
+      return res.status(502).json({ error: json?.ErrorMessage?.[0] ?? "Erreur du service OCR" });
+    }
+
+    const text = json?.ParsedResults?.[0]?.ParsedText?.trim() ?? "";
+    return res.json({ text });
+  } catch (err) {
+    console.error("Erreur /scan/ocr:", err.message);
+    return res.status(502).json({ error: "Erreur de communication avec le service OCR" });
+  }
 });
 
 app.get("/health", (req, res) => res.json({ ok: true, cache: cacheStats() }));
