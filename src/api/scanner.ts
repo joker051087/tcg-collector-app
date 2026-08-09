@@ -70,5 +70,17 @@ export async function extractTextFromImage(imageUri: string): Promise<string> {
   if (!res.ok) throw new Error(await readErrorMessage(res));
 
   const json = await res.json();
-  return (json.text ?? "").trim();
+  const rawText: string = (json.text ?? "").trim();
+
+  // L'OCR lit souvent plusieurs lignes (nom, puis texte de capacité,
+  // description...). On ne garde que la première ligne non vide : c'est
+  // presque toujours le nom de la carte, imprimé en plus gros en haut — le
+  // reste ferait une recherche inutilement longue et peu pertinente (voir
+  // aussi SearchScreen.tsx, qui tronque l'affichage par sécurité).
+  const firstLine = rawText
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find((line) => line.length > 0);
+
+  return firstLine ?? "";
 }

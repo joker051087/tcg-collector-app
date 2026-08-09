@@ -174,8 +174,14 @@ export default function SearchScreen({ navigation, route }: Props) {
       {error && <Text style={styles.error}>{error}</Text>}
 
       {!loading && !error && query.trim() && results.length === 0 && (
-        <Text style={styles.empty}>
-          {t("search.emptyResults", { game: GAME_LABELS[game], query })}
+        <Text style={styles.empty} numberOfLines={4}>
+          {t("search.emptyResults", {
+            game: GAME_LABELS[game],
+            // Une recherche très longue (ex. texte lu par le scanner) ne
+            // doit pas faire déborder ce message hors de l'écran — voir
+            // src/api/scanner.ts pour la limite côté scanner elle-même.
+            query: query.length > 80 ? `${query.slice(0, 80)}…` : query,
+          })}
         </Text>
       )}
 
