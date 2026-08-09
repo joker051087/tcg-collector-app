@@ -7,6 +7,7 @@ import { useCurrencyFormatter } from "../hooks/useCurrencyFormatter";
 import { GAME_LABELS } from "../constants/games";
 import { CONDITION_LABEL_KEYS, OWNERSHIP_TYPE_LABEL_KEYS } from "../constants/labels";
 import { CollectionItem } from "../types";
+import { colors, radius } from "../theme/colors";
 
 export default function PortfolioScreen() {
   const { t } = useTranslation();
@@ -88,22 +89,22 @@ function PortfolioRow({ item, onRemove }: { item: CollectionItem; onRemove: () =
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111827",
+    backgroundColor: colors.bg,
   },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#111827",
+    backgroundColor: colors.bg,
     paddingHorizontal: 32,
   },
   emptyTitle: {
-    color: "#f9fafb",
+    color: colors.textPrimary,
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: "500",
   },
   emptySubtitle: {
-    color: "#9ca3af",
+    color: colors.textSecondary,
     fontSize: 13,
     marginTop: 8,
     textAlign: "center",
@@ -115,26 +116,28 @@ const styles = StyleSheet.create({
   },
   summaryBox: {
     flex: 1,
-    backgroundColor: "#1f2937",
-    borderRadius: 10,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: 10,
     alignItems: "center",
   },
   summaryLabel: {
     fontSize: 10,
-    color: "#9ca3af",
+    color: colors.textSecondary,
     textAlign: "center",
   },
   summaryValue: {
     fontSize: 15,
-    fontWeight: "700",
-    color: "#f9fafb",
+    fontWeight: "500",
+    color: colors.textPrimary,
     marginTop: 4,
   },
   summaryValueNet: {
     fontSize: 15,
-    fontWeight: "700",
-    color: "#34d399",
+    fontWeight: "500",
+    color: colors.accent,
     marginTop: 4,
   },
   row: {
@@ -143,7 +146,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#2a2a2a",
+    borderBottomColor: colors.border,
   },
   image: {
     width: 40,
@@ -156,12 +159,12 @@ const styles = StyleSheet.create({
   },
   rowName: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#f3f4f6",
+    fontWeight: "500",
+    color: colors.textPrimary,
   },
   rowMeta: {
     fontSize: 11,
-    color: "#9ca3af",
+    color: colors.textSecondary,
     marginTop: 2,
   },
   removeButton: {
@@ -169,8 +172,8 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   removeButtonText: {
-    color: "#f87171",
+    color: colors.danger,
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "500",
   },
 });

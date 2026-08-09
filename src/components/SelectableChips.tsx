@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { colors, radius } from "../theme/colors";
 
 interface Props<T extends string> {
   options: readonly T[];
@@ -45,21 +46,21 @@ const styles = StyleSheet.create({
   chip: {
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 16,
-    backgroundColor: "#1f2937",
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: "#374151",
+    borderColor: colors.border,
   },
   chipSelected: {
-    backgroundColor: "#059669",
-    borderColor: "#059669",
+    backgroundColor: colors.accentSoft,
+    borderColor: colors.accent,
   },
   chipText: {
-    color: "#d1d5db",
+    color: colors.textSecondary,
     fontSize: 13,
   },
   chipTextSelected: {
-    color: "#ffffff",
+    color: colors.accent,
     fontWeight: "600",
   },
 });

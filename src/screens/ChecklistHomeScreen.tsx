@@ -12,6 +12,7 @@ import SelectableChips from "../components/SelectableChips";
 import GameLogo from "../components/GameLogo";
 import { usePortfolioStore } from "../store/portfolioStore";
 import { useWishlistStore } from "../store/wishlistStore";
+import { colors, radius } from "../theme/colors";
 
 type Props = NativeStackScreenProps<ChecklistStackParamList, "ChecklistHome">;
 
@@ -44,7 +45,7 @@ export default function ChecklistHomeScreen({ navigation }: Props) {
           style={styles.wishlistHeaderButton}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Ionicons name="heart" size={22} color="#f472b6" />
+          <Ionicons name="heart" size={22} color={colors.wishlist} />
           {wishlistCount > 0 && (
             <View style={styles.wishlistBadge}>
               <Text style={styles.wishlistBadgeText}>{wishlistCount}</Text>
@@ -137,14 +138,14 @@ export default function ChecklistHomeScreen({ navigation }: Props) {
       <TextInput
         style={styles.input}
         placeholder={t("checklist.searchSetPlaceholder")}
-        placeholderTextColor="#6b7280"
+        placeholderTextColor={colors.textMuted}
         value={filter}
         onChangeText={setFilter}
         autoCapitalize="none"
         autoCorrect={false}
       />
 
-      {loading && <ActivityIndicator style={styles.loader} color="#34d399" />}
+      {loading && <ActivityIndicator style={styles.loader} color={colors.accent} />}
       {error && <Text style={styles.error}>{error}</Text>}
 
       <FlatList
@@ -202,7 +203,7 @@ export default function ChecklistHomeScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111827",
+    backgroundColor: colors.bg,
   },
   // Taille fixe avec un peu de marge autour du cœur : le badge est positionné
   // en absolu SANS déborder de ce cadre (contrairement à un décalage négatif
@@ -219,7 +220,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 1,
     right: 1,
-    backgroundColor: "#f472b6",
+    backgroundColor: colors.wishlist,
     borderRadius: 8,
     minWidth: 16,
     height: 16,
@@ -228,9 +229,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
   },
   wishlistBadgeText: {
-    color: "#111827",
+    color: colors.bg,
     fontSize: 10,
-    fontWeight: "700",
+    fontWeight: "500",
   },
   gameSelector: {
     paddingHorizontal: 12,
@@ -240,16 +241,18 @@ const styles = StyleSheet.create({
     margin: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 10,
-    backgroundColor: "#1f2937",
-    color: "#f9fafb",
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    color: colors.textPrimary,
     fontSize: 15,
   },
   loader: {
     marginTop: 16,
   },
   error: {
-    color: "#f87171",
+    color: colors.danger,
     textAlign: "center",
     marginTop: 16,
     paddingHorizontal: 24,
@@ -261,7 +264,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#2a2a2a",
+    borderBottomColor: colors.border,
   },
   rowInfo: {
     flex: 1,
@@ -270,22 +273,22 @@ const styles = StyleSheet.create({
   },
   rowName: {
     fontSize: 15,
-    fontWeight: "600",
-    color: "#f3f4f6",
+    fontWeight: "500",
+    color: colors.textPrimary,
   },
   rowCount: {
     fontSize: 12,
-    color: "#9ca3af",
+    color: colors.textSecondary,
     marginTop: 2,
   },
   percentBadge: {
     fontSize: 13,
-    fontWeight: "700",
-    color: "#9ca3af",
+    fontWeight: "500",
+    color: colors.textSecondary,
     minWidth: 42,
     textAlign: "right",
   },
   percentBadgeComplete: {
-    color: "#34d399",
+    color: colors.accent,
   },
 });

@@ -6,6 +6,7 @@ import { useGoogleAuth } from "../hooks/useGoogleAuth";
 import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from "../i18n";
 import { SUPPORTED_CURRENCIES } from "../constants/currencies";
 import SelectableChips from "../components/SelectableChips";
+import { colors, radius } from "../theme/colors";
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -55,7 +56,7 @@ function AccountSection() {
   }
 
   if (status === "loading") {
-    return <ActivityIndicator color="#34d399" style={styles.accountLoader} />;
+    return <ActivityIndicator color={colors.accent} style={styles.accountLoader} />;
   }
 
   if (status === "signedIn" && user) {
@@ -89,7 +90,7 @@ function AccountSection() {
         disabled={!canSignIn || isSigningIn}
       >
         {isSigningIn ? (
-          <ActivityIndicator color="#111827" />
+          <ActivityIndicator color={colors.bg} />
         ) : (
           <Text style={styles.signInButtonText}>{t("settings.signInWithGoogle")}</Text>
         )}
@@ -104,7 +105,7 @@ function AccountSection() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111827",
+    backgroundColor: colors.bg,
   },
   content: {
     padding: 16,
@@ -114,8 +115,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "700",
-    color: "#f9fafb",
+    fontWeight: "500",
+    color: colors.textPrimary,
     marginBottom: 10,
   },
   accountLoader: {
@@ -123,17 +124,20 @@ const styles = StyleSheet.create({
   },
   accountHint: {
     fontSize: 12,
-    color: "#6b7280",
+    color: colors.textMuted,
     marginTop: 8,
   },
   accountError: {
     fontSize: 12,
-    color: "#f87171",
+    color: colors.danger,
     marginTop: 8,
   },
+  // Exception volontaire à la palette : le bouton "Se connecter avec Google"
+  // reste blanc/texte sombre pour respecter les règles de marque de Google
+  // (bouton de connexion), plutôt que d'utiliser l'accent ambre de l'appli.
   signInButton: {
-    backgroundColor: "#f9fafb",
-    borderRadius: 10,
+    backgroundColor: colors.white,
+    borderRadius: radius.md,
     paddingVertical: 12,
     alignItems: "center",
   },
@@ -141,15 +145,17 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   signInButtonText: {
-    color: "#111827",
-    fontWeight: "700",
+    color: colors.bg,
+    fontWeight: "500",
     fontSize: 14,
   },
   accountRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1f2937",
-    borderRadius: 10,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: 12,
   },
   avatar: {
@@ -159,25 +165,25 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   avatarPlaceholder: {
-    backgroundColor: "#34d399",
+    backgroundColor: colors.accent,
     alignItems: "center",
     justifyContent: "center",
   },
   avatarInitial: {
-    color: "#111827",
-    fontWeight: "700",
+    color: colors.accentOn,
+    fontWeight: "500",
     fontSize: 16,
   },
   accountInfo: {
     flex: 1,
   },
   accountName: {
-    color: "#f9fafb",
+    color: colors.textPrimary,
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "500",
   },
   accountSynced: {
-    color: "#34d399",
+    color: colors.accent,
     fontSize: 11,
     marginTop: 2,
   },
@@ -186,8 +192,8 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   signOutButtonText: {
-    color: "#f87171",
+    color: colors.danger,
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "500",
   },
 });

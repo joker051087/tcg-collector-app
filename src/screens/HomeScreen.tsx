@@ -11,6 +11,7 @@ import { computePortfolioTotals } from "../utils/pricing";
 import { useCurrencyFormatter } from "../hooks/useCurrencyFormatter";
 import { GAME_LABELS, SUPPORTED_GAMES } from "../constants/games";
 import GameLogo from "../components/GameLogo";
+import { colors, radius } from "../theme/colors";
 
 type Props = CompositeScreenProps<
   NativeStackScreenProps<HomeStackParamList, "HomeMain">,
@@ -36,7 +37,7 @@ export default function HomeScreen({ navigation }: Props) {
 
       {items.length === 0 ? (
         <View style={styles.emptyCard}>
-          <Ionicons name="albums-outline" size={36} color="#34d399" />
+          <Ionicons name="albums-outline" size={36} color={colors.accent} />
           <Text style={styles.emptyTitle}>{t("home.emptyTitle")}</Text>
           <Text style={styles.emptySubtitle}>{t("home.emptySubtitle")}</Text>
           <Pressable
@@ -150,7 +151,7 @@ function QuickAction({
   return (
     <Pressable style={styles.quickAction} onPress={onPress}>
       <View style={styles.quickActionIcon}>
-        <Ionicons name={icon} size={20} color="#34d399" />
+        <Ionicons name={icon} size={20} color={colors.accent} />
       </View>
       <Text style={styles.quickActionLabel} numberOfLines={1}>
         {label}
@@ -162,7 +163,7 @@ function QuickAction({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111827",
+    backgroundColor: colors.bg,
   },
   content: {
     paddingBottom: 32,
@@ -174,12 +175,12 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 22,
-    fontWeight: "700",
-    color: "#f9fafb",
+    fontWeight: "500",
+    color: colors.textPrimary,
   },
   subtitle: {
     fontSize: 13,
-    color: "#9ca3af",
+    color: colors.textSecondary,
     marginTop: 2,
   },
   statsRow: {
@@ -190,59 +191,63 @@ const styles = StyleSheet.create({
   },
   statBox: {
     flex: 1,
-    backgroundColor: "#1f2937",
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: 12,
     alignItems: "center",
   },
   statLabel: {
     fontSize: 10,
-    color: "#9ca3af",
+    color: colors.textSecondary,
     textAlign: "center",
   },
   statValue: {
     fontSize: 16,
-    fontWeight: "700",
-    color: "#f9fafb",
+    fontWeight: "500",
+    color: colors.textPrimary,
     marginTop: 4,
   },
   statValueNet: {
     fontSize: 16,
-    fontWeight: "700",
-    color: "#34d399",
+    fontWeight: "500",
+    color: colors.success,
     marginTop: 4,
   },
   emptyCard: {
     marginHorizontal: 16,
     marginTop: 16,
-    backgroundColor: "#1f2937",
-    borderRadius: 14,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: 20,
     alignItems: "center",
   },
   emptyTitle: {
     fontSize: 16,
-    fontWeight: "700",
-    color: "#f9fafb",
+    fontWeight: "500",
+    color: colors.textPrimary,
     marginTop: 10,
     textAlign: "center",
   },
   emptySubtitle: {
     fontSize: 13,
-    color: "#9ca3af",
+    color: colors.textSecondary,
     marginTop: 6,
     textAlign: "center",
   },
   emptyCta: {
     marginTop: 14,
-    backgroundColor: "#059669",
-    borderRadius: 10,
+    backgroundColor: colors.accent,
+    borderRadius: radius.md,
     paddingVertical: 10,
     paddingHorizontal: 20,
   },
   emptyCtaText: {
-    color: "#ffffff",
-    fontWeight: "700",
+    color: colors.accentOn,
+    fontWeight: "500",
     fontSize: 14,
   },
   quickActions: {
@@ -253,8 +258,10 @@ const styles = StyleSheet.create({
   },
   quickAction: {
     flex: 1,
-    backgroundColor: "#1f2937",
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingVertical: 12,
     alignItems: "center",
   },
@@ -262,23 +269,23 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#111827",
+    backgroundColor: colors.accentSoft,
     alignItems: "center",
     justifyContent: "center",
   },
   quickActionLabel: {
     fontSize: 11,
-    color: "#d1d5db",
+    color: colors.textSecondary,
     marginTop: 6,
-    fontWeight: "600",
+    fontWeight: "500",
   },
   section: {
     paddingTop: 24,
   },
   sectionTitle: {
     fontSize: 15,
-    fontWeight: "700",
-    color: "#f9fafb",
+    fontWeight: "500",
+    color: colors.textPrimary,
     paddingHorizontal: 16,
     marginBottom: 10,
   },
@@ -292,12 +299,12 @@ const styles = StyleSheet.create({
   recentImage: {
     width: 88,
     height: 122,
-    borderRadius: 6,
-    backgroundColor: "#1f2937",
+    borderRadius: radius.sm,
+    backgroundColor: colors.surface,
   },
   recentName: {
     fontSize: 11,
-    color: "#d1d5db",
+    color: colors.textSecondary,
     marginTop: 4,
     textAlign: "center",
   },
@@ -315,7 +322,7 @@ const styles = StyleSheet.create({
   },
   gameLabel: {
     fontSize: 10.5,
-    color: "#d1d5db",
+    color: colors.textSecondary,
     marginTop: 6,
     textAlign: "center",
   },

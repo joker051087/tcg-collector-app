@@ -16,6 +16,7 @@ import { GAME_LABELS, GAME_PLACEHOLDER_KEYS, SUPPORTED_GAMES, TCGAPI_GAMES } fro
 import { useSettingsStore } from "../store/settingsStore";
 import CardListItem from "../components/CardListItem";
 import SelectableChips from "../components/SelectableChips";
+import { colors, radius } from "../theme/colors";
 
 type Props = NativeStackScreenProps<SearchStackParamList, "SearchHome">;
 
@@ -136,14 +137,14 @@ export default function SearchScreen({ navigation, route }: Props) {
               ? t(game === "pokemon" ? "search.placeholderNumberPokemon" : "search.placeholderNumber")
               : t(GAME_PLACEHOLDER_KEYS[game])
         }
-        placeholderTextColor="#6b7280"
+        placeholderTextColor={colors.textMuted}
         value={query}
         onChangeText={setQuery}
         autoCapitalize="none"
         autoCorrect={false}
       />
 
-      {loading && <ActivityIndicator style={styles.loader} color="#34d399" />}
+      {loading && <ActivityIndicator style={styles.loader} color={colors.accent} />}
 
       {error && <Text style={styles.error}>{error}</Text>}
 
@@ -182,7 +183,7 @@ export default function SearchScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111827",
+    backgroundColor: colors.bg,
   },
   gameSelector: {
     paddingHorizontal: 12,
@@ -196,22 +197,24 @@ const styles = StyleSheet.create({
     margin: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 10,
-    backgroundColor: "#1f2937",
-    color: "#f9fafb",
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    color: colors.textPrimary,
     fontSize: 15,
   },
   loader: {
     marginTop: 16,
   },
   error: {
-    color: "#f87171",
+    color: colors.danger,
     textAlign: "center",
     marginTop: 16,
     paddingHorizontal: 24,
   },
   empty: {
-    color: "#9ca3af",
+    color: colors.textSecondary,
     textAlign: "center",
     marginTop: 16,
   },

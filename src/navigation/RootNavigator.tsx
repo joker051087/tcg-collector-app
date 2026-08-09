@@ -11,6 +11,7 @@ import SetChecklistScreen from "../screens/SetChecklistScreen";
 import WishlistScreen from "../screens/WishlistScreen";
 import PortfolioScreen from "../screens/PortfolioScreen";
 import SettingsScreen from "../screens/SettingsScreen";
+import { colors } from "../theme/colors";
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 const SearchStack = createNativeStackNavigator<SearchStackParamList>();
@@ -18,9 +19,9 @@ const ChecklistStack = createNativeStackNavigator<ChecklistStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
 const screenOptions = {
-  headerStyle: { backgroundColor: "#111827" },
-  headerTintColor: "#f9fafb",
-  headerTitleStyle: { color: "#f9fafb" },
+  headerStyle: { backgroundColor: colors.bg },
+  headerTintColor: colors.textPrimary,
+  headerTitleStyle: { color: colors.textPrimary },
 };
 
 // Icônes de la barre d'onglets (voir styles.ts pour les couleurs actif/inactif
@@ -105,9 +106,9 @@ export default function RootNavigator() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         ...screenOptions,
-        tabBarStyle: { backgroundColor: "#111827" },
-        tabBarActiveTintColor: "#34d399",
-        tabBarInactiveTintColor: "#6b7280",
+        tabBarStyle: { backgroundColor: colors.bg, borderTopColor: colors.border },
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarIcon: ({ focused, color, size }) => {
           const icons = TAB_ICONS[route.name as keyof TabParamList];
           return <Ionicons name={focused ? icons.active : icons.inactive} size={size} color={color} />;

@@ -3,6 +3,7 @@ import { Image } from "expo-image";
 import { UnifiedCard } from "../types";
 import { GAME_LABELS } from "../constants/games";
 import { useCurrencyFormatter } from "../hooks/useCurrencyFormatter";
+import { colors } from "../theme/colors";
 
 interface Props {
   card: UnifiedCard;
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#2a2a2a",
+    borderBottomColor: colors.border,
   },
   image: {
     width: 46,
@@ -54,23 +55,23 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 15,
-    fontWeight: "600",
-    color: "#f3f4f6",
+    fontWeight: "500",
+    color: colors.textPrimary,
   },
   set: {
     fontSize: 12,
-    color: "#9ca3af",
+    color: colors.textSecondary,
     marginTop: 2,
   },
   rarity: {
     fontSize: 11,
-    color: "#6b7280",
+    color: colors.textMuted,
     marginTop: 2,
   },
   price: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#34d399",
+    fontWeight: "500",
+    color: colors.accent,
     marginLeft: 8,
   },
 });

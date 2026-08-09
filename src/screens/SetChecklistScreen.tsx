@@ -12,6 +12,7 @@ import { UnifiedCard } from "../types";
 import { usePortfolioStore } from "../store/portfolioStore";
 import { useWishlistStore } from "../store/wishlistStore";
 import GameLogo from "../components/GameLogo";
+import { colors, radius } from "../theme/colors";
 
 type Props = NativeStackScreenProps<ChecklistStackParamList, "SetChecklist">;
 
@@ -89,7 +90,7 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#34d399" />
+        <ActivityIndicator color={colors.accent} />
       </View>
     );
   }
@@ -158,7 +159,7 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
                   <Ionicons
                     name={inWishlist ? "heart" : "heart-outline"}
                     size={18}
-                    color={inWishlist ? "#f472b6" : "#6b7280"}
+                    color={inWishlist ? colors.wishlist : colors.textSecondary}
                   />
                 </TouchableOpacity>
               )}
@@ -176,23 +177,23 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111827",
+    backgroundColor: colors.bg,
   },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#111827",
+    backgroundColor: colors.bg,
   },
   error: {
-    color: "#f87171",
+    color: colors.danger,
     textAlign: "center",
     paddingHorizontal: 24,
   },
   progressSection: {
     padding: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#2a2a2a",
+    borderBottomColor: colors.border,
   },
   progressHeader: {
     flexDirection: "row",
@@ -203,21 +204,21 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   progressText: {
-    color: "#f9fafb",
+    color: colors.textPrimary,
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "500",
     marginBottom: 8,
   },
   progressBarTrack: {
     height: 8,
-    borderRadius: 4,
-    backgroundColor: "#1f2937",
+    borderRadius: radius.sm,
+    backgroundColor: colors.surface,
     overflow: "hidden",
   },
   progressBarFill: {
     height: "100%",
-    backgroundColor: "#34d399",
-    borderRadius: 4,
+    backgroundColor: colors.accent,
+    borderRadius: radius.sm,
   },
   row: {
     flexDirection: "row",
@@ -225,7 +226,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#2a2a2a",
+    borderBottomColor: colors.border,
   },
   image: {
     width: 40,
@@ -241,27 +242,27 @@ const styles = StyleSheet.create({
   },
   rowName: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#f3f4f6",
+    fontWeight: "500",
+    color: colors.textPrimary,
   },
   rowNameMissing: {
-    color: "#6b7280",
+    color: colors.textMuted,
   },
   rowMeta: {
     fontSize: 11,
-    color: "#9ca3af",
+    color: colors.textSecondary,
     marginTop: 2,
   },
   badgeOwned: {
     fontSize: 11,
-    fontWeight: "700",
-    color: "#34d399",
+    fontWeight: "500",
+    color: colors.accent,
     marginLeft: 8,
   },
   badgeMissing: {
     fontSize: 11,
-    fontWeight: "700",
-    color: "#6b7280",
+    fontWeight: "500",
+    color: colors.textMuted,
     marginLeft: 8,
   },
   wishlistButton: {

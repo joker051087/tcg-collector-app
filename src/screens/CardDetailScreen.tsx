@@ -25,6 +25,7 @@ import { useCurrencyFormatter } from "../hooks/useCurrencyFormatter";
 import { usePortfolioStore } from "../store/portfolioStore";
 import { useWishlistStore } from "../store/wishlistStore";
 import SelectableChips from "../components/SelectableChips";
+import { colors, radius } from "../theme/colors";
 
 type Props = NativeStackScreenProps<SearchStackParamList, "CardDetail">;
 
@@ -87,7 +88,7 @@ export default function CardDetailScreen({ route }: Props) {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#34d399" />
+        <ActivityIndicator color={colors.accent} />
       </View>
     );
   }
@@ -141,7 +142,7 @@ export default function CardDetailScreen({ route }: Props) {
           <Ionicons
             name={inWishlist ? "heart" : "heart-outline"}
             size={26}
-            color={inWishlist ? "#f472b6" : "#9ca3af"}
+            color={inWishlist ? colors.wishlist : colors.textSecondary}
           />
         </TouchableOpacity>
       </View>
@@ -227,7 +228,7 @@ export default function CardDetailScreen({ route }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111827",
+    backgroundColor: colors.bg,
   },
   content: {
     padding: 16,
@@ -237,10 +238,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#111827",
+    backgroundColor: colors.bg,
   },
   error: {
-    color: "#f87171",
+    color: colors.danger,
   },
   image: {
     width: "100%",
@@ -249,8 +250,8 @@ const styles = StyleSheet.create({
   },
   gameTag: {
     fontSize: 11,
-    fontWeight: "700",
-    color: "#34d399",
+    fontWeight: "500",
+    color: colors.accent,
     marginTop: 16,
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -263,15 +264,15 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 22,
-    fontWeight: "700",
-    color: "#f9fafb",
+    fontWeight: "500",
+    color: colors.textPrimary,
   },
   nameFlex: {
     flex: 1,
   },
   set: {
     fontSize: 13,
-    color: "#9ca3af",
+    color: colors.textSecondary,
     marginTop: 4,
   },
   priceRow: {
@@ -281,29 +282,31 @@ const styles = StyleSheet.create({
   },
   priceBox: {
     flex: 1,
-    backgroundColor: "#1f2937",
-    borderRadius: 10,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: 12,
   },
   priceLabel: {
     fontSize: 11,
-    color: "#9ca3af",
+    color: colors.textSecondary,
   },
   priceValue: {
     fontSize: 18,
-    fontWeight: "700",
-    color: "#f9fafb",
+    fontWeight: "500",
+    color: colors.textPrimary,
     marginTop: 4,
   },
   priceValueNet: {
     fontSize: 18,
-    fontWeight: "700",
-    color: "#34d399",
+    fontWeight: "500",
+    color: colors.accent,
     marginTop: 4,
   },
   disclaimer: {
     fontSize: 11,
-    color: "#6b7280",
+    color: colors.textMuted,
     marginTop: 6,
   },
   marketplaceRow: {
@@ -316,47 +319,49 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: "30%",
     borderWidth: 1,
-    borderColor: "#f59e0b",
-    borderRadius: 10,
+    borderColor: colors.accent,
+    borderRadius: radius.md,
     paddingVertical: 12,
     alignItems: "center",
   },
   marketplaceButtonText: {
-    color: "#f59e0b",
-    fontWeight: "700",
+    color: colors.accent,
+    fontWeight: "500",
     fontSize: 13,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "700",
-    color: "#f9fafb",
+    fontWeight: "500",
+    color: colors.textPrimary,
     marginTop: 24,
     marginBottom: 8,
   },
   fieldLabel: {
     fontSize: 13,
-    color: "#9ca3af",
+    color: colors.textSecondary,
     marginTop: 14,
     marginBottom: 6,
   },
   numberInput: {
-    backgroundColor: "#1f2937",
-    color: "#f9fafb",
-    borderRadius: 8,
+    backgroundColor: colors.surface,
+    color: colors.textPrimary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
     paddingHorizontal: 12,
     paddingVertical: 8,
     width: 100,
   },
   addButton: {
-    backgroundColor: "#059669",
-    borderRadius: 10,
+    backgroundColor: colors.accent,
+    borderRadius: radius.md,
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 28,
   },
   addButtonText: {
-    color: "#ffffff",
-    fontWeight: "700",
+    color: colors.accentOn,
+    fontWeight: "500",
     fontSize: 15,
   },
 });
