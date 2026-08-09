@@ -1,5 +1,11 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { initializeAuth, getReactNativePersistence, type Auth } from "firebase/auth";
+import { initializeAuth, type Auth } from "firebase/auth";
+// @ts-ignore -- getReactNativePersistence existe bien à l'exécution (Metro
+// résout "firebase/auth" vers la variante React Native via @firebase/auth),
+// mais les types publiés par le package npm "firebase" n'exposent pas encore
+// ce membre pour ce sous-chemin (problème connu du SDK Firebase, sans impact
+// sur le fonctionnement réel de l'appli).
+import { getReactNativePersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 

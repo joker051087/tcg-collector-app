@@ -21,10 +21,23 @@ export function useGoogleAuth() {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+  const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+  const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
+
+  // expo-auth-session exige un identifiant correspondant à la plateforme en
+  // cours (Android/iOS/Web) et plante l'appli au montage si celui-ci est
+  // absent — même si l'utilisateur n'a jamais cliqué sur "Se connecter".
+  // Tant qu'il n'existe pas de client ID Android/iOS dédié (nécessaire
+  // seulement pour un futur build natif EAS, voir GUIDE_FIREBASE.md), on
+  // retombe sur le web client ID pour éviter le crash ; canSignIn (plus bas)
+  // continue de désactiver proprement le bouton tant que rien n'est configuré.
+  const fallbackClientId = webClientId ?? iosClientId ?? androidClientId ?? "expo-auth-session-unconfigured";
+
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+    webClientId: webClientId ?? fallbackClientId,
+    iosClientId: iosClientId ?? fallbackClientId,
+    androidClientId: androidClientId ?? fallbackClientId,
   });
 
   useEffect(() => {
