@@ -95,7 +95,14 @@
     "accountHint": "Melde dich mit Google an, um deine Sammlung online zu sichern und auf einem anderen Gerät abzurufen.",
     "accountSynced": "Angemeldet · Synchronisierung aktiv",
     "signInWithGoogle": "Mit Google anmelden",
-    "signOut": "Abmelden"
+    "signOut": "Abmelden",
+    "deleteAccount": "Konto löschen",
+    "deleteAccountConfirmTitle": "Konto löschen?",
+    "deleteAccountConfirmMessage": "Deine Sammlung, deine Wunschliste und deine Kontoinformationen werden dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteAccountConfirmButton": "Löschen",
+    "deleteAccountCancelButton": "Abbrechen",
+    "deleteAccountReauthNeeded": "Aus Sicherheitsgründen melde dich ab und wieder an, bevor du dein Konto löschst.",
+    "deleteAccountError": "Löschen fehlgeschlagen. Bitte versuche es später erneut."
   },
   "checklist": {
     "title": "Checkliste",

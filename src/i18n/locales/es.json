@@ -95,7 +95,14 @@
     "accountHint": "Inicia sesión con Google para guardar tu colección en línea y acceder a ella desde otro dispositivo.",
     "accountSynced": "Conectado · sincronización activa",
     "signInWithGoogle": "Iniciar sesión con Google",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "deleteAccount": "Eliminar mi cuenta",
+    "deleteAccountConfirmTitle": "¿Eliminar tu cuenta?",
+    "deleteAccountConfirmMessage": "Tu colección, tu lista de deseos y la información de tu cuenta se eliminarán de forma permanente. Esta acción no se puede deshacer.",
+    "deleteAccountConfirmButton": "Eliminar",
+    "deleteAccountCancelButton": "Cancelar",
+    "deleteAccountReauthNeeded": "Por seguridad, cierra sesión y vuelve a iniciarla antes de eliminar tu cuenta.",
+    "deleteAccountError": "No se pudo eliminar la cuenta. Inténtalo más tarde."
   },
   "checklist": {
     "title": "Checklist",

@@ -1,7 +1,10 @@
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSettingsStore } from "../store/settingsStore";
 import { useAuthStore } from "../store/authStore";
+import { usePortfolioStore } from "../store/portfolioStore";
+import { useWishlistStore } from "../store/wishlistStore";
 import { useGoogleAuth } from "../hooks/useGoogleAuth";
 import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from "../i18n";
 import { SUPPORTED_CURRENCIES } from "../constants/currencies";
@@ -49,7 +52,46 @@ function AccountSection() {
   const status = useAuthStore((state) => state.status);
   const user = useAuthStore((state) => state.user);
   const signOut = useAuthStore((state) => state.signOut);
+  const deleteAccount = useAuthStore((state) => state.deleteAccount);
   const { canSignIn, isSigningIn, error, signIn } = useGoogleAuth();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  // Supprime le compte Firebase + les données cloud (voir authStore.ts), puis
+  // vide aussi la collection/wishlist stockées localement sur ce téléphone —
+  // sinon l'utilisateur reverrait ses cartes après suppression, alors
+  // qu'elles n'existent plus nulle part côté serveur.
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      t("settings.deleteAccountConfirmTitle"),
+      t("settings.deleteAccountConfirmMessage"),
+      [
+        { text: t("settings.deleteAccountCancelButton"), style: "cancel" },
+        {
+          text: t("settings.deleteAccountConfirmButton"),
+          style: "destructive",
+          onPress: async () => {
+            setDeleteError(null);
+            setIsDeleting(true);
+            try {
+              await deleteAccount();
+              usePortfolioStore.getState().clear();
+              useWishlistStore.getState().clear();
+            } catch (err: any) {
+              if (err?.code === "auth/requires-recent-login") {
+                setDeleteError(t("settings.deleteAccountReauthNeeded"));
+              } else {
+                console.error("Erreur de suppression de compte:", err);
+                setDeleteError(t("settings.deleteAccountError"));
+              }
+            } finally {
+              setIsDeleting(false);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   if (status === "unavailable") {
     return <Text style={styles.accountHint}>{t("settings.accountUnavailable")}</Text>;
@@ -61,23 +103,38 @@ function AccountSection() {
 
   if (status === "signedIn" && user) {
     return (
-      <View style={styles.accountRow}>
-        {user.photoURL ? (
-          <Image source={{ uri: user.photoURL }} style={styles.avatar} />
-        ) : (
-          <View style={[styles.avatar, styles.avatarPlaceholder]}>
-            <Text style={styles.avatarInitial}>{(user.displayName ?? user.email ?? "?")[0].toUpperCase()}</Text>
+      <View>
+        <View style={styles.accountRow}>
+          {user.photoURL ? (
+            <Image source={{ uri: user.photoURL }} style={styles.avatar} />
+          ) : (
+            <View style={[styles.avatar, styles.avatarPlaceholder]}>
+              <Text style={styles.avatarInitial}>{(user.displayName ?? user.email ?? "?")[0].toUpperCase()}</Text>
+            </View>
+          )}
+          <View style={styles.accountInfo}>
+            <Text style={styles.accountName} numberOfLines={1}>
+              {user.displayName ?? user.email}
+            </Text>
+            <Text style={styles.accountSynced}>{t("settings.accountSynced")}</Text>
           </View>
-        )}
-        <View style={styles.accountInfo}>
-          <Text style={styles.accountName} numberOfLines={1}>
-            {user.displayName ?? user.email}
-          </Text>
-          <Text style={styles.accountSynced}>{t("settings.accountSynced")}</Text>
+          <TouchableOpacity onPress={() => signOut()} style={styles.signOutButton}>
+            <Text style={styles.signOutButtonText}>{t("settings.signOut")}</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={() => signOut()} style={styles.signOutButton}>
-          <Text style={styles.signOutButtonText}>{t("settings.signOut")}</Text>
+
+        <TouchableOpacity
+          onPress={handleDeleteAccount}
+          disabled={isDeleting}
+          style={styles.deleteAccountButton}
+        >
+          {isDeleting ? (
+            <ActivityIndicator color={colors.danger} size="small" />
+          ) : (
+            <Text style={styles.deleteAccountButtonText}>{t("settings.deleteAccount")}</Text>
+          )}
         </TouchableOpacity>
+        {deleteError && <Text style={styles.accountError}>{deleteError}</Text>}
       </View>
     );
   }
@@ -131,6 +188,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.danger,
     marginTop: 8,
+  },
+  deleteAccountButton: {
+    alignItems: "center",
+    paddingVertical: 10,
+    marginTop: 10,
+  },
+  deleteAccountButtonText: {
+    color: colors.danger,
+    fontSize: 12,
+    fontWeight: "500",
   },
   // Exception volontaire à la palette : le bouton "Se connecter avec Google"
   // reste blanc/texte sombre pour respecter les règles de marque de Google

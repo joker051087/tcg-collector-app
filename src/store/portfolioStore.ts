@@ -24,6 +24,7 @@ interface PortfolioState {
   addItem: (input: AddItemInput) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
+  clear: () => void;
 }
 
 function generateId(): string {
@@ -65,6 +66,8 @@ export const usePortfolioStore = create<PortfolioState>()(
             item.itemId === itemId ? { ...item, quantity: Math.max(1, quantity) } : item
           ),
         })),
+
+      clear: () => set({ items: [] }),
     }),
     {
       name: "tcg-portfolio-storage",

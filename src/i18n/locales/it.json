@@ -95,7 +95,14 @@
     "accountHint": "Accedi con Google per salvare la tua collezione online e ritrovarla su un altro dispositivo.",
     "accountSynced": "Connesso · sincronizzazione attiva",
     "signInWithGoogle": "Accedi con Google",
-    "signOut": "Esci"
+    "signOut": "Esci",
+    "deleteAccount": "Elimina il mio account",
+    "deleteAccountConfirmTitle": "Eliminare il tuo account?",
+    "deleteAccountConfirmMessage": "La tua collezione, la lista dei desideri e le informazioni dell'account verranno eliminate definitivamente. Questa azione non può essere annullata.",
+    "deleteAccountConfirmButton": "Elimina",
+    "deleteAccountCancelButton": "Annulla",
+    "deleteAccountReauthNeeded": "Per motivi di sicurezza, esci e accedi di nuovo prima di eliminare il tuo account.",
+    "deleteAccountError": "Eliminazione non riuscita. Riprova più tardi."
   },
   "checklist": {
     "title": "Checklist",

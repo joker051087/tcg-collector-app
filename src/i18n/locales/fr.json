@@ -95,7 +95,14 @@
     "accountHint": "Connecte-toi avec Google pour sauvegarder ta collection en ligne et la retrouver sur un autre appareil.",
     "accountSynced": "Connecté · synchronisation active",
     "signInWithGoogle": "Se connecter avec Google",
-    "signOut": "Se déconnecter"
+    "signOut": "Se déconnecter",
+    "deleteAccount": "Supprimer mon compte",
+    "deleteAccountConfirmTitle": "Supprimer ton compte ?",
+    "deleteAccountConfirmMessage": "Ta collection, ta liste de souhaits et tes informations de compte seront supprimées définitivement. Cette action est irréversible.",
+    "deleteAccountConfirmButton": "Supprimer",
+    "deleteAccountCancelButton": "Annuler",
+    "deleteAccountReauthNeeded": "Pour des raisons de sécurité, déconnecte-toi puis reconnecte-toi avant de supprimer ton compte.",
+    "deleteAccountError": "La suppression a échoué. Réessaie plus tard."
   },
   "checklist": {
     "title": "Checklist",

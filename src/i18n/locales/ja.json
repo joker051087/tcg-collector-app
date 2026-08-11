@@ -95,7 +95,14 @@
     "accountHint": "Googleでサインインすると、コレクションをオンラインに保存し、別の端末からもアクセスできます。",
     "accountSynced": "サインイン済み・同期中",
     "signInWithGoogle": "Googleでサインイン",
-    "signOut": "サインアウト"
+    "signOut": "サインアウト",
+    "deleteAccount": "アカウントを削除",
+    "deleteAccountConfirmTitle": "アカウントを削除しますか？",
+    "deleteAccountConfirmMessage": "コレクション、ウィッシュリスト、アカウント情報が完全に削除されます。この操作は元に戻せません。",
+    "deleteAccountConfirmButton": "削除",
+    "deleteAccountCancelButton": "キャンセル",
+    "deleteAccountReauthNeeded": "セキュリティ上の理由により、一度サインアウトしてから再度サインインしてから削除してください。",
+    "deleteAccountError": "削除に失敗しました。しばらくしてから再度お試しください。"
   },
   "checklist": {
     "title": "チェックリスト",

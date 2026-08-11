@@ -95,7 +95,14 @@
     "accountHint": "Sign in with Google to back up your collection online and access it from another device.",
     "accountSynced": "Signed in · sync active",
     "signInWithGoogle": "Sign in with Google",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "deleteAccount": "Delete my account",
+    "deleteAccountConfirmTitle": "Delete your account?",
+    "deleteAccountConfirmMessage": "Your collection, wishlist, and account information will be permanently deleted. This action cannot be undone.",
+    "deleteAccountConfirmButton": "Delete",
+    "deleteAccountCancelButton": "Cancel",
+    "deleteAccountReauthNeeded": "For security reasons, sign out and sign back in before deleting your account.",
+    "deleteAccountError": "Deletion failed. Please try again later."
   },
   "checklist": {
     "title": "Checklist",
