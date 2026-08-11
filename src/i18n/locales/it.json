@@ -112,7 +112,8 @@
     "owned": "Posseduta",
     "missing": "Mancante",
     "errorLoadingSets": "Impossibile caricare le serie.",
-    "errorLoadingSet": "Impossibile caricare questa serie."
+    "errorLoadingSet": "Impossibile caricare questa serie.",
+    "retry": "Riprova"
   },
   "wishlist": {
     "title": "Lista dei desideri",

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
@@ -54,6 +54,11 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
     };
   }, [game, setName]);
 
+  // reloadToken : voir ChecklistHomeScreen.tsx pour le même principe (permet
+  // au bouton "Réessayer" de redéclencher ce chargement, notamment utile
+  // contre le cold-start du backend gratuit Render).
+  const [reloadToken, setReloadToken] = useState(0);
+
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -72,7 +77,9 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [game, setId, t]);
+  }, [game, setId, t, reloadToken]);
+
+  const handleRetry = useCallback(() => setReloadToken((n) => n + 1), []);
 
   const ownedIds = useMemo(() => {
     const ids = new Set<string>();
@@ -99,6 +106,9 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
     return (
       <View style={styles.center}>
         <Text style={styles.error}>{error}</Text>
+        <TouchableOpacity onPress={handleRetry} style={styles.retryButton}>
+          <Text style={styles.retryButtonText}>{t("checklist.retry")}</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -189,6 +199,20 @@ const styles = StyleSheet.create({
     color: colors.danger,
     textAlign: "center",
     paddingHorizontal: 24,
+  },
+  retryButton: {
+    marginTop: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  retryButtonText: {
+    color: colors.accent,
+    fontSize: 13,
+    fontWeight: "500",
   },
   progressSection: {
     padding: 14,

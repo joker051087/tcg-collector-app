@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
@@ -102,6 +102,13 @@ export default function ChecklistHomeScreen({ navigation }: Props) {
     return counts;
   }, [portfolioItems, game]);
 
+  // reloadToken : incrémenté par le bouton "Réessayer" (voir plus bas) pour
+  // redéclencher ce useEffect sans changer de jeu. Utile en particulier
+  // contre le "cold start" du backend gratuit (Render) : la toute première
+  // requête après une pause peut mettre 30-60s et échouer, sans que
+  // l'utilisateur ait à fermer/rouvrir l'appli pour réessayer.
+  const [reloadToken, setReloadToken] = useState(0);
+
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -120,7 +127,9 @@ export default function ChecklistHomeScreen({ navigation }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [game, t]);
+  }, [game, t, reloadToken]);
+
+  const handleRetry = useCallback(() => setReloadToken((n) => n + 1), []);
 
   const filteredSets = sets.filter((s) => s.name.toLowerCase().includes(filter.trim().toLowerCase()));
 
@@ -146,7 +155,14 @@ export default function ChecklistHomeScreen({ navigation }: Props) {
       />
 
       {loading && <ActivityIndicator style={styles.loader} color={colors.accent} />}
-      {error && <Text style={styles.error}>{error}</Text>}
+      {error && (
+        <View style={styles.errorBox}>
+          <Text style={styles.error}>{error}</Text>
+          <TouchableOpacity onPress={handleRetry} style={styles.retryButton}>
+            <Text style={styles.retryButtonText}>{t("checklist.retry")}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <FlatList
         data={filteredSets}
@@ -251,11 +267,28 @@ const styles = StyleSheet.create({
   loader: {
     marginTop: 16,
   },
+  errorBox: {
+    alignItems: "center",
+    marginTop: 16,
+    paddingHorizontal: 24,
+  },
   error: {
     color: colors.danger,
     textAlign: "center",
-    marginTop: 16,
-    paddingHorizontal: 24,
+  },
+  retryButton: {
+    marginTop: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  retryButtonText: {
+    color: colors.accent,
+    fontSize: 13,
+    fontWeight: "500",
   },
   row: {
     flexDirection: "row",

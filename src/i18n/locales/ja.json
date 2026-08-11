@@ -112,7 +112,8 @@
     "owned": "所持",
     "missing": "未所持",
     "errorLoadingSets": "シリーズを読み込めませんでした。",
-    "errorLoadingSet": "このシリーズを読み込めませんでした。"
+    "errorLoadingSet": "このシリーズを読み込めませんでした。",
+    "retry": "再試行"
   },
   "wishlist": {
     "title": "ウィッシュリスト",

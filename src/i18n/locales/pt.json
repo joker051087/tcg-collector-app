@@ -112,7 +112,8 @@
     "owned": "Obtida",
     "missing": "Em falta",
     "errorLoadingSets": "Não foi possível carregar as séries.",
-    "errorLoadingSet": "Não foi possível carregar esta série."
+    "errorLoadingSet": "Não foi possível carregar esta série.",
+    "retry": "Tentar novamente"
   },
   "wishlist": {
     "title": "Lista de desejos",

@@ -112,7 +112,8 @@
     "owned": "Obtenida",
     "missing": "Falta",
     "errorLoadingSets": "No se pudieron cargar las series.",
-    "errorLoadingSet": "No se pudo cargar esta serie."
+    "errorLoadingSet": "No se pudo cargar esta serie.",
+    "retry": "Reintentar"
   },
   "wishlist": {
     "title": "Lista de deseos",

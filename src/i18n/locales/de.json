@@ -112,7 +112,8 @@
     "owned": "Vorhanden",
     "missing": "Fehlt",
     "errorLoadingSets": "Serien konnten nicht geladen werden.",
-    "errorLoadingSet": "Diese Serie konnte nicht geladen werden."
+    "errorLoadingSet": "Diese Serie konnte nicht geladen werden.",
+    "retry": "Erneut versuchen"
   },
   "wishlist": {
     "title": "Wunschliste",

@@ -112,7 +112,8 @@
     "owned": "Owned",
     "missing": "Missing",
     "errorLoadingSets": "Unable to load sets.",
-    "errorLoadingSet": "Unable to load this set."
+    "errorLoadingSet": "Unable to load this set.",
+    "retry": "Retry"
   },
   "wishlist": {
     "title": "Wishlist",
