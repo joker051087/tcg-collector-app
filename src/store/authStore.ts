@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { deleteUser, onAuthStateChanged, signOut as firebaseSignOut, type User } from "firebase/auth";
 import { doc, deleteDoc } from "firebase/firestore";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { auth, db, isFirebaseConfigured } from "../config/firebase";
 
 export interface AuthUser {
@@ -31,6 +32,10 @@ export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
   signOut: async () => {
     if (auth) await firebaseSignOut(auth);
+    // Vide aussi la session mise en cache par le SDK natif Google Sign-In
+    // (voir useGoogleAuth.ts) — sinon la prochaine connexion resélectionne
+    // silencieusement le même compte sans montrer le sélecteur de compte.
+    await GoogleSignin.signOut().catch(() => {});
   },
 
   // Exigé par les règles de l'App Store (5.1.1(v)) quand une appli propose la
@@ -54,6 +59,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
     }
 
     await deleteUser(auth.currentUser);
+    await GoogleSignin.signOut().catch(() => {});
   },
 }));
 

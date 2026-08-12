@@ -1,67 +1,72 @@
-import { useEffect, useState } from "react";
-import * as WebBrowser from "expo-web-browser";
-import * as Google from "expo-auth-session/providers/google";
+import { useCallback, useState } from "react";
+import {
+  GoogleSignin,
+  isErrorWithCode,
+  isSuccessResponse,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { auth, isFirebaseConfigured } from "../config/firebase";
 
-// Nécessaire pour que la fenêtre de connexion Google se ferme correctement
-// et redonne la main à l'appli (sinon elle peut rester ouverte après la
-// connexion) — appelé une seule fois au niveau module, comme recommandé par
-// la doc expo-auth-session.
-WebBrowser.maybeCompleteAuthSession();
+// Remplace l'ancienne implémentation basée sur expo-auth-session (flux
+// navigateur) : Google la bloque désormais dans les vraies builds Android
+// avec "Erreur 400 : invalid_request", quel que soit le client OAuth
+// configuré — c'est documenté comme dépréciée par Expo lui-même (voir
+// https://docs.expo.dev/guides/google-authentication/), qui recommande cette
+// librairie native à la place. Elle utilise le SDK Google Sign-In natif
+// (via Play Services), pas un aller-retour navigateur, donc pas de problème
+// de redirect_uri ni de "politique OAuth 2.0".
+//
+// Nécessite un vrai build natif (dev client / EAS Build) — ne fonctionne pas
+// dans Expo Go. webClientId (PAS androidClientId) est ce qui permet
+// d'obtenir un idToken exploitable par Firebase (voir GUIDE_FIREBASE.md).
+const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
 
-// Connexion Google compatible Expo Go (pas besoin d'un build natif/EAS) :
-// expo-auth-session ouvre le navigateur pour l'écran de connexion Google
-// standard, puis on échange le jeton obtenu contre une session Firebase.
-// Les 3 client ID (web/iOS/Android) viennent d'un projet Google Cloud/
-// Firebase créé par l'utilisateur — voir GUIDE_FIREBASE.md. Seul le web
-// client ID est strictement nécessaire pour tester dans Expo Go ; les deux
-// autres ne servent que pour un futur build natif autonome (EAS Build).
+if (webClientId) {
+  GoogleSignin.configure({ webClientId });
+}
+
 export function useGoogleAuth() {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
-  const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
-  const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
+  const canSignIn = isFirebaseConfigured && Boolean(webClientId);
 
-  // expo-auth-session exige un identifiant correspondant à la plateforme en
-  // cours (Android/iOS/Web) et plante l'appli au montage si celui-ci est
-  // absent — même si l'utilisateur n'a jamais cliqué sur "Se connecter".
-  // Tant qu'il n'existe pas de client ID Android/iOS dédié (nécessaire
-  // seulement pour un futur build natif EAS, voir GUIDE_FIREBASE.md), on
-  // retombe sur le web client ID pour éviter le crash ; canSignIn (plus bas)
-  // continue de désactiver proprement le bouton tant que rien n'est configuré.
-  const fallbackClientId = webClientId ?? iosClientId ?? androidClientId ?? "expo-auth-session-unconfigured";
-
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: webClientId ?? fallbackClientId,
-    iosClientId: iosClientId ?? fallbackClientId,
-    androidClientId: androidClientId ?? fallbackClientId,
-  });
-
-  useEffect(() => {
-    if (response?.type !== "success" || !auth) return;
-    const idToken = response.params?.id_token;
-    if (!idToken) return;
-
-    setIsSigningIn(true);
+  const signIn = useCallback(async () => {
+    if (!auth || !canSignIn) return;
     setError(null);
-    const credential = GoogleAuthProvider.credential(idToken);
-    signInWithCredential(auth, credential)
-      .catch((err) => {
-        console.error("Erreur de connexion Google:", err);
-        setError(err.message ?? String(err));
-      })
-      .finally(() => setIsSigningIn(false));
-  }, [response]);
+    setIsSigningIn(true);
+    try {
+      await GoogleSignin.hasPlayServices();
+      const response = await GoogleSignin.signIn();
+      // L'utilisateur a fermé la fenêtre sans se connecter — pas une erreur.
+      if (!isSuccessResponse(response)) return;
 
-  const canSignIn = isFirebaseConfigured && Boolean(process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID) && !!request;
+      const idToken = response.data.idToken;
+      if (!idToken) throw new Error("Google n'a renvoyé aucun jeton d'identification.");
+
+      const credential = GoogleAuthProvider.credential(idToken);
+      await signInWithCredential(auth, credential);
+    } catch (err) {
+      // SIGN_IN_CANCELLED / IN_PROGRESS : l'utilisateur a annulé ou a déjà une
+      // tentative en cours — pas la peine d'afficher une erreur pour ça.
+      if (
+        isErrorWithCode(err) &&
+        (err.code === statusCodes.SIGN_IN_CANCELLED || err.code === statusCodes.IN_PROGRESS)
+      ) {
+        return;
+      }
+      console.error("Erreur de connexion Google:", err);
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsSigningIn(false);
+    }
+  }, [canSignIn]);
 
   return {
     canSignIn,
     isSigningIn,
     error,
-    signIn: () => promptAsync(),
+    signIn,
   };
 }

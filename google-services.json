@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1060903942685",
+    "project_id": "tcg-collector-41027",
+    "storage_bucket": "tcg-collector-41027.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1060903942685:android:3dd61f9d031dc682e424f4",
+        "android_client_info": {
+          "package_name": "com.kamelnafla.tcghallcard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1060903942685-41gg4fdlekoplknm06dro45cu61jae83.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpp65hsGBAyVJLFXV0-1mU9O3JkQ7m89A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1060903942685-41gg4fdlekoplknm06dro45cu61jae83.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
