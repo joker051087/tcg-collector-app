@@ -124,7 +124,34 @@ npx expo start -c
 
 Le bouton de connexion Google ne pourra **pas** être testé dans Expo Go (l'appli où tu scannes le QR code) — il fonctionnera seulement dans une "vraie" version installée du téléphone (build EAS) ou une fois l'appli publiée. C'est normal, pas un bug. Le reste de l'appli (recherche, collection, wishlist, checklist) continue de fonctionner normalement dans Expo Go pendant ce temps.
 
-Dis-moi quand tu veux qu'on prépare ce build de test — je te guiderai à ce moment-là.
+Une fois qu'on a une vraie build installée (dev client, preview ou production), il faut faire l'étape 9 ci-dessous avant que "Se connecter avec Google" fonctionne dedans — sinon Google affiche "Erreur 400 : invalid_request".
+
+---
+
+## Étape 9 — Créer l'ID client Android (nécessaire pour toute vraie build)
+
+Le "Web Client ID" (étape 4) suffit dans Expo Go, mais Google exige un identifiant dédié de type **Android** pour toute appli installée (dev client, preview, production). Sans ça : "Erreur 400 : invalid_request" au moment de se connecter.
+
+1. Récupère le SHA-1 de ta build :
+   ```powershell
+   eas credentials
+   ```
+   Réponds **Android**, puis choisis le profil utilisé (peu importe lequel, ils partagent le même keystore), puis **"Keystore: Manage everything needed to build your project"**. La ligne **SHA1 Fingerprint** s'affiche directement — copie-la (format `XX:XX:XX:...`).
+
+2. Va sur `https://console.cloud.google.com/apis/credentials?project=TON_PROJECT_ID` (le `TON_PROJECT_ID` est la valeur `EXPO_PUBLIC_FIREBASE_PROJECT_ID` de ton `.env`).
+
+3. Clique **"+ Créer des identifiants"** → **"ID client OAuth"**.
+
+4. Type d'application : **Android**. Nom du package : `com.kamelnafla.tcghallcard`. Empreinte SHA-1 : celle de l'étape 1. Clique **Créer**.
+
+5. Copie l'**ID client** affiché (se termine par `.apps.googleusercontent.com`), colle-le dans `.env` :
+   ```
+   EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID=colle_ici_la_valeur
+   ```
+
+6. Redémarre `npx expo start -c` (le `-c` vide le cache) et recharge l'appli sur ton téléphone.
+
+Si un jour tu changes de keystore (nouveau compte EAS, reset des credentials...), il faudra refaire cette étape avec le nouveau SHA-1.
 
 ---
 
