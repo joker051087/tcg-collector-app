@@ -11,10 +11,22 @@ import { TCGAPI_GAMES } from "../constants/games";
 import { UnifiedCard } from "../types";
 import { usePortfolioStore } from "../store/portfolioStore";
 import { useWishlistStore } from "../store/wishlistStore";
+import { useCurrencyFormatter } from "../hooks/useCurrencyFormatter";
 import GameLogo from "../components/GameLogo";
 import { colors, radius } from "../theme/colors";
 
 type Props = NativeStackScreenProps<ChecklistStackParamList, "SetChecklist">;
+
+// Extrait la partie numérique d'un numéro de carte pour un tri "numérique"
+// plutôt qu'alphabétique (qui mettrait "10" avant "2") — le numéro est un
+// champ libre selon le jeu (ex "025/198" en Pokémon, "42a" en Magic, "SDY-001"
+// en Yu-Gi-Oh!, voir types/index.ts). Les cartes sans numéro exploitable sont
+// repoussées en fin de liste plutôt que de faire planter le tri.
+function cardNumberSortKey(number: string | undefined): [number, string] {
+  if (!number) return [Number.POSITIVE_INFINITY, ""];
+  const match = number.match(/\d+/);
+  return [match ? parseInt(match[0], 10) : Number.POSITIVE_INFINITY, number];
+}
 
 // Écran 2/2 de la Checklist : toutes les cartes de la série choisie, avec un
 // badge "possédée"/"manquante" déterminé en comparant aux cartes déjà dans la
@@ -38,6 +50,7 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
   const wishlistCards = useWishlistStore((state) => state.items);
   const toggleWishlist = useWishlistStore((state) => state.toggleItem);
   const wishlistIds = useMemo(() => new Set(wishlistCards.map((c) => c.id)), [wishlistCards]);
+  const { formatUsdAmount } = useCurrencyFormatter();
 
   useEffect(() => {
     navigation.setOptions({ title: setName });
@@ -89,6 +102,14 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
     return ids;
   }, [portfolioItems, game]);
 
+  const sortedCards = useMemo(() => {
+    return [...cards].sort((a, b) => {
+      const [numA, strA] = cardNumberSortKey(a.number);
+      const [numB, strB] = cardNumberSortKey(b.number);
+      return numA !== numB ? numA - numB : strA.localeCompare(strB);
+    });
+  }, [cards]);
+
   const ownedCount = cards.filter((c) => ownedIds.has(c.id)).length;
   const total = cards.length;
   const progressRatio = total > 0 ? ownedCount / total : 0;
@@ -135,7 +156,7 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
       </View>
 
       <FlatList
-        data={cards}
+        data={sortedCards}
         keyExtractor={(item) => item.id}
         numColumns={2}
         columnWrapperStyle={styles.gridRow}
@@ -179,6 +200,9 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
                 {item.name}
               </Text>
               {item.number ? <Text style={styles.cardNumber}>{`#${item.number}`}</Text> : null}
+              {item.marketPriceUsd != null && (
+                <Text style={styles.cardPrice}>{formatUsdAmount(item.marketPriceUsd)}</Text>
+              )}
             </Pressable>
           );
         }}
@@ -313,5 +337,11 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textSecondary,
     marginTop: 2,
+  },
+  cardPrice: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: colors.accent,
+    marginTop: 3,
   },
 });
