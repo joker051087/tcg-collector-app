@@ -137,45 +137,48 @@ export default function SetChecklistScreen({ route, navigation }: Props) {
       <FlatList
         data={cards}
         keyExtractor={(item) => item.id}
+        numColumns={2}
+        columnWrapperStyle={styles.gridRow}
+        contentContainerStyle={styles.gridContent}
         renderItem={({ item }) => {
           const owned = ownedIds.has(item.id);
           const inWishlist = wishlistIds.has(item.id);
           return (
             <Pressable
-              style={styles.row}
+              style={styles.card}
               onPress={() =>
                 navigation.navigate("CardDetail", { game, cardId: item.id, presetCard: item })
               }
             >
-              <Image
-                source={{ uri: item.imageSmall }}
-                style={[styles.image, !owned && styles.imageMissing]}
-                contentFit="contain"
-              />
-              <View style={styles.rowInfo}>
-                <Text style={[styles.rowName, !owned && styles.rowNameMissing]} numberOfLines={1}>
-                  {item.name}
-                </Text>
-                <Text style={styles.rowMeta} numberOfLines={1}>
-                  {item.number ? `#${item.number}` : ""}
-                </Text>
+              <View style={styles.cardImageWrap}>
+                <Image
+                  source={{ uri: item.imageSmall }}
+                  style={[styles.cardImage, !owned && styles.cardImageMissing]}
+                  contentFit="cover"
+                />
+                {!owned && (
+                  <TouchableOpacity
+                    onPress={() => toggleWishlist(item)}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    style={styles.cardWishlistButton}
+                  >
+                    <Ionicons
+                      name={inWishlist ? "heart" : "heart-outline"}
+                      size={15}
+                      color={inWishlist ? colors.wishlist : colors.white}
+                    />
+                  </TouchableOpacity>
+                )}
+                <View style={styles.cardBadge}>
+                  <Text style={[styles.cardBadgeText, owned && styles.cardBadgeTextOwned]}>
+                    {owned ? t("checklist.owned") : t("checklist.missing")}
+                  </Text>
+                </View>
               </View>
-              {!owned && (
-                <TouchableOpacity
-                  onPress={() => toggleWishlist(item)}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  style={styles.wishlistButton}
-                >
-                  <Ionicons
-                    name={inWishlist ? "heart" : "heart-outline"}
-                    size={18}
-                    color={inWishlist ? colors.wishlist : colors.textSecondary}
-                  />
-                </TouchableOpacity>
-              )}
-              <Text style={owned ? styles.badgeOwned : styles.badgeMissing}>
-                {owned ? t("checklist.owned") : t("checklist.missing")}
+              <Text style={[styles.cardName, !owned && styles.cardNameMissing]} numberOfLines={2}>
+                {item.name}
               </Text>
+              {item.number ? <Text style={styles.cardNumber}>{`#${item.number}`}</Text> : null}
             </Pressable>
           );
         }}
@@ -244,52 +247,71 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accent,
     borderRadius: radius.sm,
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+  gridContent: {
+    padding: 12,
+    paddingBottom: 24,
   },
-  image: {
-    width: 40,
-    height: 56,
-    marginRight: 12,
-    borderRadius: 4,
+  gridRow: {
+    justifyContent: "space-between",
   },
-  imageMissing: {
+  card: {
+    width: "48%",
+    marginBottom: 18,
+  },
+  cardImageWrap: {
+    width: "100%",
+    aspectRatio: 0.716,
+    borderRadius: radius.md,
+    overflow: "hidden",
+    backgroundColor: colors.surface,
+  },
+  cardImage: {
+    width: "100%",
+    height: "100%",
+  },
+  cardImageMissing: {
     opacity: 0.35,
   },
-  rowInfo: {
-    flex: 1,
+  cardWishlistButton: {
+    position: "absolute",
+    top: 6,
+    right: 6,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(15, 15, 19, 0.72)",
   },
-  rowName: {
-    fontSize: 14,
+  cardBadge: {
+    position: "absolute",
+    left: 6,
+    bottom: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.pill,
+    backgroundColor: "rgba(15, 15, 19, 0.72)",
+  },
+  cardBadgeText: {
+    fontSize: 10,
     fontWeight: "500",
-    color: colors.textPrimary,
-  },
-  rowNameMissing: {
     color: colors.textMuted,
   },
-  rowMeta: {
+  cardBadgeTextOwned: {
+    color: colors.success,
+  },
+  cardName: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: colors.textPrimary,
+    marginTop: 8,
+  },
+  cardNameMissing: {
+    color: colors.textMuted,
+  },
+  cardNumber: {
     fontSize: 11,
     color: colors.textSecondary,
     marginTop: 2,
-  },
-  badgeOwned: {
-    fontSize: 11,
-    fontWeight: "500",
-    color: colors.accent,
-    marginLeft: 8,
-  },
-  badgeMissing: {
-    fontSize: 11,
-    fontWeight: "500",
-    color: colors.textMuted,
-    marginLeft: 8,
-  },
-  wishlistButton: {
-    marginLeft: 10,
   },
 });
