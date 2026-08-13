@@ -8,7 +8,6 @@ import { listSets } from "../api";
 import { findSetBoosterImage } from "../api/sealedProducts";
 import { Game, UnifiedSet } from "../types";
 import { GAME_LABELS, SUPPORTED_GAMES, TCGAPI_GAMES } from "../constants/games";
-import SelectableChips from "../components/SelectableChips";
 import GameLogo from "../components/GameLogo";
 import { usePortfolioStore } from "../store/portfolioStore";
 import { useWishlistStore } from "../store/wishlistStore";
@@ -135,41 +134,53 @@ export default function ChecklistHomeScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.gameSelector}>
-        <SelectableChips
-          options={SUPPORTED_GAMES}
-          value={game}
-          onChange={setGame}
-          getLabel={(g) => GAME_LABELS[g]}
-        />
-      </View>
-
-      <TextInput
-        style={styles.input}
-        placeholder={t("checklist.searchSetPlaceholder")}
-        placeholderTextColor={colors.textMuted}
-        value={filter}
-        onChangeText={setFilter}
-        autoCapitalize="none"
-        autoCorrect={false}
-      />
-
-      {loading && <ActivityIndicator style={styles.loader} color={colors.accent} />}
-      {error && (
-        <View style={styles.errorBox}>
-          <Text style={styles.error}>{error}</Text>
-          <TouchableOpacity onPress={handleRetry} style={styles.retryButton}>
-            <Text style={styles.retryButtonText}>{t("checklist.retry")}</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
       <FlatList
         data={filteredSets}
         keyExtractor={(item, index) => `${item.id}-${item.name}-${index}`}
         keyboardShouldPersistTaps="handled"
         onViewableItemsChanged={handleViewableItemsChanged}
         viewabilityConfig={VIEWABILITY_CONFIG}
+        ListHeaderComponent={
+          <View>
+            <View style={styles.gameGrid}>
+              {SUPPORTED_GAMES.map((g) => {
+                const selected = g === game;
+                return (
+                  <Pressable
+                    key={g}
+                    style={[styles.gameTile, selected && styles.gameTileSelected]}
+                    onPress={() => setGame(g)}
+                  >
+                    <GameLogo game={g} size={44} shape="square" />
+                    <Text style={styles.gameTileLabel} numberOfLines={1}>
+                      {GAME_LABELS[g]}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            <TextInput
+              style={styles.input}
+              placeholder={t("checklist.searchSetPlaceholder")}
+              placeholderTextColor={colors.textMuted}
+              value={filter}
+              onChangeText={setFilter}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+
+            {loading && <ActivityIndicator style={styles.loader} color={colors.accent} />}
+            {error && (
+              <View style={styles.errorBox}>
+                <Text style={styles.error}>{error}</Text>
+                <TouchableOpacity onPress={handleRetry} style={styles.retryButton}>
+                  <Text style={styles.retryButtonText}>{t("checklist.retry")}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        }
         renderItem={({ item }) => {
           const owned = Math.min(ownedCountBySetName.get(item.name) ?? 0, item.cardCount ?? Infinity);
           const percent =
@@ -249,9 +260,35 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "500",
   },
-  gameSelector: {
+  gameGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
     paddingHorizontal: 12,
     paddingTop: 12,
+  },
+  gameTile: {
+    width: "48%",
+    aspectRatio: 1.7,
+    marginBottom: 10,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  gameTileSelected: {
+    borderColor: colors.accent,
+    backgroundColor: colors.accentSoft,
+  },
+  gameTileLabel: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: colors.textPrimary,
+    marginTop: 8,
+    paddingHorizontal: 8,
+    textAlign: "center",
   },
   input: {
     margin: 12,
