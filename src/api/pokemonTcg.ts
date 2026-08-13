@@ -152,7 +152,7 @@ export async function listSets(): Promise<UnifiedSet[]> {
 // contrairement à set.ptcgoCode est toujours renseigné sur chaque carte (voir
 // note sur resolveSetId plus haut).
 export async function fetchCardsBySetId(setId: string): Promise<UnifiedCard[]> {
-  return fetchCardsByFilter(`set.id:"${setId}"`, { pageSize: 250, orderBy: "number" });
+  return fetchAllCardsByFilter(`set.id:"${setId}"`, "number");
 }
 
 export async function getCardById(id: string): Promise<UnifiedCard> {
@@ -194,10 +194,11 @@ function parsePokemonNumberQuery(raw: string): ParsedPokemonQuery | null {
 
 async function fetchCardsByFilter(
   filter: string,
-  options?: { pageSize?: number; orderBy?: string }
-): Promise<UnifiedCard[]> {
+  options?: { pageSize?: number; page?: number; orderBy?: string }
+): Promise<{ cards: UnifiedCard[]; totalCount: number }> {
   const params = new URLSearchParams({ q: filter });
   if (options?.pageSize) params.set("pageSize", String(options.pageSize));
+  if (options?.page) params.set("page", String(options.page));
   if (options?.orderBy) params.set("orderBy", options.orderBy);
   const url = `${BASE_URL}/cards?${params.toString()}`;
 
@@ -207,7 +208,29 @@ async function fetchCardsByFilter(
   }
   const json = await res.json();
   const cards = (json.data ?? []) as RawPokemonCard[];
-  return cards.map(toUnifiedCard);
+  return { cards: cards.map(toUnifiedCard), totalCount: json.totalCount ?? cards.length };
+}
+
+// 250 est le maximum de cartes que pokemontcg.io renvoie PAR PAGE — pas le
+// maximum par set. Certains sets (ex Paradox Rift, Scarlet & Violet Base)
+// dépassent 250 cartes une fois les secrètes comptées, et se retrouvaient
+// tronqués avec un simple appel à pageSize 250. On boucle donc sur les pages
+// suivantes tant que totalCount n'est pas atteint (les récupère en parallèle,
+// une fois qu'on connaît totalCount depuis la 1re page).
+async function fetchAllCardsByFilter(filter: string, orderBy?: string): Promise<UnifiedCard[]> {
+  const pageSize = 250;
+  const first = await fetchCardsByFilter(filter, { pageSize, page: 1, orderBy });
+  const all = [...first.cards];
+  const remainingPages = Math.ceil(first.totalCount / pageSize) - 1;
+  if (remainingPages > 0) {
+    const extraPages = await Promise.all(
+      Array.from({ length: remainingPages }, (_, i) =>
+        fetchCardsByFilter(filter, { pageSize, page: i + 2, orderBy })
+      )
+    );
+    for (const page of extraPages) all.push(...page.cards);
+  }
+  return all;
 }
 
 // Le champ set.ptcgoCode n'est PAS fiable pour filtrer les cartes : il est
@@ -243,10 +266,11 @@ export async function searchCardsByNumber(query: string): Promise<UnifiedCard[]>
   if (parsed?.type === "set") {
     const setId = await resolveSetId(parsed.setCode);
     if (!setId) return [];
-    // Un set entier peut dépasser la limite par défaut (30) — 250 est le
-    // maximum autorisé par pokemontcg.io, largement suffisant. Tri par
-    // numéro pour un parcours naturel plutôt que par date de sortie.
-    return fetchCardsByFilter(`set.id:"${setId}"`, { pageSize: 250, orderBy: "number" });
+    // Un set entier peut dépasser la limite par défaut (30) et même la
+    // limite par page (250, voir fetchAllCardsByFilter) — on récupère donc
+    // toutes les pages. Tri par numéro pour un parcours naturel plutôt que
+    // par date de sortie.
+    return fetchAllCardsByFilter(`set.id:"${setId}"`, "number");
   }
 
   const rawNumber = parsed?.type === "number" ? parsed.number : trimmed;
@@ -268,7 +292,7 @@ export async function searchCardsByNumber(query: string): Promise<UnifiedCard[]>
 
   const seen = new Set<string>();
   const merged: UnifiedCard[] = [];
-  for (const cards of resultsPerFilter) {
+  for (const { cards } of resultsPerFilter) {
     for (const card of cards) {
       if (!seen.has(card.id)) {
         seen.add(card.id);

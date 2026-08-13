@@ -133,15 +133,20 @@ app.get("/proxy/pokemon/cards", async (req, res) => {
   // pageSize/orderBy passthrough : utilisé notamment pour parcourir un set
   // entier (ex: recherche par code de set seul, "SFA") où 30 résultats ne
   // suffisent pas et où l'ordre par numéro est plus utile que par date.
-  // 250 est le maximum autorisé par pokemontcg.io.
+  // 250 est le maximum autorisé par pokemontcg.io PAR PAGE — certains sets
+  // dépassent 250 cartes (ex Scarlet & Violet 151 avec ses secrètes, Paradox
+  // Rift...), d'où le passthrough de "page" en plus de pageSize : le client
+  // (voir fetchAllCardsByFilter dans pokemonTcg.ts) boucle sur les pages
+  // tant que totalCount n'est pas atteint.
   const pageSize = Math.min(Math.max(Number(req.query.pageSize) || 30, 1), 250);
+  const page = Math.max(Number(req.query.page) || 1, 1);
   const orderBy = req.query.orderBy || "-set.releaseDate";
   const url = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(
     q
-  )}&pageSize=${pageSize}&orderBy=${encodeURIComponent(orderBy)}`;
+  )}&pageSize=${pageSize}&page=${page}&orderBy=${encodeURIComponent(orderBy)}`;
   const headers = POKEMONTCG_API_KEY ? { "X-Api-Key": POKEMONTCG_API_KEY } : {};
   await proxyJson(res, {
-    cacheKey: `pokemon:search:${q}:${pageSize}:${orderBy}`,
+    cacheKey: `pokemon:search:${q}:${pageSize}:${page}:${orderBy}`,
     upstreamUrl: url,
     upstreamInit: { headers },
     ttlMs: TTL.cards,
