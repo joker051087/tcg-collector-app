@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
@@ -9,8 +10,10 @@ import { HomeStackParamList, TabParamList } from "../navigation/types";
 import { usePortfolioStore } from "../store/portfolioStore";
 import { computePortfolioTotals } from "../utils/pricing";
 import { useCurrencyFormatter } from "../hooks/useCurrencyFormatter";
-import { GAME_LABELS, SUPPORTED_GAMES } from "../constants/games";
-import GameLogo from "../components/GameLogo";
+import { GAME_LABELS } from "../constants/games";
+import { TRENDING_SEARCHES } from "../constants/trendingSearches";
+import { searchCards } from "../api";
+import { UnifiedCard } from "../types";
 import { colors, radius } from "../theme/colors";
 
 type Props = CompositeScreenProps<
@@ -27,6 +30,37 @@ export default function HomeScreen({ navigation }: Props) {
   const recentItems = [...items]
     .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
     .slice(0, 8);
+
+  // "Cartes du moment" : recherches éditoriales par jeu (voir
+  // trendingSearches.ts), pas une vraie liste de tendances basée sur les
+  // recherches réelles des utilisateurs — on n'a pas encore de télémétrie
+  // côté serveur pour ça. Quelques résultats par recherche, fusionnés et
+  // dédupliqués par id de carte.
+  const [trendingCards, setTrendingCards] = useState<UnifiedCard[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all(
+      TRENDING_SEARCHES.map(({ game, query }) =>
+        searchCards(game, query).catch(() => [] as UnifiedCard[])
+      )
+    ).then((results) => {
+      if (cancelled) return;
+      const seen = new Set<string>();
+      const merged: UnifiedCard[] = [];
+      for (const cards of results) {
+        for (const card of cards.slice(0, 3)) {
+          if (!seen.has(card.id)) {
+            seen.add(card.id);
+            merged.push(card);
+          }
+        }
+      }
+      setTrendingCards(merged);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -116,25 +150,41 @@ export default function HomeScreen({ navigation }: Props) {
         </View>
       )}
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t("home.exploreGames")}</Text>
-        <View style={styles.gamesGrid}>
-          {SUPPORTED_GAMES.map((g) => (
-            <Pressable
-              key={g}
-              style={styles.gameTile}
-              onPress={() =>
-                navigation.navigate("SearchTab", { screen: "SearchHome", params: { initialGame: g } })
-              }
-            >
-              <GameLogo game={g} size={48} />
-              <Text style={styles.gameLabel} numberOfLines={2}>
-                {GAME_LABELS[g]}
-              </Text>
-            </Pressable>
-          ))}
+      {trendingCards.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t("home.trendingCards")}</Text>
+          <FlatList
+            data={trendingCards}
+            keyExtractor={(item) => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.recentList}
+            renderItem={({ item }) => (
+              <Pressable
+                style={styles.recentCard}
+                onPress={() =>
+                  navigation.navigate("CardDetail", {
+                    game: item.game,
+                    cardId: item.id,
+                    presetCard: item,
+                  })
+                }
+              >
+                <Image source={{ uri: item.imageSmall }} style={styles.recentImage} contentFit="contain" />
+                <Text style={styles.recentName} numberOfLines={1}>
+                  {item.name}
+                </Text>
+                <Text style={styles.trendingGameTag} numberOfLines={1}>
+                  {GAME_LABELS[item.game]}
+                </Text>
+                {item.marketPriceUsd != null && (
+                  <Text style={styles.trendingPrice}>{formatUsdAmount(item.marketPriceUsd)}</Text>
+                )}
+              </Pressable>
+            )}
+          />
         </View>
-      </View>
+      )}
     </ScrollView>
   );
 }
@@ -308,22 +358,17 @@ const styles = StyleSheet.create({
     marginTop: 4,
     textAlign: "center",
   },
-  gamesGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    paddingHorizontal: 12,
-    gap: 4,
+  trendingGameTag: {
+    fontSize: 10,
+    color: colors.textMuted,
+    marginTop: 1,
+    textAlign: "center",
   },
-  gameTile: {
-    width: "25%",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 4,
-  },
-  gameLabel: {
-    fontSize: 10.5,
-    color: colors.textSecondary,
-    marginTop: 6,
+  trendingPrice: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: colors.accent,
+    marginTop: 2,
     textAlign: "center",
   },
 });
