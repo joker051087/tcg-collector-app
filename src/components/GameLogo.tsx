@@ -52,7 +52,7 @@ export default function GameLogo({ game, uri, size = 48, shape = "circle" }: Pro
   return (
     <View style={[styles.box, { width: size, height: size, borderRadius, paddingHorizontal: 3 }]}>
       <Text
-        style={[styles.fallbackNameText, { fontSize: Math.max(size * 0.22, 11) }]}
+        style={[styles.fallbackNameText, { fontSize: Math.max(size * 0.3, 14) }]}
         numberOfLines={2}
         adjustsFontSizeToFit
         minimumFontScale={0.5}
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   },
   fallbackNameText: {
     color: "#0f0f13",
-    fontWeight: "700",
+    fontWeight: "900",
     textAlign: "center",
     paddingHorizontal: 4,
   },
