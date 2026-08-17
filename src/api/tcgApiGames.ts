@@ -106,12 +106,15 @@ export async function listSets(game: Game): Promise<UnifiedSet[]> {
     }));
 }
 
-// Toutes les cartes d'une série (écran Checklist), avec pagination — 3 pages
-// (jusqu'à 300 cartes) largement suffisant pour ces jeux (leurs plus grosses
-// séries tournent autour de 150-200 cartes).
+// Toutes les cartes d'une série (écran Checklist), avec pagination — on
+// enchaîne les pages tant que meta.has_more est vrai, sans supposer une
+// taille de série maximale (constaté : "Ascended Heroes" en a 295, largement
+// au-delà de l'ancien plafond de 3 pages/300 cartes qui tronquait la liste).
+// Le plafond de 30 pages (3000 cartes) n'est qu'un garde-fou anti-boucle
+// infinie, pas une vraie limite attendue.
 export async function fetchCardsBySetId(game: Game, setId: string): Promise<UnifiedCard[]> {
   const all: UnifiedCard[] = [];
-  for (let page = 1; page <= 3; page++) {
+  for (let page = 1; page <= 30; page++) {
     const url = `${BASE_URL}/sets/${encodeURIComponent(setId)}/cards?page=${page}`;
     const res = await fetchWithRetry(url);
     if (!res.ok) {
