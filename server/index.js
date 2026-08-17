@@ -17,7 +17,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import multer from "multer";
-import { getCached, setCached, cacheStats } from "./cache.js";
+import { getCached, setCached, cacheStats } from "./firestoreCache.js";
 
 const app = express();
 app.use(cors());
@@ -50,13 +50,23 @@ const SCRYDEX_TEAM_ID = process.env.SCRYDEX_TEAM_ID || "";
 // bancaire demandée).
 const OCR_SPACE_API_KEY = process.env.OCR_SPACE_API_KEY || "";
 
+// Durées allongées depuis le passage au cache Firestore (permanent, ne se
+// vide plus à chaque redémarrage du serveur) : avant, un TTL court n'était
+// pas très grave (le cache mémoire/fichier se réinitialisait de toute façon
+// souvent) ; maintenant qu'il persiste vraiment, un TTL trop court fait
+// re-taper inutilement sur des API tierces au quota parfois limité (surtout
+// tcgapi.dev, ~100 requêtes/jour gratuites, qui couvre 10 des 13 jeux). Le
+// compromis choisi : catalogue + prix mis en cache une semaine plutôt qu'une
+// heure — largement suffisant pour un suivi de collection personnel (les prix
+// n'ont pas besoin d'être fraîches à la minute), quitte à raccourcir plus
+// tard si besoin de prix plus à jour.
 const TTL = {
-  cards: 60 * 60 * 1000, // 1h — recherche/fiche carte (catalogue + prix)
+  cards: 7 * 24 * 60 * 60 * 1000, // 7 jours — recherche/fiche carte (catalogue + prix)
   exchangeRates: 24 * 60 * 60 * 1000, // 24h
   pokemonNames: 7 * 24 * 60 * 60 * 1000, // 7 jours — les noms Pokémon changent rarement
   yugiohFullDb: 24 * 60 * 60 * 1000, // 24h — gros téléchargement (base complète), pas la peine plus souvent
   pokemonSets: 30 * 24 * 60 * 60 * 1000, // 30 jours — la liste des sets ne change qu'à chaque sortie
-  sealed: 12 * 60 * 60 * 1000, // 12h — tcgapi.dev ne met à jour ses prix qu'une fois par jour
+  sealed: 7 * 24 * 60 * 60 * 1000, // 7 jours — tcgapi.dev (quota le plus serré) ne met à jour ses prix qu'une fois par jour de toute façon
   setsList: 30 * 24 * 60 * 60 * 1000, // 30 jours — liste des séries par jeu (écran Checklist)
 };
 
@@ -97,7 +107,7 @@ async function fetchWithRetry(url, init, retries = 2, delayMs = 500) {
 // TS existants n'ont donc pas besoin de changer leur logique de parsing,
 // seulement l'URL qu'ils appellent.
 async function proxyJson(res, { cacheKey, upstreamUrl, upstreamInit, ttlMs }) {
-  const cached = getCached(cacheKey);
+  const cached = await getCached(cacheKey);
   if (cached) {
     res.set("X-Cache", "HIT");
     return res.json(cached);
@@ -117,7 +127,7 @@ async function proxyJson(res, { cacheKey, upstreamUrl, upstreamInit, ttlMs }) {
       return res.status(upstreamRes.status).json(json ?? { error: text });
     }
 
-    setCached(cacheKey, json, ttlMs);
+    await setCached(cacheKey, json, ttlMs);
     res.set("X-Cache", "MISS");
     return res.json(json);
   } catch (err) {
@@ -261,7 +271,7 @@ app.get("/proxy/yugioh/cards", async (req, res) => {
 // requête, ce qui évite de re-télécharger ~10 Mo à chaque recherche.
 async function fetchAllYugiohCards() {
   const cacheKey = "yugioh:all";
-  const cached = getCached(cacheKey);
+  const cached = await getCached(cacheKey);
   if (cached) return { cards: cached, hit: true };
 
   const upstreamRes = await fetchWithRetry("https://db.ygoprodeck.com/api/v7/cardinfo.php");
@@ -270,7 +280,7 @@ async function fetchAllYugiohCards() {
   }
   const json = await upstreamRes.json();
   const cards = json.data ?? [];
-  setCached(cacheKey, cards, TTL.yugiohFullDb);
+  await setCached(cacheKey, cards, TTL.yugiohFullDb);
   return { cards, hit: false };
 }
 
@@ -329,7 +339,7 @@ app.get("/proxy/pokemon-names", async (req, res) => {
   if (!lang) return res.status(400).json({ error: "Paramètre lang requis" });
 
   const cacheKey = `pokemon-names:${lang}`;
-  const cached = getCached(cacheKey);
+  const cached = await getCached(cacheKey);
   if (cached) {
     res.set("X-Cache", "HIT");
     return res.json(cached);
@@ -357,7 +367,7 @@ app.get("/proxy/pokemon-names", async (req, res) => {
     if (!upstreamRes.ok || json.errors) {
       return res.status(502).json({ error: json.errors?.[0]?.message ?? "Erreur PokeAPI" });
     }
-    setCached(cacheKey, json, TTL.pokemonNames);
+    await setCached(cacheKey, json, TTL.pokemonNames);
     res.set("X-Cache", "MISS");
     return res.json(json);
   } catch (err) {

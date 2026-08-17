@@ -155,6 +155,29 @@ Si un jour tu changes de keystore (nouveau compte EAS, reset des credentials...)
 
 ---
 
+## Étape 10 — Clé de service (cache permanent du backend)
+
+Le backend (`server/`) utilise maintenant Firestore pour garder en mémoire, de façon permanente, le catalogue et les prix déjà consultés — ça évite de re-taper sur les API tierces (pokemontcg.io, tcgapi.dev...) à chaque redémarrage du serveur Render. Pour ça, il a besoin d'une clé d'accès "admin" séparée (différente des valeurs de l'étape 2, qui elles sont pour l'app mobile).
+
+**Attention : cette clé donne un accès complet à ton projet Firebase — contrairement aux autres valeurs de ce guide, elle ne doit JAMAIS être partagée, collée dans le code, ou envoyée sur GitHub.**
+
+1. Dans la console Firebase, clique sur l'icône ⚙️ (roue crantée) en haut à gauche, puis **Paramètres du projet**.
+2. Va dans l'onglet **Comptes de service** (Service accounts).
+3. Clique **Générer une nouvelle clé privée**, puis confirme **Générer la clé**.
+4. Un fichier `.json` se télécharge (dans ton dossier Téléchargements). Note son nom.
+5. Ouvre PowerShell et lance cette commande, en remplaçant `NOM_DU_FICHIER.json` par le vrai nom téléchargé — ça convertit le fichier en une seule ligne de texte et la copie directement dans ton presse-papiers :
+   ```powershell
+   [Convert]::ToBase64String([IO.File]::ReadAllBytes("$env:USERPROFILE\Downloads\NOM_DU_FICHIER.json")) | Set-Clipboard
+   ```
+6. **En local** (pour tester sur ton PC) : dans `server/.env` (copie `server/.env.example` si le fichier n'existe pas encore), colle (Ctrl+V) après :
+   ```
+   FIREBASE_SERVICE_ACCOUNT_BASE64=colle_ici_avec_ctrl_v
+   ```
+7. **Sur Render** (pour la prod) : va sur ton service `tcg-collector-backend` > onglet **Environment** > **Add Environment Variable**. Nom : `FIREBASE_SERVICE_ACCOUNT_BASE64`. Valeur : colle (Ctrl+V) le contenu du presse-papiers. Clique **Save Changes** (redéploie automatiquement).
+8. Tu peux ensuite supprimer le fichier `.json` téléchargé dans tes Téléchargements (il ne sert plus, la valeur est déjà copiée) — ou le garder mais ne jamais le mettre dans le dossier du projet.
+
+---
+
 ## Récapitulatif des valeurs à récupérer
 
 | Variable `.env` | Où la trouver |
