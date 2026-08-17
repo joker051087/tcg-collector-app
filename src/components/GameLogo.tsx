@@ -19,36 +19,21 @@ interface Props {
   shape?: "circle" | "square";
 }
 
-// Une couleur par jeu (13 jeux, 13 couleurs), utilisée comme dernier repli
-// quand ni image de série ni logo de jeu ne sont disponibles.
-const GAME_COLORS: Record<Game, string> = {
-  pokemon: "#ef4444",
-  magic: "#f97316",
-  yugioh: "#eab308",
-  onepiece: "#22c55e",
-  lorcana: "#10b981",
-  riftbound: "#14b8a6",
-  dragonball: "#06b6d4",
-  digimon: "#3b82f6",
-  fleshandblood: "#6366f1",
-  starwarsunlimited: "#8b5cf6",
-  unionarena: "#a855f7",
-  gundam: "#d946ef",
-  finalfantasy: "#ec4899",
-};
-
 // Composant partagé pour afficher un repère visuel de jeu/série : utilisé
 // sur l'écran d'Accueil (grille "Explorer un jeu") et sur la Checklist
 // (chaque série, puis l'écran d'une série précise) — voir HomeScreen.tsx,
 // ChecklistHomeScreen.tsx, SetChecklistScreen.tsx.
+//
+// Repli unique (carré blanc + nom du jeu en texte, taille de police
+// adaptative via adjustsFontSizeToFit) utilisé à la fois quand aucune URL de
+// logo n'est configurée (Flesh and Blood, Union Arena, Gundam — aucun logo
+// exploitable trouvé, voir gameLogos.ts) ET quand une URL configurée échoue
+// à charger (logo Wikipedia renommé/supprimé, ex constaté sur Dragon Ball) :
+// mieux vaut un texte lisible dans tous les cas qu'un rond coloré à une
+// lettre ou un carré vide.
 export default function GameLogo({ game, uri, size = 48, shape = "circle" }: Props) {
   const source = uri ?? GAME_LOGOS[game];
   const borderRadius = shape === "circle" ? size / 2 : size * 0.18;
-  // Une URL de logo distante (Wikipedia, voir gameLogos.ts) peut casser avec
-  // le temps (fichier renommé/supprimé) — sans repli, ça laisse un carré
-  // blanc vide (constaté sur Dragon Ball). Si l'image échoue à charger, on
-  // affiche le nom du jeu en texte sur fond blanc plutôt qu'un carré vide,
-  // pour rester lisible/identifiable même sans logo fonctionnel.
   const [imageFailed, setImageFailed] = useState(false);
 
   if (source && !imageFailed) {
@@ -64,27 +49,16 @@ export default function GameLogo({ game, uri, size = 48, shape = "circle" }: Pro
     );
   }
 
-  if (imageFailed) {
-    return (
-      <View style={[styles.box, { width: size, height: size, borderRadius }]}>
-        <Text
-          style={[styles.fallbackNameText, { fontSize: Math.max(size * 0.16, 9) }]}
-          numberOfLines={2}
-        >
-          {GAME_LABELS[game]}
-        </Text>
-      </View>
-    );
-  }
-
   return (
-    <View
-      style={[
-        styles.avatar,
-        { width: size, height: size, borderRadius: size / 2, backgroundColor: GAME_COLORS[game] },
-      ]}
-    >
-      <Text style={[styles.avatarText, { fontSize: size * 0.4 }]}>{GAME_LABELS[game].charAt(0)}</Text>
+    <View style={[styles.box, { width: size, height: size, borderRadius, paddingHorizontal: 3 }]}>
+      <Text
+        style={[styles.fallbackNameText, { fontSize: Math.max(size * 0.22, 11) }]}
+        numberOfLines={2}
+        adjustsFontSizeToFit
+        minimumFontScale={0.5}
+      >
+        {GAME_LABELS[game]}
+      </Text>
     </View>
   );
 }
