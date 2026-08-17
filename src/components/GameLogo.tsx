@@ -49,15 +49,24 @@ export default function GameLogo({ game, uri, size = 48, shape = "circle" }: Pro
     );
   }
 
+  const label = GAME_LABELS[game];
+  // Un nom en un seul mot (ex "Gundam") n'a aucun espace où RN peut couper
+  // proprement — sur 2 lignes, il coupait le mot en plein milieu ("Gun" /
+  // "dam") au lieu de rétrécir la police. En le forçant sur 1 seule ligne,
+  // adjustsFontSizeToFit doit rétrécir jusqu'à ce que ça tienne, plutôt que
+  // de couper. Les noms à plusieurs mots (ex "Flesh and Blood") gardent 2
+  // lignes, qui se coupent naturellement à un espace.
+  const hasMultipleWords = label.includes(" ");
+
   return (
     <View style={[styles.box, { width: size, height: size, borderRadius, paddingHorizontal: 3 }]}>
       <Text
         style={[styles.fallbackNameText, { fontSize: Math.max(size * 0.3, 14) }]}
-        numberOfLines={2}
+        numberOfLines={hasMultipleWords ? 2 : 1}
         adjustsFontSizeToFit
-        minimumFontScale={0.5}
+        minimumFontScale={0.35}
       >
-        {GAME_LABELS[game]}
+        {label}
       </Text>
     </View>
   );
