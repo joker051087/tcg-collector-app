@@ -212,25 +212,42 @@ async function fetchCardsByFilter(
 }
 
 // 250 est le maximum de cartes que pokemontcg.io renvoie PAR PAGE — pas le
-// maximum par set. Certains sets (ex Paradox Rift, Scarlet & Violet Base)
-// dépassent 250 cartes une fois les secrètes comptées, et se retrouvaient
-// tronqués avec un simple appel à pageSize 250. On boucle donc sur les pages
-// suivantes tant que totalCount n'est pas atteint (les récupère en parallèle,
-// une fois qu'on connaît totalCount depuis la 1re page).
+// maximum par set. Certains sets (ex Paradox Rift, Ascended Heroes) dépassent
+// 250 cartes une fois les secrètes comptées, et se retrouvaient tronqués avec
+// un simple appel à pageSize 250. On boucle donc sur les pages suivantes tant
+// que le nombre de cartes UNIQUES récupérées n'atteint pas totalCount.
+//
+// Piège constaté (set "Ascended Heroes", 295 cartes) : la pagination de
+// pokemontcg.io avec orderBy=number n'est PAS stable — deux requêtes
+// successives (page 1 puis page 2) peuvent renvoyer des cartes en commun
+// (vérifié : page 1 et page 2 se chevauchaient sur des dizaines de cartes).
+// Un simple enchaînement de pages sans déduplication produit alors un
+// tableau de la bonne longueur (295) mais avec des doublons — ce qui casse
+// le rendu de la liste côté écran (clés React dupliquées, la FlatList
+// s'arrête de s'afficher en plein milieu). On déduplique donc par id au fur
+// et à mesure, et on continue de paginer (séquentiellement, pas en
+// parallèle, pour pouvoir s'arrêter dès que le compte est bon) tant qu'on
+// n'a pas atteint totalCount cartes uniques — avec un garde-fou sur le
+// nombre de pages au cas où l'API resterait instable indéfiniment.
 async function fetchAllCardsByFilter(filter: string, orderBy?: string): Promise<UnifiedCard[]> {
   const pageSize = 250;
-  const first = await fetchCardsByFilter(filter, { pageSize, page: 1, orderBy });
-  const all = [...first.cards];
-  const remainingPages = Math.ceil(first.totalCount / pageSize) - 1;
-  if (remainingPages > 0) {
-    const extraPages = await Promise.all(
-      Array.from({ length: remainingPages }, (_, i) =>
-        fetchCardsByFilter(filter, { pageSize, page: i + 2, orderBy })
-      )
-    );
-    for (const page of extraPages) all.push(...page.cards);
+  const MAX_PAGES = 20;
+  const byId = new Map<string, UnifiedCard>();
+  let totalCount = Infinity;
+
+  for (let page = 1; page <= MAX_PAGES && byId.size < totalCount; page++) {
+    const result = await fetchCardsByFilter(filter, { pageSize, page, orderBy });
+    totalCount = result.totalCount;
+    if (result.cards.length === 0) break;
+
+    const sizeBefore = byId.size;
+    for (const card of result.cards) byId.set(card.id, card);
+    // Si une page entière ne rapporte aucune carte nouvelle (API instable
+    // qui reboucle sur les mêmes résultats), inutile de continuer.
+    if (byId.size === sizeBefore && page > 1) break;
   }
-  return all;
+
+  return Array.from(byId.values());
 }
 
 // Le champ set.ptcgoCode n'est PAS fiable pour filtrer les cartes : il est
