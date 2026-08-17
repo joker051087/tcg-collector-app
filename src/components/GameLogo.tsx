@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { Game } from "../types";
@@ -43,15 +44,35 @@ const GAME_COLORS: Record<Game, string> = {
 export default function GameLogo({ game, uri, size = 48, shape = "circle" }: Props) {
   const source = uri ?? GAME_LOGOS[game];
   const borderRadius = shape === "circle" ? size / 2 : size * 0.18;
+  // Une URL de logo distante (Wikipedia, voir gameLogos.ts) peut casser avec
+  // le temps (fichier renommé/supprimé) — sans repli, ça laisse un carré
+  // blanc vide (constaté sur Dragon Ball). Si l'image échoue à charger, on
+  // affiche le nom du jeu en texte sur fond blanc plutôt qu'un carré vide,
+  // pour rester lisible/identifiable même sans logo fonctionnel.
+  const [imageFailed, setImageFailed] = useState(false);
 
-  if (source) {
+  if (source && !imageFailed) {
     return (
       <View style={[styles.box, { width: size, height: size, borderRadius }]}>
         <Image
           source={{ uri: source }}
           style={{ width: size * 0.86, height: size * 0.86 }}
           contentFit="contain"
+          onError={() => setImageFailed(true)}
         />
+      </View>
+    );
+  }
+
+  if (imageFailed) {
+    return (
+      <View style={[styles.box, { width: size, height: size, borderRadius }]}>
+        <Text
+          style={[styles.fallbackNameText, { fontSize: Math.max(size * 0.16, 9) }]}
+          numberOfLines={2}
+        >
+          {GAME_LABELS[game]}
+        </Text>
       </View>
     );
   }
@@ -82,6 +103,12 @@ const styles = StyleSheet.create({
   avatar: {
     alignItems: "center",
     justifyContent: "center",
+  },
+  fallbackNameText: {
+    color: "#0f0f13",
+    fontWeight: "700",
+    textAlign: "center",
+    paddingHorizontal: 4,
   },
   avatarText: {
     color: "#ffffff",
