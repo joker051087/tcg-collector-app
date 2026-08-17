@@ -152,7 +152,13 @@ export async function listSets(): Promise<UnifiedSet[]> {
 // contrairement à set.ptcgoCode est toujours renseigné sur chaque carte (voir
 // note sur resolveSetId plus haut).
 export async function fetchCardsBySetId(setId: string): Promise<UnifiedCard[]> {
-  return fetchAllCardsByFilter(`set.id:"${setId}"`, "number");
+  // orderBy="id" et non "number" : voir la note détaillée sur
+  // fetchAllCardsByFilter — "number" n'est pas un champ fiablement triable
+  // côté pokemontcg.io (pagination instable, cartes en double d'une page à
+  // l'autre), alors que "id" (identifiant propre à chaque carte) trie
+  // proprement. L'ordre d'affichage réel (par numéro) est de toute façon
+  // recalculé côté client, voir sortedCards dans SetChecklistScreen.tsx.
+  return fetchAllCardsByFilter(`set.id:"${setId}"`, "id");
 }
 
 export async function getCardById(id: string): Promise<UnifiedCard> {
@@ -221,14 +227,13 @@ async function fetchCardsByFilter(
 // pokemontcg.io avec orderBy=number n'est PAS stable — deux requêtes
 // successives (page 1 puis page 2) peuvent renvoyer des cartes en commun
 // (vérifié : page 1 et page 2 se chevauchaient sur des dizaines de cartes).
-// Un simple enchaînement de pages sans déduplication produit alors un
-// tableau de la bonne longueur (295) mais avec des doublons — ce qui casse
-// le rendu de la liste côté écran (clés React dupliquées, la FlatList
-// s'arrête de s'afficher en plein milieu). On déduplique donc par id au fur
-// et à mesure, et on continue de paginer (séquentiellement, pas en
-// parallèle, pour pouvoir s'arrêter dès que le compte est bon) tant qu'on
-// n'a pas atteint totalCount cartes uniques — avec un garde-fou sur le
-// nombre de pages au cas où l'API resterait instable indéfiniment.
+// D'où l'appel systématique avec orderBy="id" plutôt que "number" côté
+// appelants (voir fetchCardsBySetId, searchCardsByNumber) — "id" est
+// l'identifiant propre de chaque carte, qui trie correctement et de façon
+// stable (vérifié : pages consécutives sans chevauchement). La déduplication
+// par id ci-dessous reste en place en filet de sécurité si jamais un autre
+// appelant passe un orderBy non fiable, et le garde-fou sur le nombre de
+// pages évite une boucle infinie si l'API redevenait instable.
 async function fetchAllCardsByFilter(filter: string, orderBy?: string): Promise<UnifiedCard[]> {
   const pageSize = 250;
   const MAX_PAGES = 20;
@@ -285,9 +290,10 @@ export async function searchCardsByNumber(query: string): Promise<UnifiedCard[]>
     if (!setId) return [];
     // Un set entier peut dépasser la limite par défaut (30) et même la
     // limite par page (250, voir fetchAllCardsByFilter) — on récupère donc
-    // toutes les pages. Tri par numéro pour un parcours naturel plutôt que
-    // par date de sortie.
-    return fetchAllCardsByFilter(`set.id:"${setId}"`, "number");
+    // toutes les pages. orderBy="id" (pas "number", non fiable pour la
+    // pagination — voir fetchCardsBySetId ci-dessus et la note sur
+    // fetchAllCardsByFilter).
+    return fetchAllCardsByFilter(`set.id:"${setId}"`, "id");
   }
 
   const rawNumber = parsed?.type === "number" ? parsed.number : trimmed;
