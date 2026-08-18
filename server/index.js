@@ -631,7 +631,17 @@ app.post("/scan/ocr", upload.single("image"), async (req, res) => {
     });
     const json = await upstreamRes.json();
     if (!upstreamRes.ok || json.IsErroredOnProcessing) {
-      return res.status(502).json({ error: json?.ErrorMessage?.[0] ?? "Erreur du service OCR" });
+      // Log complet côté serveur (visible dans les logs Render) pour
+      // pouvoir diagnostiquer la vraie cause si ça se reproduit — le
+      // message renvoyé au client seul ne suffit pas toujours (OCR.space
+      // met parfois l'erreur ailleurs que ErrorMessage, ex. par résultat).
+      console.error("Erreur OCR.space:", JSON.stringify(json).slice(0, 500));
+      const perResultError = json?.ParsedResults?.[0]?.ErrorMessage;
+      const message =
+        (Array.isArray(json?.ErrorMessage) ? json.ErrorMessage[0] : json?.ErrorMessage) ||
+        perResultError ||
+        "Erreur du service OCR";
+      return res.status(502).json({ error: message });
     }
 
     const text = pickCardNameLine(json?.ParsedResults?.[0]);

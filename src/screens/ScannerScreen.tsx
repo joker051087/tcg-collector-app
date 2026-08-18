@@ -34,10 +34,12 @@ export default function ScannerScreen({ navigation, route }: Props) {
     setError(null);
     setIsProcessing(true);
     try {
-      // Qualité 0.9 (au lieu de 0.6) : une photo plus nette améliore beaucoup
-      // la lecture de texte (OCR), qui souffre surtout de compression trop
-      // agressive sur les petites polices des cartes.
-      const photo = await cameraRef.current.takePictureAsync({ quality: 0.9 });
+      // Qualité 0.6 : OCR.space (compte gratuit) refuse les fichiers de plus
+      // de 1024 Ko — une qualité plus élevée (testé à 0.9) fait dépasser
+      // cette limite sur beaucoup de téléphones et fait échouer le scan
+      // avec une erreur générique ("Erreur du service OCR"), donc on reste
+      // sur 0.6 malgré une légère perte de netteté.
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.6 });
       if (!photo?.uri) throw new Error(t("scanner.errorCapture"));
 
       if (usesVision) {
