@@ -581,8 +581,10 @@ app.post("/scan/vision", upload.single("image"), async (req, res) => {
 function pickCardNameLine(parsedResult) {
   const lines = parsedResult?.TextOverlay?.Lines;
   if (Array.isArray(lines) && lines.length > 0) {
-    const candidates = lines
-      .slice(0, 6)
+    // Toutes les lignes (pas seulement les 6 premières) : sur certaines
+    // cartes, le nom n'est pas parmi les premières lignes lues par l'OCR
+    // (ordre de lecture pas toujours haut-vers-bas selon la mise en page).
+    const allCandidates = lines
       .map((line) => {
         const text = (line.LineText ?? "").trim();
         if (text.length < 3 || /^[0-9/+×xX ]+$/.test(text)) return null;
@@ -593,9 +595,19 @@ function pickCardNameLine(parsedResult) {
         return { text, height };
       })
       .filter(Boolean);
-    if (candidates.length > 0) {
-      candidates.sort((a, b) => b.height - a.height);
-      return candidates[0].text;
+
+    // Log de debug (visible dans les logs Render) : toutes les lignes
+    // détectées avec leur hauteur, pour diagnostiquer les cas où le mauvais
+    // texte est choisi plutôt que de deviner à l'aveugle.
+    console.log(
+      "OCR debug - lignes détectées:",
+      JSON.stringify(allCandidates.map((c) => `${c.height}px "${c.text}"`))
+    );
+
+    if (allCandidates.length > 0) {
+      allCandidates.sort((a, b) => b.height - a.height);
+      console.log("OCR debug - choisi:", allCandidates[0].text);
+      return allCandidates[0].text;
     }
   }
 
@@ -604,6 +616,7 @@ function pickCardNameLine(parsedResult) {
     .split(/\r?\n/)
     .map((line) => line.trim())
     .find((line) => line.length > 0);
+  console.log("OCR debug - pas d'overlay, repli 1ere ligne:", firstLine);
   return firstLine ?? "";
 }
 
