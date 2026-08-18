@@ -17,6 +17,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import multer from "multer";
+import sharp from "sharp";
 import { getCached, setCached, cacheStats } from "./firestoreCache.js";
 
 const app = express();
@@ -625,6 +626,36 @@ function pickCardNameLine(parsedResult) {
   return firstLine ?? "";
 }
 
+// Prétraitement de l'image avant l'envoi à OCR.space : passage en niveaux de
+// gris + renforcement du contraste. Deux bénéfices concrets (pas juste une
+// astuce esthétique) :
+//   1. Une image en niveaux de gris pèse nettement moins lourd qu'une image
+//      couleur pour la même qualité visuelle — ça laisse de la marge sous la
+//      limite de 1024 Ko d'OCR.space (compte gratuit) pour une résolution
+//      plus élevée, donc du texte plus net à lire.
+//   2. Beaucoup de cartes impriment le nom en texte clair sur fond coloré
+//      saturé (bandeau rouge, bleu...) — la conversion en luminance sépare
+//      souvent mieux ce texte du fond que l'image couleur d'origine (ex. le
+//      rouge et le blanc, très proches en teinte perçue par endroits,
+//      deviennent très contrastés une fois ramenés à leur luminosité), et
+//      "normalize" étire ce contraste sur toute la plage disponible.
+// Si le traitement échoue pour une raison ou une autre, on retombe sur la
+// photo d'origine plutôt que de faire échouer le scan.
+async function preprocessForOcr(buffer) {
+  try {
+    return await sharp(buffer)
+      .rotate()
+      .grayscale()
+      .normalize()
+      .resize({ width: 1400, withoutEnlargement: true })
+      .jpeg({ quality: 85 })
+      .toBuffer();
+  } catch (err) {
+    console.error("Erreur prétraitement image OCR (repli sur l'originale):", err.message);
+    return buffer;
+  }
+}
+
 app.post("/scan/ocr", upload.single("image"), async (req, res) => {
   if (!OCR_SPACE_API_KEY) {
     return res.status(501).json({
@@ -634,9 +665,11 @@ app.post("/scan/ocr", upload.single("image"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "Image manquante" });
 
   try {
+    const processedImage = await preprocessForOcr(req.file.buffer);
+
     const form = new FormData();
     form.append("apikey", OCR_SPACE_API_KEY);
-    form.append("file", new Blob([req.file.buffer]), "card.jpg");
+    form.append("file", new Blob([processedImage]), "card.jpg");
     form.append("language", req.body.language || "eng");
     form.append("OCREngine", "2");
     form.append("scale", "true");
