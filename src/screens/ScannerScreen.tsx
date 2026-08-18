@@ -34,7 +34,10 @@ export default function ScannerScreen({ navigation, route }: Props) {
     setError(null);
     setIsProcessing(true);
     try {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 0.6 });
+      // Qualité 0.9 (au lieu de 0.6) : une photo plus nette améliore beaucoup
+      // la lecture de texte (OCR), qui souffre surtout de compression trop
+      // agressive sur les petites polices des cartes.
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.9 });
       if (!photo?.uri) throw new Error(t("scanner.errorCapture"));
 
       if (usesVision) {

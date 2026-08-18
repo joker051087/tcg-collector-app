@@ -564,6 +564,49 @@ app.post("/scan/vision", upload.single("image"), async (req, res) => {
 // SCRYDEX_VISION_GAMES côté client) : on lit juste le texte visible sur la
 // carte et on laisse le client relancer une recherche classique avec, voir
 // ScannerScreen.tsx.
+// Choisit la meilleure ligne de texte à utiliser comme nom de carte parmi
+// tout ce que l'OCR a lu. Avant, on prenait juste "la première ligne non
+// vide" du texte brut — mais l'ordre de lecture d'OCR.space suit la
+// position à l'écran, pas l'importance : sur beaucoup de cartes, la première
+// ligne détectée est un symbole d'extension, un numéro de PV, un cadre de
+// règle, etc. plutôt que le nom, ce qui envoie une recherche avec un texte
+// sans rapport avec la carte (repli "toutes les cartes... texte incorrect").
+// Avec IsOverlayRequired=true, OCR.space renvoie aussi la position et la
+// hauteur de chaque mot détecté : le nom d'une carte est quasi toujours le
+// texte le plus grand parmi les premières lignes lues (en haut de la
+// carte), donc on choisit la ligne la plus "haute" (= plus grande police)
+// parmi les 6 premières lignes, en écartant les lignes trop courtes ou
+// purement numériques (PV, coût d'énergie...). Repli sur l'ancien
+// comportement si jamais l'overlay est absent.
+function pickCardNameLine(parsedResult) {
+  const lines = parsedResult?.TextOverlay?.Lines;
+  if (Array.isArray(lines) && lines.length > 0) {
+    const candidates = lines
+      .slice(0, 6)
+      .map((line) => {
+        const text = (line.LineText ?? "").trim();
+        if (text.length < 3 || /^[0-9/+×xX ]+$/.test(text)) return null;
+        const heights = (line.Words ?? [])
+          .map((w) => w.Height)
+          .filter((h) => typeof h === "number" && h > 0);
+        const height = heights.length ? Math.max(...heights) : 0;
+        return { text, height };
+      })
+      .filter(Boolean);
+    if (candidates.length > 0) {
+      candidates.sort((a, b) => b.height - a.height);
+      return candidates[0].text;
+    }
+  }
+
+  const rawText = (parsedResult?.ParsedText ?? "").trim();
+  const firstLine = rawText
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find((line) => line.length > 0);
+  return firstLine ?? "";
+}
+
 app.post("/scan/ocr", upload.single("image"), async (req, res) => {
   if (!OCR_SPACE_API_KEY) {
     return res.status(501).json({
@@ -579,6 +622,8 @@ app.post("/scan/ocr", upload.single("image"), async (req, res) => {
     form.append("language", req.body.language || "eng");
     form.append("OCREngine", "2");
     form.append("scale", "true");
+    form.append("isOverlayRequired", "true");
+    form.append("detectOrientation", "true");
 
     const upstreamRes = await fetchWithRetry("https://api.ocr.space/parse/image", {
       method: "POST",
@@ -589,7 +634,7 @@ app.post("/scan/ocr", upload.single("image"), async (req, res) => {
       return res.status(502).json({ error: json?.ErrorMessage?.[0] ?? "Erreur du service OCR" });
     }
 
-    const text = json?.ParsedResults?.[0]?.ParsedText?.trim() ?? "";
+    const text = pickCardNameLine(json?.ParsedResults?.[0]);
     return res.json({ text });
   } catch (err) {
     console.error("Erreur /scan/ocr:", err.message);
