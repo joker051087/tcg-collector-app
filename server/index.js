@@ -587,7 +587,12 @@ function pickCardNameLine(parsedResult) {
     const allCandidates = lines
       .map((line) => {
         const text = (line.LineText ?? "").trim();
+        // Écarte les nombres seuls (PV, coût...) et le texte d'ambiance
+        // ("Je crains que...", entre guillemets) : sur beaucoup de cartes,
+        // cette citation est écrite plus grand que le nom lui-même et
+        // gagnait donc à tort la comparaison de hauteur.
         if (text.length < 3 || /^[0-9/+×xX ]+$/.test(text)) return null;
+        if (/^["'«„“‘]/.test(text)) return null;
         const heights = (line.Words ?? [])
           .map((w) => w.Height)
           .filter((h) => typeof h === "number" && h > 0);
