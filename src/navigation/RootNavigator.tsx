@@ -11,6 +11,7 @@ import SetChecklistScreen from "../screens/SetChecklistScreen";
 import WishlistScreen from "../screens/WishlistScreen";
 import PortfolioScreen from "../screens/PortfolioScreen";
 import SettingsScreen from "../screens/SettingsScreen";
+import ScannerScreen from "../screens/ScannerScreen";
 import { colors } from "../theme/colors";
 
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -67,9 +68,11 @@ function SearchStackNavigator() {
         component={CardDetailScreen}
         options={{ title: t("cardDetail.title") }}
       />
-      {/* Scanner : mis de côté pour l'instant (reconnaissance pas assez
-          fiable) — écran et logique conservés dans src/screens/ScannerScreen.tsx
-          et src/api/scanner.ts, juste retirés de la navigation. */}
+      <SearchStack.Screen
+        name="Scanner"
+        component={ScannerScreen}
+        options={{ title: t("scanner.title") }}
+      />
     </SearchStack.Navigator>
   );
 }

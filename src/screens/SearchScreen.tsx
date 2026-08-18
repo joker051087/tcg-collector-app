@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, View } from "react-native";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
+import { Ionicons } from "@expo/vector-icons";
 import { SearchStackParamList } from "../navigation/types";
 import { searchCards, searchSealedProducts, SearchMode } from "../api";
 import { Game, UnifiedCard } from "../types";
@@ -59,8 +60,30 @@ export default function SearchScreen({ navigation, route }: Props) {
     if (route.params?.initialGame) setGame(route.params.initialGame);
   }, [route.params?.initialGame]);
 
-  // Scanner : mis de côté pour l'instant (voir RootNavigator.tsx) — plus de
-  // bouton dans l'en-tête ni de préremplissage de la recherche depuis lui.
+  // Scanner : icône appareil photo dans l'en-tête, ouvre l'écran Scanner
+  // avec le jeu actuellement sélectionné (voir ScannerScreen.tsx). Le
+  // retour se fait soit directement sur une fiche carte (reconnaissance
+  // visuelle), soit ici avec le texte lu préempli (voir plus bas).
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable
+          onPress={() => navigation.navigate("Scanner", { initialGame: game })}
+          hitSlop={12}
+          style={styles.headerButton}
+        >
+          <Ionicons name="camera-outline" size={24} color={colors.textPrimary} />
+        </Pressable>
+      ),
+    });
+  }, [navigation, game]);
+
+  // Retour du Scanner en mode lecture de texte (OCR) : préremplit la
+  // recherche avec le texte lu sur la carte plutôt que de laisser
+  // l'utilisateur le retaper (voir ScannerScreen.tsx, extractTextFromImage).
+  useEffect(() => {
+    if (route.params?.initialQuery) setQuery(route.params.initialQuery);
+  }, [route.params?.initialQuery]);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -186,6 +209,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg,
+  },
+  headerButton: {
+    marginRight: 12,
+    padding: 4,
   },
   gameSelector: {
     paddingHorizontal: 12,
