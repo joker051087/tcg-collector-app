@@ -6,7 +6,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SearchStackParamList } from "../navigation/types";
 import { Game } from "../types";
 import { GAME_LABELS, SCRYDEX_VISION_GAMES, SUPPORTED_GAMES } from "../constants/games";
-import { identifyCardByImage, extractTextFromImage } from "../api/scanner";
+import { identifyCardByImage, identifyCardByHash, extractTextFromImage } from "../api/scanner";
 import SelectableChips from "../components/SelectableChips";
 import { colors, radius } from "../theme/colors";
 
@@ -42,6 +42,14 @@ export default function ScannerScreen({ navigation, route }: Props) {
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.6 });
       if (!photo?.uri) throw new Error(t("scanner.errorCapture"));
 
+      // Ordre d'essai : Scrydex Vision (payant, si configuré — le plus
+      // fiable) → reconnaissance visuelle maison (gratuite, voir
+      // src/api/scanner.ts identifyCardByHash — fonctionne seulement pour
+      // les jeux dont la base d'empreintes a été peuplée, voir
+      // server/scripts/buildImageIndex.js) → lecture de texte (OCR, le
+      // repli final, toujours disponible). Chaque étape retombe simplement
+      // sur la suivante si elle ne trouve rien ou échoue, sans jamais
+      // bloquer l'utilisateur sur une erreur.
       if (usesVision) {
         try {
           const result = await identifyCardByImage(photo.uri, game);
@@ -53,14 +61,23 @@ export default function ScannerScreen({ navigation, route }: Props) {
             });
             return;
           }
-          // Aucun match trouvé — on retente avec la lecture de texte
-          // ci-dessous plutôt que de s'arrêter là.
         } catch (visionErr) {
-          // Scrydex non configuré côté serveur (voir GUIDE_SCANNER.md,
-          // optionnel) ou service indisponible — on retente avec la lecture
-          // de texte plutôt que de bloquer l'utilisateur sur une erreur.
-          console.warn("Scan visuel indisponible, repli sur la lecture de texte:", visionErr);
+          console.warn("Scan visuel Scrydex indisponible, repli:", visionErr);
         }
+      }
+
+      try {
+        const hashResult = await identifyCardByHash(photo.uri, game);
+        if (hashResult) {
+          navigation.replace("CardDetail", {
+            game,
+            cardId: hashResult.card.id,
+            presetCard: hashResult.card,
+          });
+          return;
+        }
+      } catch (hashErr) {
+        console.warn("Reconnaissance visuelle maison indisponible, repli sur l'OCR:", hashErr);
       }
 
       const text = await extractTextFromImage(photo.uri);

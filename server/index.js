@@ -19,6 +19,8 @@ import cors from "cors";
 import multer from "multer";
 import sharp from "sharp";
 import { getCached, setCached, cacheStats } from "./firestoreCache.js";
+import { computeImageHash, hammingDistance } from "./imageHash.js";
+import { loadFullIndex } from "./imageIndex.js";
 
 const app = express();
 app.use(cors());
@@ -700,6 +702,84 @@ app.post("/scan/ocr", upload.single("image"), async (req, res) => {
   } catch (err) {
     console.error("Erreur /scan/ocr:", err.message);
     return res.status(502).json({ error: "Erreur de communication avec le service OCR" });
+  }
+});
+
+// --- Scanner : reconnaissance visuelle "maison" (gratuite, illimitée) ---
+// Alternative à Scrydex Vision (payant) : compare l'empreinte de la photo
+// prise à une base d'empreintes pré-calculées pour chaque carte des
+// catalogues qu'on utilise déjà (voir imageHash.js, imageIndex.js, et
+// scripts/buildImageIndex.js pour le script qui remplit cette base — à
+// lancer manuellement, voir GUIDE_SCANNER.md). Tant que ce script n'a pas
+// tourné pour un jeu donné, cette route renvoie simplement "aucune
+// correspondance" pour ce jeu, et l'appli retombe sur l'OCR comme avant
+// (voir ScannerScreen.tsx) — donc rien ne casse si la base est vide ou
+// partielle.
+//
+// L'index complet est chargé UNE FOIS en mémoire au démarrage du serveur
+// (imageIndexPromise ci-dessous) plutôt que d'interroger Firestore à chaque
+// scan : avec des dizaines de milliers d'empreintes, comparer en mémoire
+// (opération binaire très rapide) est largement assez rapide, et ça évite de
+// payer une lecture Firestore par scan.
+let imageIndexByGame = {};
+const imageIndexPromise = loadFullIndex()
+  .then((index) => {
+    imageIndexByGame = index;
+    const summary = Object.entries(index)
+      .map(([game, entries]) => `${game}: ${entries.length}`)
+      .join(", ");
+    console.log(`Index d'empreintes visuelles chargé — ${summary || "vide"}`);
+  })
+  .catch((err) => {
+    console.error("Erreur chargement index d'empreintes visuelles:", err.message);
+  });
+
+// Distance de Hamming maximale (sur 64 bits) en-dessous de laquelle on
+// considère que deux images représentent la même carte. Choisie
+// empiriquement pour ce type d'usage (photo de carte vs image catalogue) :
+// assez permissive pour absorber angle/luminosité/reflet léger, assez
+// stricte pour ne pas confondre deux cartes différentes du même jeu (qui
+// partagent souvent la même mise en page générale).
+const HASH_MATCH_THRESHOLD = 14;
+
+app.post("/scan/vision-free", upload.single("image"), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "Image manquante" });
+  const game = req.body.game;
+  if (!game) return res.status(400).json({ error: "Paramètre game requis" });
+
+  await imageIndexPromise; // s'assure que l'index a fini de charger
+
+  const entries = imageIndexByGame[game] ?? [];
+  if (entries.length === 0) {
+    // Pas une erreur : juste "rien à comparer pour ce jeu", le client
+    // retombe sur l'OCR (voir ScannerScreen.tsx).
+    return res.json({ match: null, reason: "index vide pour ce jeu" });
+  }
+
+  try {
+    const hash = await computeImageHash(req.file.buffer);
+
+    let best = null;
+    for (const entry of entries) {
+      const distance = hammingDistance(hash, entry.hash);
+      if (!best || distance < best.distance) best = { ...entry, distance };
+    }
+
+    if (!best || best.distance > HASH_MATCH_THRESHOLD) {
+      return res.json({ match: null });
+    }
+
+    return res.json({
+      match: {
+        id: best.id,
+        name: best.name,
+        image: best.image,
+        distance: best.distance,
+      },
+    });
+  } catch (err) {
+    console.error("Erreur /scan/vision-free:", err.message);
+    return res.status(502).json({ error: "Erreur de traitement de l'image" });
   }
 });
 

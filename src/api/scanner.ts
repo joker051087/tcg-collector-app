@@ -62,6 +62,40 @@ export async function identifyCardByImage(imageUri: string, game: Game): Promise
   return { card, score: m.score };
 }
 
+// Reconnaissance visuelle "maison" (gratuite, illimitée, voir
+// server/imageHash.js, server/imageIndex.js et
+// server/scripts/buildImageIndex.js pour comment la base d'empreintes est
+// construite). Renvoie null tant que la base n'a pas encore été peuplée pour
+// ce jeu (ou si aucune empreinte assez proche n'est trouvée) — dans ce cas
+// ScannerScreen.tsx retombe sur l'OCR, exactement comme pour Scrydex Vision.
+export async function identifyCardByHash(imageUri: string, game: Game): Promise<ScanVisionResult | null> {
+  const formData = new FormData();
+  formData.append("image", toFormDataFile(imageUri));
+  formData.append("game", game);
+
+  const res = await fetchWithRetry(`${API_BASE_URL}/scan/vision-free`, { method: "POST", body: formData });
+  if (!res.ok) throw new Error(await readErrorMessage(res));
+
+  const json = await res.json();
+  const m = json.match;
+  if (!m) return null;
+
+  const card: UnifiedCard = {
+    // Préfixé, comme pour Scrydex : cet id vient de notre propre base
+    // d'empreintes, jamais réutilisé pour un appel getCardById (on n'a pas
+    // le détail complet de la carte, juste nom + image), seulement affiché
+    // directement (presetCard).
+    id: `imgmatch-${game}-${m.id}`,
+    game,
+    name: m.name,
+    setName: "",
+    imageSmall: m.image ?? "",
+    imageLarge: m.image ?? "",
+  };
+
+  return { card, score: 1 - m.distance / 64 };
+}
+
 export async function extractTextFromImage(imageUri: string): Promise<string> {
   const formData = new FormData();
   formData.append("image", toFormDataFile(imageUri));
