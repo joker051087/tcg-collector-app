@@ -48,18 +48,28 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Certaines API tierces (tcgapi.dev en particulier) limitent le nombre de
-// requêtes par minute — dépasser cette limite renvoie un 429. Avant, ça
-// arrêtait tout le script d'un coup (même si des milliers de cartes avaient
-// déjà été traitées et sauvegardées). Maintenant, on attend et on
-// réessaie automatiquement (jusqu'à 5 fois, en attendant de plus en plus
-// longtemps) avant d'abandonner pour de bon.
+// Certaines API tierces limitent le nombre de requêtes par minute (429,
+// surtout tcgapi.dev), et pokemontcg.io en particulier a un taux d'erreurs
+// serveur temporaires (5xx) non négligeable — les deux cas plantaient tout
+// le script auparavant (même si des milliers de cartes avaient déjà été
+// traitées et sauvegardées). Maintenant, on attend et on réessaie
+// automatiquement avant d'abandonner pour de bon.
 async function fetchJson(url, init, attempt = 1) {
   const res = await fetch(url, init);
-  if (res.status === 429) {
-    if (attempt > 5) throw new Error(`${url} -> HTTP 429 (trop de tentatives)`);
-    const waitMs = attempt * 30_000; // 30s, 60s, 90s, 120s, 150s
-    console.warn(`  Limite de débit (429) sur ${url} — pause de ${waitMs / 1000}s avant nouvelle tentative...`);
+  const isRateLimit = res.status === 429;
+  const isServerError = res.status >= 500;
+  if (isRateLimit || isServerError) {
+    if (attempt > 5) throw new Error(`${url} -> HTTP ${res.status} (trop de tentatives)`);
+    // Erreurs serveur temporaires : pause courte (souvent résolu en
+    // quelques secondes). Limite de débit : pause longue et croissante
+    // (30s, 60s, 90s...) — repartir trop vite ne ferait que reprendre un
+    // 429.
+    const waitMs = isRateLimit ? attempt * 30_000 : attempt * 5_000;
+    console.warn(
+      `  ${isRateLimit ? "Limite de débit (429)" : `Erreur serveur (${res.status})`} sur ${url} — pause de ${
+        waitMs / 1000
+      }s avant nouvelle tentative...`
+    );
     await sleep(waitMs);
     return fetchJson(url, init, attempt + 1);
   }
@@ -226,10 +236,17 @@ async function main() {
     await processGame(game);
   }
   console.log("\nTerminé.");
-  process.exit(0);
 }
 
-main().catch((err) => {
-  console.error("Erreur fatale :", err);
-  process.exit(1);
-});
+main()
+  .catch((err) => {
+    console.error("Erreur fatale :", err.message);
+    process.exitCode = 1;
+  })
+  .finally(() => {
+    // process.exitCode (plutôt que process.exit()) laisse Node terminer
+    // proprement les opérations réseau/Firestore encore en vol — appeler
+    // process.exit() directement ici plantait parfois sous Windows
+    // ("Assertion failed... UV_HANDLE_CLOSING") quand une requête était
+    // encore en cours au moment de l'arrêt brutal.
+  });
