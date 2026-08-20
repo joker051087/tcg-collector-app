@@ -92,7 +92,17 @@ async function* iteratePokemon() {
       const url = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(
         `set.id:"${set.id}"`
       )}&pageSize=250&page=${page}&orderBy=id`;
-      const json = await fetchJson(url, { headers });
+      let json;
+      try {
+        json = await fetchJson(url, { headers });
+      } catch (err) {
+        // pokemontcg.io a un taux de 5xx non négligeable, même après
+        // plusieurs tentatives (voir fetchJson) — plutôt que de tout
+        // arrêter, on passe au set suivant. Le prochain lancement du
+        // script (reprise automatique) retentera ce set-là.
+        console.warn(`  Abandon du set "${set.id}" (page ${page}) après échecs répétés : ${err.message}`);
+        break;
+      }
       const cards = json.data ?? [];
       total = json.totalCount ?? cards.length;
       if (cards.length === 0) break;
@@ -153,9 +163,15 @@ async function* iterateTcgApi(game) {
     let page = 1;
     let hasMore = true;
     while (hasMore) {
-      const json = await fetchJson(`https://api.tcgapi.dev/v1/sets/${set.id}/cards?per_page=100&page=${page}`, {
-        headers: { "X-API-Key": TCGAPI_KEY },
-      });
+      let json;
+      try {
+        json = await fetchJson(`https://api.tcgapi.dev/v1/sets/${set.id}/cards?per_page=100&page=${page}`, {
+          headers: { "X-API-Key": TCGAPI_KEY },
+        });
+      } catch (err) {
+        console.warn(`  Abandon du set "${set.id}" (page ${page}) après échecs répétés : ${err.message}`);
+        break;
+      }
       const cards = json.data ?? [];
       for (const card of cards) {
         if (card.image_url) yield { id: String(card.id), name: card.name, imageUrl: card.image_url };
@@ -233,7 +249,14 @@ async function main() {
   }
   const games = arg === "all" ? ALL_GAMES : [arg];
   for (const game of games) {
-    await processGame(game);
+    try {
+      await processGame(game);
+    } catch (err) {
+      // Utile surtout pour "all" : un jeu qui échoue complètement (ex. clé
+      // API manquante, panne prolongée) ne doit pas empêcher les jeux
+      // suivants de la liste de tourner.
+      console.error(`Erreur sur "${game}", passage au jeu suivant : ${err.message}`);
+    }
   }
   console.log("\nTerminé.");
 }
