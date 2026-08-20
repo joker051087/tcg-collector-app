@@ -48,8 +48,21 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function fetchJson(url, init) {
+// Certaines API tierces (tcgapi.dev en particulier) limitent le nombre de
+// requêtes par minute — dépasser cette limite renvoie un 429. Avant, ça
+// arrêtait tout le script d'un coup (même si des milliers de cartes avaient
+// déjà été traitées et sauvegardées). Maintenant, on attend et on
+// réessaie automatiquement (jusqu'à 5 fois, en attendant de plus en plus
+// longtemps) avant d'abandonner pour de bon.
+async function fetchJson(url, init, attempt = 1) {
   const res = await fetch(url, init);
+  if (res.status === 429) {
+    if (attempt > 5) throw new Error(`${url} -> HTTP 429 (trop de tentatives)`);
+    const waitMs = attempt * 30_000; // 30s, 60s, 90s, 120s, 150s
+    console.warn(`  Limite de débit (429) sur ${url} — pause de ${waitMs / 1000}s avant nouvelle tentative...`);
+    await sleep(waitMs);
+    return fetchJson(url, init, attempt + 1);
+  }
   if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
   return res.json();
 }
