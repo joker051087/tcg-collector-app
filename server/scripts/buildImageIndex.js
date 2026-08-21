@@ -28,6 +28,12 @@ const SAVE_EVERY = 200; // sauvegarde Firestore toutes les 200 nouvelles cartes
 
 const POKEMONTCG_API_KEY = process.env.POKEMONTCG_API_KEY || "";
 const TCGAPI_KEY = process.env.TCGAPI_KEY || "";
+// apitcg.com : service alternatif à tcgapi.dev (nom très proche, mais autre
+// service) — couvre 9 des 10 jeux ci-dessous (pas Final Fantasy) avec une
+// limite mensuelle plutôt que ~100 requêtes/jour, donc en pratique on peut
+// avancer beaucoup plus loin avant de se faire bloquer. Clé gratuite sur
+// https://apitcg.com/register puis https://apitcg.com/platform/api-key.
+const APITCG_API_KEY = process.env.APITCG_API_KEY || "";
 
 const TCGAPI_SLUGS = {
   onepiece: "one-piece-card-game",
@@ -40,6 +46,20 @@ const TCGAPI_SLUGS = {
   unionarena: "union-arena",
   gundam: "gundam-card-game",
   finalfantasy: "final-fantasy-tcg",
+};
+
+// Pas de Final Fantasy chez apitcg.com — ce jeu reste sur tcgapi.dev (voir
+// iteratorFor plus bas).
+const APITCG_SLUGS = {
+  onepiece: "one-piece",
+  lorcana: "lorcana",
+  riftbound: "riftbound",
+  dragonball: "dragon-ball-super-fusion-world",
+  digimon: "digimon",
+  fleshandblood: "flesh-and-blood",
+  starwarsunlimited: "star-wars-unlimited",
+  unionarena: "union-arena",
+  gundam: "gundam",
 };
 
 const ALL_GAMES = ["pokemon", "magic", "yugioh", ...Object.keys(TCGAPI_SLUGS)];
@@ -182,10 +202,55 @@ async function* iterateTcgApi(game) {
   }
 }
 
+// apitcg.com : /api/{tcg}/sets renvoie TOUS les sets d'un coup (pas de
+// pagination à gérer là), puis /api/products?tcg=...&set=...&type=card
+// paginé (limite 100/page) pour les cartes de chaque set. Format de réponse
+// différent de tcgapi.dev (image dans un tableau images[].small, pas
+// image_url) — voir docs.apitcg.com pour le détail.
+async function* iterateApiTcg(game) {
+  if (!APITCG_API_KEY) {
+    console.warn(`APITCG_API_KEY non configurée — repli sur tcgapi.dev pour ${game}.`);
+    yield* iterateTcgApi(game);
+    return;
+  }
+  const slug = APITCG_SLUGS[game];
+  const headers = { "x-api-key": APITCG_API_KEY };
+  const setsJson = await fetchJson(`https://api.apitcg.com/api/${slug}/sets`, { headers });
+  for (const set of setsJson.data ?? []) {
+    let page = 1;
+    let seen = 0;
+    let total = Infinity;
+    while (seen < total) {
+      let json;
+      try {
+        json = await fetchJson(
+          `https://api.apitcg.com/api/products?tcg=${slug}&type=card&set=${encodeURIComponent(
+            set._id
+          )}&limit=100&page=${page}`,
+          { headers }
+        );
+      } catch (err) {
+        console.warn(`  Abandon du set "${set._id}" (page ${page}) après échecs répétés : ${err.message}`);
+        break;
+      }
+      const cards = json.data ?? [];
+      total = json.total ?? cards.length;
+      if (cards.length === 0) break;
+      for (const card of cards) {
+        const imageUrl = card.images?.[0]?.small ?? card.images?.[0]?.medium;
+        if (imageUrl) yield { id: String(card._id), name: card.name, imageUrl };
+      }
+      seen += cards.length;
+      page++;
+    }
+  }
+}
+
 function iteratorFor(game) {
   if (game === "pokemon") return iteratePokemon();
   if (game === "magic") return iterateMagic();
   if (game === "yugioh") return iterateYugioh();
+  if (APITCG_SLUGS[game]) return iterateApiTcg(game);
   if (TCGAPI_SLUGS[game]) return iterateTcgApi(game);
   throw new Error(`Jeu inconnu : ${game}`);
 }
